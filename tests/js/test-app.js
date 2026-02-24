@@ -1597,6 +1597,16 @@ describe('app()', function () {
             // Should not throw
             assert.ok(a._chartInstance);
         });
+
+        it('calls initProgressChart via $nextTick when navigating to progress', function () {
+            var a = createApp();
+            var chartInited = false;
+            a.initProgressChart = function () {
+                chartInited = true;
+            };
+            a.navigate('progress');
+            assert.equal(chartInited, true);
+        });
     });
 
     describe('masteryProgress()', function () {

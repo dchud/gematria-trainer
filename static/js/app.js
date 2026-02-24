@@ -153,6 +153,14 @@ function app() {
 
             // Close shortcuts overlay on any navigation
             this.shortcutsOpen = false;
+
+            // Init chart when entering progress view
+            if (target === 'progress' && this.$nextTick) {
+                var self = this;
+                this.$nextTick(function () {
+                    self.initProgressChart();
+                });
+            }
         },
 
         // -----------------------------------------------------------
