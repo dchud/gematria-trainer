@@ -70,6 +70,12 @@ build: setup
 css:
     ./tailwindcss -i static/css/input.css -o static/dist/output.css --watch
 
+# Format, lint, and test (use before committing)
+check:
+    uv run ruff format .
+    uv run ruff check .
+    uv run pytest
+
 # Run test suite
 test:
     uv run pytest
@@ -81,3 +87,8 @@ lint:
 # Run formatter
 format:
     uv run ruff format .
+
+# Install git hooks (opt-in, runs just check on commit and push)
+hooks:
+    git config core.hooksPath hooks
+    @echo "Git hooks activated (hooks/ directory)."

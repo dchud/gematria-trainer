@@ -4,6 +4,9 @@
 /* Dark mode: class-based toggle */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Prevent flash of unstyled content before Alpine.js initializes */
+[x-cloak] { display: none !important; }
+
 /* Hebrew font declarations */
 
 @font-face {

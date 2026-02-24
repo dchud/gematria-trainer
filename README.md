@@ -41,9 +41,25 @@ All operations use [just](https://github.com/casey/just) recipes:
 just dev                    # Start Flask dev server with auto-reload
 just css                    # Compile Tailwind CSS in watch mode
 just build                  # Run full build pipeline (Tailwind + Frozen-Flask)
+just check                  # Format, lint, and test (run before committing)
 just test                   # Run pytest
 just lint                   # Run ruff check
 just format                 # Run ruff format
+```
+
+### Git Hooks (optional)
+
+To enable pre-commit and pre-push hooks that run `just check` automatically:
+
+```bash
+just hooks
+```
+
+This sets `core.hooksPath` to the `hooks/` directory in your local git
+config. It does not affect other developers. To deactivate:
+
+```bash
+git config --unset core.hooksPath
 ```
 
 ### Build Pipeline
