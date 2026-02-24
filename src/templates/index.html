@@ -1,30 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div x-data="{ view: 'splash' }">
-    <!-- View containers: Alpine.js will control which view is visible -->
-    <div x-show="view === 'splash'">
-        {% include "components/splash.html" %}
+<div x-data="app()" x-init="init()" @keydown.window="handleKeydown($event)">
+
+    <!-- Navigation bar -->
+    <nav x-show="sessionActive || (view !== 'splash' && view !== 'welcome')" x-cloak
+         class="flex items-center justify-center gap-1 sm:gap-2 py-3 mb-4 border-b border-gray-200 dark:border-gray-800"
+         role="navigation" aria-label="Main navigation">
+        <button @click="navigate('flashcard')"
+                :class="view === 'flashcard' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                aria-label="Study flashcards">
+            Study
+        </button>
+        <button @click="navigate('progress')"
+                :class="view === 'progress' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                aria-label="View progress">
+            Progress
+        </button>
+        <button @click="navigate('reference')"
+                :class="view === 'reference' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                aria-label="View reference table">
+            Reference
+        </button>
+        <button @click="navigate('settings')"
+                :class="view === 'settings' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                aria-label="Open settings">
+            Settings
+        </button>
+        <button @click="navigate('about')"
+                :class="view === 'about' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
+                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                aria-label="About this app">
+            About
+        </button>
+    </nav>
+
+    <!-- View containers -->
+    <div class="max-w-lg mx-auto w-full">
+        <div x-show="view === 'splash'">
+            {% include "components/splash.html" %}
+        </div>
+        <div x-show="view === 'welcome'" x-cloak>
+            {% include "components/welcome.html" %}
+        </div>
+        <div x-show="view === 'flashcard'" x-cloak>
+            {% include "components/flashcard.html" %}
+        </div>
+        <div x-show="view === 'progress'" x-cloak>
+            {% include "components/progress.html" %}
+        </div>
+        <div x-show="view === 'reference'" x-cloak>
+            {% include "components/reference.html" %}
+        </div>
+        <div x-show="view === 'settings'" x-cloak>
+            {% include "components/settings.html" %}
+        </div>
+        <div x-show="view === 'about'" x-cloak>
+            {% include "components/about.html" %}
+        </div>
     </div>
-    <div x-show="view === 'welcome'" x-cloak>
-        {% include "components/welcome.html" %}
-    </div>
-    <div x-show="view === 'flashcard'" x-cloak>
-        {% include "components/flashcard.html" %}
-    </div>
-    <div x-show="view === 'progress'" x-cloak>
-        {% include "components/progress.html" %}
-    </div>
-    <div x-show="view === 'reference'" x-cloak>
-        {% include "components/reference.html" %}
-    </div>
-    <div x-show="view === 'settings'" x-cloak>
-        {% include "components/settings.html" %}
-    </div>
-    <div x-show="view === 'about'" x-cloak>
-        {% include "components/about.html" %}
-    </div>
-    <div x-show="view === 'shortcuts'" x-cloak>
+
+    <!-- Shortcuts overlay -->
+    <div x-show="shortcutsOpen" x-cloak
+         @click.self="shortcutsOpen = false"
+         @keydown.escape.window="shortcutsOpen = false"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+         role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
         {% include "components/shortcuts.html" %}
     </div>
 </div>

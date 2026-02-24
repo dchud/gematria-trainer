@@ -1,5 +1,27 @@
 <!-- Splash / landing view -->
-<div class="flex flex-col items-center justify-center min-h-screen">
+<div class="flex flex-col items-center justify-center min-h-[80vh] text-center">
     <h1 class="text-4xl font-bold mb-4">Gematria Trainer</h1>
-    <p class="text-lg text-gray-600 dark:text-gray-400">Interactive flashcard app for learning Hebrew Gematria</p>
+    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+        Interactive flashcard app for learning Hebrew Gematria
+    </p>
+
+    <div class="flex flex-col gap-3 w-full max-w-xs">
+        <button @click="beginSession()"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg text-lg font-medium
+                       hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                       dark:focus:ring-offset-gray-950 min-h-[48px]"
+                aria-label="Begin studying">
+            Begin
+        </button>
+
+        <button x-show="hasSavedProgress" x-cloak
+                @click="resumeSession()"
+                class="px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                       rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-700
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                       dark:focus:ring-offset-gray-950 min-h-[48px]"
+                aria-label="Continue previous session">
+            Continue
+        </button>
+    </div>
 </div>
