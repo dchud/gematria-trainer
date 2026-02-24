@@ -16,6 +16,7 @@ __pycache__/
 # Tool caches
 .pytest_cache/
 .ruff_cache/
+.playwright-mcp/
 
 # Beads issue tracker
 .beads/.local_version
