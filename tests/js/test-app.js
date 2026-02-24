@@ -1662,6 +1662,66 @@ describe('app()', function () {
         });
     });
 
+    describe('completed state', function () {
+        it('progressStats works in completed state', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.progression.completed = true;
+            a.progression.reviewLog = [
+                { ts: 1, correct: true },
+                { ts: 2, correct: true },
+                { ts: 3, correct: false },
+            ];
+
+            var stats = a.progressStats();
+            assert.equal(stats.totalReviews, 3);
+            assert.equal(stats.correctReviews, 2);
+        });
+
+        it('tierStats includes all initialized tiers in completed state', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            // Initialize and master tier 1, advance to tier 2
+            var cards = a.progression.tiers['1'];
+            for (var i = 0; i < cards.length; i++) {
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+            }
+            a.progression.tiers['1'] = cards;
+            Progression.tryAdvance(a.progression);
+            Progression.ensureTierCards(a.progression, 2);
+            a.progression.completed = true;
+
+            var stats = a.tierStats();
+            assert.equal(stats.length, 2);
+            assert.equal(stats[0].mastered, true);
+        });
+
+        it('statusText shows review mode when completed', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.progression.completed = true;
+            assert.equal(a.statusText(), 'Review mode');
+        });
+
+        it('masteryProgress still works in completed state', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.progression.completed = true;
+
+            // Should return a valid number (not crash)
+            var progress = a.masteryProgress();
+            assert.equal(typeof progress, 'number');
+            assert.ok(progress >= 0);
+        });
+    });
+
     describe('card state preservation', function () {
         it('preserves revealed state across navigation', function () {
             var a = createApp();

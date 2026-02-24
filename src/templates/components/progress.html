@@ -38,6 +38,17 @@
                     </div>
                 </div>
 
+                <!-- Completion banner (shown when all tiers mastered) -->
+                <div x-show="progression.completed"
+                     class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-8 text-center">
+                    <div class="text-lg font-bold text-green-700 dark:text-green-400 mb-1">
+                        All tiers mastered
+                    </div>
+                    <p class="text-sm text-green-600 dark:text-green-500">
+                        Spaced repetition continues in review mode to maintain your knowledge.
+                    </p>
+                </div>
+
                 <!-- Mastery progress bar (hidden when completed) -->
                 <div x-show="!progression.completed" class="mb-8">
                     <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
