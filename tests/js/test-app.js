@@ -1468,6 +1468,69 @@ describe('app()', function () {
         });
     });
 
+    describe('masteryProgress()', function () {
+        it('returns 0 without progression', function () {
+            var a = createApp();
+            assert.equal(a.masteryProgress(), 0);
+        });
+
+        it('returns 0 for fresh tier with no reviews', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.equal(a.masteryProgress(), 0);
+        });
+
+        it('returns value between 0 and 1 for partial progress', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+
+            // Review one card correctly
+            a.showAnswer();
+            a.rateCard(4);
+
+            var progress = a.masteryProgress();
+            assert.ok(progress > 0, 'progress should be > 0');
+            assert.ok(progress < 1, 'progress should be < 1');
+        });
+
+        it('returns 1 when tier is fully mastered', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            var cards = a.progression.tiers['1'];
+            for (var i = 0; i < cards.length; i++) {
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+            }
+            a.progression.tiers['1'] = cards;
+
+            assert.equal(a.masteryProgress(), 1);
+        });
+
+        it('accuracy component is clamped at mastery threshold', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            // Give all cards 3 reviews (all correct) — completion=1, accuracy=1/0.8>1 → clamped to 1
+            var cards = a.progression.tiers['1'];
+            for (var i = 0; i < cards.length; i++) {
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+            }
+            a.progression.tiers['1'] = cards;
+
+            // 50% * 1.0 + 50% * min(1.0/0.8, 1.0) = 0.5 + 0.5 = 1.0
+            assert.equal(a.masteryProgress(), 1);
+        });
+    });
+
     describe('card state preservation', function () {
         it('preserves revealed state across navigation', function () {
             var a = createApp();

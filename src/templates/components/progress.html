@@ -38,6 +38,18 @@
                     </div>
                 </div>
 
+                <!-- Mastery progress bar (hidden when completed) -->
+                <div x-show="!progression.completed" class="mb-8">
+                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <span>Current tier mastery</span>
+                        <span x-text="formatAccuracy(masteryProgress())"></span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-blue-600 dark:bg-blue-500 h-3 rounded-full transition-all duration-300"
+                             :style="'width: ' + (masteryProgress() * 100) + '%'"></div>
+                    </div>
+                </div>
+
                 <!-- Per-tier table -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8">
                     <table class="w-full text-sm">

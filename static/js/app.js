@@ -647,6 +647,41 @@ function app() {
             return Math.round(acc * 100) + '%';
         },
 
+        /**
+         * Compute overall mastery progress for the current tier as 0-1.
+         *
+         * Combined metric:
+         *   50% weight: cards with >= minReps reviews / total cards
+         *   50% weight: min(tier accuracy / mastery threshold, 1.0)
+         *
+         * Returns 0 when no cards exist. Returns 1 when tier is mastered.
+         *
+         * @returns {number} Progress value between 0 and 1.
+         */
+        masteryProgress: function () {
+            if (!this.progression) return 0;
+
+            var cards = Progression.currentTierCards(this.progression);
+            if (cards.length === 0) return 0;
+
+            var minReps = Tiers.MASTERY.minReps;
+            var threshold = Tiers.MASTERY.accuracy;
+
+            // Card completion: fraction of cards with enough reviews
+            var readyCount = 0;
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (cards[i].review_count >= minReps) readyCount++;
+            }
+            var completionRatio = readyCount / cards.length;
+
+            // Accuracy component: clamped to mastery threshold
+            var acc = CardState.tierAccuracy(cards);
+            var accuracyRatio = Math.min(acc / threshold, 1.0);
+
+            return 0.5 * completionRatio + 0.5 * accuracyRatio;
+        },
+
         // -----------------------------------------------------------
         // Keyboard handling
         // -----------------------------------------------------------
