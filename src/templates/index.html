@@ -39,8 +39,15 @@
         </button>
     </nav>
 
+    <!-- Degraded mode banner -->
+    <div x-show="degradedMode" x-cloak
+         class="mb-4 p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-sm text-center"
+         role="alert">
+        Local storage is unavailable. Your progress and settings will not be saved between visits.
+    </div>
+
     <!-- View containers -->
-    <div class="max-w-lg mx-auto w-full">
+    <div class="max-w-lg mx-auto w-full" :class="fontClassName()">
         <div x-show="view === 'splash'">
             {% include "components/splash.html" %}
         </div>

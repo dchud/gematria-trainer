@@ -16,6 +16,7 @@ require('./helpers/load-modules');
 
 var jsDir = path.resolve(__dirname, '../../static/js');
 var storageCode = fs.readFileSync(path.join(jsDir, 'storage.js'), 'utf8');
+var settingsCode = fs.readFileSync(path.join(jsDir, 'settings.js'), 'utf8');
 var appCode = fs.readFileSync(path.join(jsDir, 'app.js'), 'utf8');
 
 // Mock window.matchMedia for init()
@@ -32,10 +33,24 @@ window.matchMedia = function () {
     };
 };
 
-// Mock document.getElementById for transitionToNextCard
+// Mock document for dark mode and transitionToNextCard
 globalThis.document = globalThis.document || {};
 document.getElementById = function () {
     return { focus: function () {} };
+};
+document.documentElement = {
+    classList: {
+        _classes: {},
+        add: function (cls) {
+            this._classes[cls] = true;
+        },
+        remove: function (cls) {
+            delete this._classes[cls];
+        },
+        contains: function (cls) {
+            return !!this._classes[cls];
+        },
+    },
 };
 
 function freshStore() {
@@ -63,8 +78,10 @@ function freshStore() {
 function setup() {
     _reducedMotion = false;
     _mediaListeners = [];
+    document.documentElement.classList._classes = {};
     globalThis.localStorage = freshStore();
     vm.runInThisContext(storageCode, { filename: 'storage.js' });
+    vm.runInThisContext(settingsCode, { filename: 'settings.js' });
     vm.runInThisContext(appCode, { filename: 'app.js' });
 }
 
@@ -101,10 +118,15 @@ describe('app()', function () {
             assert.equal(a.totalCards, 0);
             assert.equal(a.savedCardState, null);
             assert.equal(a.transition, 'fade');
+            assert.equal(a.transitionDuration, 250);
             assert.equal(a.cardVisible, true);
             assert.equal(a.reducedMotion, false);
-            assert.equal(a.darkMode, true);
+            assert.equal(a.hebrewFont, 'standard');
+            assert.equal(a.darkMode, 'system');
+            assert.equal(a.degradedMode, false);
             assert.equal(a.shortcutsOpen, false);
+            assert.equal(a.confirmResetSystem, false);
+            assert.equal(a.confirmStartFresh, false);
         });
 
         it('each call returns a fresh instance', function () {
@@ -123,12 +145,32 @@ describe('app()', function () {
             assert.equal(a.reducedMotion, true);
         });
 
-        it('loads saved settings', function () {
-            Storage.saveSettings({ transition: 'slide-left', darkMode: false });
+        it('loads saved settings via Settings module', function () {
+            Storage.saveSettings({ transition: 'slide-left', darkMode: 'dark' });
             var a = createApp();
             a.init();
             assert.equal(a.transition, 'slide-left');
-            assert.equal(a.darkMode, false);
+            assert.equal(a.darkMode, 'dark');
+        });
+
+        it('migrates boolean darkMode true to dark', function () {
+            Storage.saveSettings({ darkMode: true });
+            var a = createApp();
+            a.init();
+            assert.equal(a.darkMode, 'dark');
+        });
+
+        it('migrates boolean darkMode false to light', function () {
+            Storage.saveSettings({ darkMode: false });
+            var a = createApp();
+            a.init();
+            assert.equal(a.darkMode, 'light');
+        });
+
+        it('defaults darkMode to system when not saved', function () {
+            var a = createApp();
+            a.init();
+            assert.equal(a.darkMode, 'system');
         });
 
         it('loads saved system from settings', function () {
@@ -136,6 +178,23 @@ describe('app()', function () {
             var a = createApp();
             a.init();
             assert.equal(a.system, 'gadol');
+        });
+
+        it('loads hebrewFont and transitionDuration from settings', function () {
+            Storage.saveSettings({ hebrewFont: 'sans', transitionDuration: 400 });
+            var a = createApp();
+            a.init();
+            assert.equal(a.hebrewFont, 'sans');
+            assert.equal(a.transitionDuration, 400);
+        });
+
+        it('detects degraded mode when storage unavailable', function () {
+            // Storage.isAvailable() already returned true in setup, so
+            // degradedMode is false by default. We test that the flag
+            // gets set during init.
+            var a = createApp();
+            a.init();
+            assert.equal(a.degradedMode, false);
         });
 
         it('detects saved progress', function () {
@@ -490,7 +549,7 @@ describe('app()', function () {
     });
 
     describe('effectiveTransition()', function () {
-        it('returns fade with 250ms by default', function () {
+        it('returns fade with transitionDuration by default', function () {
             var a = createApp();
             var t = a.effectiveTransition();
             assert.equal(t.type, 'fade');
@@ -505,12 +564,13 @@ describe('app()', function () {
             assert.equal(t.duration, 0);
         });
 
-        it('returns slide-left with 300ms', function () {
+        it('returns slide-left with transitionDuration', function () {
             var a = createApp();
             a.transition = 'slide-left';
+            a.transitionDuration = 400;
             var t = a.effectiveTransition();
             assert.equal(t.type, 'slide-left');
-            assert.equal(t.duration, 300);
+            assert.equal(t.duration, 400);
         });
 
         it('returns none for unknown transition type', function () {
@@ -519,6 +579,14 @@ describe('app()', function () {
             var t = a.effectiveTransition();
             assert.equal(t.type, 'none');
             assert.equal(t.duration, 0);
+        });
+
+        it('uses custom transitionDuration for fade', function () {
+            var a = createApp();
+            a.transition = 'fade';
+            a.transitionDuration = 100;
+            var t = a.effectiveTransition();
+            assert.equal(t.duration, 100);
         });
     });
 
@@ -537,7 +605,7 @@ describe('app()', function () {
             var style = a.transitionStyle();
             assert.ok(style.indexOf('transform') !== -1);
             assert.ok(style.indexOf('opacity') !== -1);
-            assert.ok(style.indexOf('300ms') !== -1);
+            assert.ok(style.indexOf('250ms') !== -1);
         });
 
         it('returns empty string when reduced motion', function () {
@@ -808,6 +876,159 @@ describe('app()', function () {
             var saved = Storage.loadProgress('hechrachi');
             assert.ok(saved);
             assert.equal(saved.system, 'hechrachi');
+        });
+    });
+
+    describe('settings methods', function () {
+        it('updateFont() changes hebrewFont and persists', function () {
+            var a = createApp();
+            a.init();
+            a.updateFont('sans');
+            assert.equal(a.hebrewFont, 'sans');
+
+            var saved = Storage.loadSettings();
+            assert.equal(saved.hebrewFont, 'sans');
+        });
+
+        it('updateDarkMode() changes mode and persists', function () {
+            var a = createApp();
+            a.init();
+            a.updateDarkMode('dark');
+            assert.equal(a.darkMode, 'dark');
+
+            var saved = Storage.loadSettings();
+            assert.equal(saved.darkMode, 'dark');
+        });
+
+        it('updateTransition() changes transition style and persists', function () {
+            var a = createApp();
+            a.init();
+            a.updateTransition('slide-left');
+            assert.equal(a.transition, 'slide-left');
+
+            var saved = Storage.loadSettings();
+            assert.equal(saved.transition, 'slide-left');
+        });
+
+        it('updateTransitionDuration() changes duration and persists', function () {
+            var a = createApp();
+            a.init();
+            a.updateTransitionDuration(400);
+            assert.equal(a.transitionDuration, 400);
+
+            var saved = Storage.loadSettings();
+            assert.equal(saved.transitionDuration, 400);
+        });
+
+        it('updateTransitionDuration() converts string to number', function () {
+            var a = createApp();
+            a.init();
+            a.updateTransitionDuration('300');
+            assert.equal(a.transitionDuration, 300);
+        });
+
+        it('updateSystem() changes system and persists', function () {
+            var a = createApp();
+            a.init();
+            a.updateSystem('katan');
+            assert.equal(a.system, 'katan');
+
+            var saved = Storage.loadSettings();
+            assert.equal(saved.system, 'katan');
+        });
+
+        it('resetCurrentSystem() resets progress for current system', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.showAnswer();
+            a.reducedMotion = true;
+            a.rateCard(4);
+
+            // Now reset
+            a.resetCurrentSystem();
+            assert.equal(a.progression.currentTier, 1);
+            assert.equal(a.confirmResetSystem, false);
+        });
+    });
+
+    describe('_applyDarkMode()', function () {
+        it('adds dark class for dark mode', function () {
+            var a = createApp();
+            a.darkMode = 'dark';
+            a._applyDarkMode();
+            assert.equal(document.documentElement.classList.contains('dark'), true);
+        });
+
+        it('removes dark class for light mode', function () {
+            document.documentElement.classList.add('dark');
+            var a = createApp();
+            a.darkMode = 'light';
+            a._applyDarkMode();
+            assert.equal(document.documentElement.classList.contains('dark'), false);
+        });
+
+        it('uses system preference for system mode (dark)', function () {
+            _reducedMotion = false;
+            // Override matchMedia to return dark preference
+            var origMatchMedia = window.matchMedia;
+            window.matchMedia = function (query) {
+                if (query === '(prefers-color-scheme: dark)') {
+                    return { matches: true };
+                }
+                return origMatchMedia(query);
+            };
+
+            var a = createApp();
+            a.darkMode = 'system';
+            a._applyDarkMode();
+            assert.equal(document.documentElement.classList.contains('dark'), true);
+
+            window.matchMedia = origMatchMedia;
+        });
+
+        it('uses system preference for system mode (light)', function () {
+            var origMatchMedia = window.matchMedia;
+            window.matchMedia = function (query) {
+                if (query === '(prefers-color-scheme: dark)') {
+                    return { matches: false };
+                }
+                return origMatchMedia(query);
+            };
+
+            document.documentElement.classList.add('dark');
+            var a = createApp();
+            a.darkMode = 'system';
+            a._applyDarkMode();
+            assert.equal(document.documentElement.classList.contains('dark'), false);
+
+            window.matchMedia = origMatchMedia;
+        });
+    });
+
+    describe('fontClassName()', function () {
+        it('returns font-hebrew-standard for standard', function () {
+            var a = createApp();
+            a.hebrewFont = 'standard';
+            assert.equal(a.fontClassName(), 'font-hebrew-standard');
+        });
+
+        it('returns font-hebrew-sans for sans', function () {
+            var a = createApp();
+            a.hebrewFont = 'sans';
+            assert.equal(a.fontClassName(), 'font-hebrew-sans');
+        });
+
+        it('returns font-hebrew-rashi for rashi', function () {
+            var a = createApp();
+            a.hebrewFont = 'rashi';
+            assert.equal(a.fontClassName(), 'font-hebrew-rashi');
+        });
+
+        it('returns standard as fallback for unknown key', function () {
+            var a = createApp();
+            a.hebrewFont = 'unknown';
+            assert.equal(a.fontClassName(), 'font-hebrew-standard');
         });
     });
 

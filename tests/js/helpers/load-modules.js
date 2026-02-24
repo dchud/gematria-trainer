@@ -62,6 +62,7 @@ var modules = [
     'tiers.js',
     'card-state.js',
     // storage.js depends on localStorage (browser only), skip in Node
+    // settings.js depends on storage.js (browser only), skip in Node
     'card-selection.js',
     'progression.js',
 ];

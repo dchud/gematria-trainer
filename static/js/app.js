@@ -43,12 +43,19 @@ function app() {
 
         // Transitions
         transition: 'fade',
+        transitionDuration: 250,
         cardVisible: true,
         reducedMotion: false,
 
         // UI
-        darkMode: true,
+        hebrewFont: 'standard',
+        darkMode: 'system',
+        degradedMode: false,
         shortcutsOpen: false,
+
+        // Confirmation dialogs
+        confirmResetSystem: false,
+        confirmStartFresh: false,
 
         // -----------------------------------------------------------
         // Lifecycle
@@ -63,13 +70,27 @@ function app() {
                 self.reducedMotion = e.matches;
             });
 
-            // Load saved settings
-            var settings = Storage.loadSettings();
-            if (settings) {
-                if (settings.transition) this.transition = settings.transition;
-                if (settings.darkMode !== undefined) this.darkMode = settings.darkMode;
-                if (settings.system) this.system = settings.system;
+            // Check storage availability
+            this.degradedMode = !Storage.isAvailable();
+
+            // Load saved settings via Settings module
+            var settings = Settings.load();
+
+            // Migrate boolean darkMode to string
+            if (settings.darkMode === true) {
+                settings.darkMode = 'dark';
+            } else if (settings.darkMode === false) {
+                settings.darkMode = 'light';
             }
+
+            this.system = settings.system;
+            this.hebrewFont = settings.hebrewFont;
+            this.darkMode = settings.darkMode;
+            this.transition = settings.transition;
+            this.transitionDuration = settings.transitionDuration;
+
+            // Apply dark mode to HTML element
+            this._applyDarkMode();
 
             // Check for saved progress
             var saved = Storage.loadProgress(this.system);
@@ -150,6 +171,87 @@ function app() {
                 this._updateTierInfo();
                 this.loadNextCard();
             }
+        },
+
+        // -----------------------------------------------------------
+        // Settings methods
+        // -----------------------------------------------------------
+
+        _currentSettings: function () {
+            return {
+                system: this.system,
+                hebrewFont: this.hebrewFont,
+                darkMode: this.darkMode,
+                transition: this.transition,
+                transitionDuration: this.transitionDuration,
+            };
+        },
+
+        _saveSetting: function (key, value) {
+            this[key] = value;
+            Settings.save(this._currentSettings());
+        },
+
+        updateSystem: function (key) {
+            this._saveSetting('system', key);
+            this.switchSystem(key);
+        },
+
+        updateFont: function (key) {
+            this._saveSetting('hebrewFont', key);
+        },
+
+        updateDarkMode: function (mode) {
+            this._saveSetting('darkMode', mode);
+            this._applyDarkMode();
+        },
+
+        updateTransition: function (style) {
+            this._saveSetting('transition', style);
+        },
+
+        updateTransitionDuration: function (ms) {
+            this._saveSetting('transitionDuration', Number(ms));
+        },
+
+        resetCurrentSystem: function () {
+            Progression.reset(this.system);
+            if (this.sessionActive) {
+                this.progression = Progression.loadOrCreate(this.system);
+                Progression.ensureTierCards(this.progression, this.progression.currentTier);
+                this._updateTierInfo();
+                this.loadNextCard();
+            }
+            this.confirmResetSystem = false;
+        },
+
+        _applyDarkMode: function () {
+            var html = document.documentElement;
+            if (!html) return;
+
+            if (this.darkMode === 'dark') {
+                html.classList.add('dark');
+            } else if (this.darkMode === 'light') {
+                html.classList.remove('dark');
+            } else {
+                // system
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+            }
+        },
+
+        fontClassName: function () {
+            var fonts = Settings.FONTS;
+            for (var i = 0; i < fonts.length; i++) {
+                if (fonts[i].key === this.hebrewFont) {
+                    return fonts[i].className;
+                }
+            }
+            return 'font-hebrew-standard';
         },
 
         // -----------------------------------------------------------
@@ -237,11 +339,12 @@ function app() {
             if (this.reducedMotion) {
                 return { type: 'none', duration: 0 };
             }
+            var duration = this.transitionDuration;
             if (this.transition === 'fade') {
-                return { type: 'fade', duration: 250 };
+                return { type: 'fade', duration: duration };
             }
             if (this.transition === 'slide-left') {
-                return { type: 'slide-left', duration: 300 };
+                return { type: 'slide-left', duration: duration };
             }
             return { type: 'none', duration: 0 };
         },
