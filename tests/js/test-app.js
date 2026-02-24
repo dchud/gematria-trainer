@@ -1468,6 +1468,137 @@ describe('app()', function () {
         });
     });
 
+    describe('_prepareChartData()', function () {
+        it('returns empty arrays without progression', function () {
+            var a = createApp();
+            var result = a._prepareChartData();
+            assert.deepEqual(result.labels, []);
+            assert.deepEqual(result.data, []);
+        });
+
+        it('returns empty arrays with empty reviewLog', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            var result = a._prepareChartData();
+            assert.deepEqual(result.labels, []);
+            assert.deepEqual(result.data, []);
+        });
+
+        it('groups reviews by day', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            // Two reviews on same day
+            var day1 = new Date(2025, 0, 15, 10, 0).getTime();
+            a.progression.reviewLog = [
+                { ts: day1, correct: true },
+                { ts: day1 + 3600000, correct: false },
+            ];
+
+            var result = a._prepareChartData();
+            assert.equal(result.labels.length, 1);
+            assert.equal(result.labels[0], '1/15');
+            assert.equal(result.data[0], 50);
+        });
+
+        it('handles multiple days in order', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            var day1 = new Date(2025, 0, 10).getTime();
+            var day2 = new Date(2025, 0, 11).getTime();
+            a.progression.reviewLog = [
+                { ts: day1, correct: true },
+                { ts: day1 + 1000, correct: true },
+                { ts: day2, correct: false },
+            ];
+
+            var result = a._prepareChartData();
+            assert.equal(result.labels.length, 2);
+            assert.equal(result.labels[0], '1/10');
+            assert.equal(result.labels[1], '1/11');
+            assert.equal(result.data[0], 100);
+            assert.equal(result.data[1], 0);
+        });
+
+        it('computes percentage as rounded integer', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            var day = new Date(2025, 5, 20).getTime();
+            a.progression.reviewLog = [
+                { ts: day, correct: true },
+                { ts: day + 1000, correct: true },
+                { ts: day + 2000, correct: false },
+            ];
+
+            var result = a._prepareChartData();
+            assert.equal(result.data[0], 67);
+        });
+    });
+
+    describe('_destroyProgressChart()', function () {
+        it('sets _chartInstance to null', function () {
+            var a = createApp();
+            a._chartInstance = { destroy: function () {} };
+            a._destroyProgressChart();
+            assert.equal(a._chartInstance, null);
+        });
+
+        it('calls destroy on existing instance', function () {
+            var a = createApp();
+            var destroyed = false;
+            a._chartInstance = {
+                destroy: function () {
+                    destroyed = true;
+                },
+            };
+            a._destroyProgressChart();
+            assert.equal(destroyed, true);
+        });
+
+        it('does nothing when no chart exists', function () {
+            var a = createApp();
+            a._destroyProgressChart();
+            assert.equal(a._chartInstance, null);
+        });
+    });
+
+    describe('navigate() chart cleanup', function () {
+        it('destroys chart when leaving progress view', function () {
+            var a = createApp();
+            a.view = 'progress';
+            var destroyed = false;
+            a._chartInstance = {
+                destroy: function () {
+                    destroyed = true;
+                },
+            };
+
+            a.navigate('flashcard');
+            assert.equal(destroyed, true);
+            assert.equal(a._chartInstance, null);
+        });
+
+        it('does not destroy chart when not on progress view', function () {
+            var a = createApp();
+            a.view = 'settings';
+            a._chartInstance = {
+                destroy: function () {
+                    throw new Error('should not destroy');
+                },
+            };
+
+            a.navigate('flashcard');
+            // Should not throw
+            assert.ok(a._chartInstance);
+        });
+    });
+
     describe('masteryProgress()', function () {
         it('returns 0 without progression', function () {
             var a = createApp();

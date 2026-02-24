@@ -50,6 +50,16 @@
                     </div>
                 </div>
 
+                <!-- Accuracy chart (only when reviewLog has data) -->
+                <div x-show="progression.reviewLog && progression.reviewLog.length > 0"
+                     x-init="$nextTick(function() { initProgressChart(); })"
+                     class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-8">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Daily Accuracy</h3>
+                    <div class="h-48">
+                        <canvas id="accuracy-chart"></canvas>
+                    </div>
+                </div>
+
                 <!-- Per-tier table -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8">
                     <table class="w-full text-sm">

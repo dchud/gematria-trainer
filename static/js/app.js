@@ -63,6 +63,9 @@ function app() {
         confirmResetSystem: false,
         confirmStartFresh: false,
 
+        // Chart
+        _chartInstance: null,
+
         // -----------------------------------------------------------
         // Lifecycle
         // -----------------------------------------------------------
@@ -138,6 +141,11 @@ function app() {
                 this.answerRevealed = this.savedCardState.answerRevealed;
                 this.cardIndex = this.savedCardState.cardIndex;
                 this.savedCardState = null;
+            }
+
+            // Destroy chart when leaving progress view
+            if (this.view === 'progress' && target !== 'progress') {
+                this._destroyProgressChart();
             }
 
             this.previousView = this.view;
@@ -680,6 +688,114 @@ function app() {
             var accuracyRatio = Math.min(acc / threshold, 1.0);
 
             return 0.5 * completionRatio + 0.5 * accuracyRatio;
+        },
+
+        /**
+         * Prepare chart data by grouping reviewLog entries by day.
+         *
+         * Returns { labels: string[], data: number[] } where labels are
+         * date strings (MM/DD) and data are daily accuracy percentages.
+         *
+         * @returns {object} Chart-ready data.
+         */
+        _prepareChartData: function () {
+            if (
+                !this.progression ||
+                !this.progression.reviewLog ||
+                this.progression.reviewLog.length === 0
+            ) {
+                return { labels: [], data: [] };
+            }
+
+            var log = this.progression.reviewLog;
+            var buckets = {};
+            var order = [];
+            var i, d, key;
+
+            for (i = 0; i < log.length; i++) {
+                d = new Date(log[i].ts);
+                key = d.getMonth() + 1 + '/' + d.getDate();
+                if (!buckets[key]) {
+                    buckets[key] = { correct: 0, total: 0 };
+                    order.push(key);
+                }
+                buckets[key].total++;
+                if (log[i].correct) buckets[key].correct++;
+            }
+
+            var labels = [];
+            var data = [];
+            for (i = 0; i < order.length; i++) {
+                labels.push(order[i]);
+                data.push(Math.round((buckets[order[i]].correct / buckets[order[i]].total) * 100));
+            }
+
+            return { labels: labels, data: data };
+        },
+
+        /**
+         * Initialize the Chart.js accuracy chart on the progress view.
+         *
+         * Creates a line chart from reviewLog data grouped by day.
+         * Destroys any existing chart instance first.
+         */
+        initProgressChart: function () {
+            this._destroyProgressChart();
+
+            var chartData = this._prepareChartData();
+            if (chartData.labels.length === 0) return;
+
+            var canvas = document.getElementById('accuracy-chart');
+            if (!canvas) return;
+
+            var ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            this._chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Daily Accuracy %',
+                            data: chartData.data,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                callback: function (v) {
+                                    return v + '%';
+                                },
+                            },
+                        },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                    },
+                },
+            });
+        },
+
+        /**
+         * Destroy the current Chart.js instance if one exists.
+         */
+        _destroyProgressChart: function () {
+            if (this._chartInstance) {
+                this._chartInstance.destroy();
+                this._chartInstance = null;
+            }
         },
 
         // -----------------------------------------------------------
