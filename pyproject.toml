@@ -43,6 +43,8 @@ select = [
 "tests/test_data.py" = ["RUF001"]
 "tests/test_examples.py" = ["RUF001"]
 "tests/test_gematria_systems.py" = ["RUF001", "RUF012", "B905"]
+"tests/test_tiers.py" = ["RUF001", "RUF002"]
+"tests/test_spaced_repetition.py" = ["RUF059"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]
