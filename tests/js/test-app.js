@@ -1322,6 +1322,152 @@ describe('app()', function () {
         });
     });
 
+    describe('progressStats()', function () {
+        it('returns zeros without progression', function () {
+            var a = createApp();
+            var stats = a.progressStats();
+            assert.equal(stats.totalReviews, 0);
+            assert.equal(stats.correctReviews, 0);
+            assert.equal(stats.accuracy, 0);
+        });
+
+        it('returns zeros with empty reviewLog', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            var stats = a.progressStats();
+            assert.equal(stats.totalReviews, 0);
+            assert.equal(stats.correctReviews, 0);
+            assert.equal(stats.accuracy, 0);
+        });
+
+        it('computes stats from reviewLog', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.progression.reviewLog = [
+                { ts: 1, correct: true },
+                { ts: 2, correct: true },
+                { ts: 3, correct: false },
+                { ts: 4, correct: true },
+            ];
+            var stats = a.progressStats();
+            assert.equal(stats.totalReviews, 4);
+            assert.equal(stats.correctReviews, 3);
+            assert.equal(stats.accuracy, 0.75);
+        });
+
+        it('returns 100% accuracy when all correct', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.progression.reviewLog = [
+                { ts: 1, correct: true },
+                { ts: 2, correct: true },
+            ];
+            var stats = a.progressStats();
+            assert.equal(stats.accuracy, 1);
+        });
+    });
+
+    describe('tierStats()', function () {
+        it('returns empty array without progression', function () {
+            var a = createApp();
+            assert.deepEqual(a.tierStats(), []);
+        });
+
+        it('returns stats for current tier', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            var stats = a.tierStats();
+            assert.equal(stats.length, 1);
+            assert.equal(stats[0].tier, 1);
+            assert.ok(stats[0].label);
+            assert.ok(stats[0].cardCount > 0);
+            assert.equal(stats[0].reviewed, 0);
+            assert.equal(stats[0].mastered, false);
+        });
+
+        it('updates reviewed count after reviews', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+            a.showAnswer();
+            a.rateCard(4);
+
+            var stats = a.tierStats();
+            assert.ok(stats[0].reviewed >= 1);
+        });
+
+        it('returns stats for multiple tiers', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            // Manually advance to tier 2
+            a.progression.currentTier = 2;
+            Progression.ensureTierCards(a.progression, 2);
+
+            var stats = a.tierStats();
+            assert.equal(stats.length, 2);
+            assert.equal(stats[0].tier, 1);
+            assert.equal(stats[1].tier, 2);
+        });
+
+        it('detects mastered tier', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            // Master all tier 1 cards
+            var cards = a.progression.tiers['1'];
+            for (var i = 0; i < cards.length; i++) {
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+            }
+            a.progression.tiers['1'] = cards;
+
+            var stats = a.tierStats();
+            assert.equal(stats[0].mastered, true);
+        });
+
+        it('computes tier accuracy', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            var cards = a.progression.tiers['1'];
+            // Review first card correctly
+            cards[0] = CardState.reviewCard(cards[0], 5);
+            a.progression.tiers['1'] = cards;
+
+            var stats = a.tierStats();
+            assert.equal(stats[0].accuracy, 1);
+        });
+    });
+
+    describe('formatAccuracy()', function () {
+        it('formats 0 as 0%', function () {
+            var a = createApp();
+            assert.equal(a.formatAccuracy(0), '0%');
+        });
+
+        it('formats 1 as 100%', function () {
+            var a = createApp();
+            assert.equal(a.formatAccuracy(1), '100%');
+        });
+
+        it('formats 0.75 as 75%', function () {
+            var a = createApp();
+            assert.equal(a.formatAccuracy(0.75), '75%');
+        });
+
+        it('rounds to nearest integer', function () {
+            var a = createApp();
+            assert.equal(a.formatAccuracy(0.666), '67%');
+        });
+    });
+
     describe('card state preservation', function () {
         it('preserves revealed state across navigation', function () {
             var a = createApp();

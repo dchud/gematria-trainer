@@ -562,6 +562,92 @@ function app() {
         },
 
         // -----------------------------------------------------------
+        // Progress display
+        // -----------------------------------------------------------
+
+        /**
+         * Compute aggregate progress statistics from the review log.
+         *
+         * @returns {object} { totalReviews, correctReviews, accuracy }
+         */
+        progressStats: function () {
+            if (!this.progression || !this.progression.reviewLog) {
+                return { totalReviews: 0, correctReviews: 0, accuracy: 0 };
+            }
+
+            var log = this.progression.reviewLog;
+            var total = log.length;
+            var correct = 0;
+            var i;
+            for (i = 0; i < total; i++) {
+                if (log[i].correct) correct++;
+            }
+
+            return {
+                totalReviews: total,
+                correctReviews: correct,
+                accuracy: total > 0 ? correct / total : 0,
+            };
+        },
+
+        /**
+         * Compute per-tier statistics for progress display.
+         *
+         * Returns an array of tier stat objects (1-indexed by tier number),
+         * up to and including the current tier.
+         *
+         * @returns {object[]} Array of { tier, label, cardCount, reviewed,
+         *     mastered, accuracy }
+         */
+        tierStats: function () {
+            if (!this.progression) return [];
+
+            var stats = [];
+            var tier, key, cards, specs, reviewed, i, acc;
+
+            for (tier = 1; tier <= this.progression.currentTier; tier++) {
+                key = String(tier);
+                cards = this.progression.tiers[key];
+                if (!cards) continue;
+
+                if (this.progression.tierSpecs?.[key]) {
+                    specs = this.progression.tierSpecs[key];
+                } else {
+                    specs = Tiers.getCards(this.progression.system, tier);
+                }
+
+                reviewed = 0;
+                for (i = 0; i < cards.length; i++) {
+                    if (cards[i].review_count > 0) reviewed++;
+                }
+
+                acc = CardState.tierAccuracy(cards);
+
+                stats.push({
+                    tier: tier,
+                    label: Tiers.tierLetter(tier),
+                    cardCount: specs.length,
+                    reviewed: reviewed,
+                    mastered: CardState.checkMastery(cards),
+                    accuracy: acc,
+                });
+            }
+
+            return stats;
+        },
+
+        /**
+         * Format a decimal accuracy as a percentage string.
+         *
+         * @param {number} acc - Accuracy value 0-1.
+         * @returns {string} Formatted percentage (e.g. "82%").
+         */
+        formatAccuracy: function (acc) {
+            if (acc === 0) return '0%';
+            return Math.round(acc * 100) + '%';
+        },
+
+        // -----------------------------------------------------------
         // Keyboard handling
         // -----------------------------------------------------------
 
