@@ -8,6 +8,7 @@
  * Depends on registry.js (for clearAllProgress).
  *
  * Key schema:
+ *   schema_version        - integer schema version (for migration)
  *   progress_{systemKey}  - progression state object per system
  *   settings              - user settings object
  *   session               - session metadata
@@ -21,6 +22,11 @@ var Storage = (function () {
     // ---------------------------------------------------------------
     // localStorage availability
     // ---------------------------------------------------------------
+
+    // Current schema version. Increment when the data shape changes.
+    // On version mismatch, all stored data is cleared.
+    var SCHEMA_VERSION = 1;
+    var SCHEMA_KEY = 'schema_version';
 
     var _available = null;
 
@@ -40,11 +46,34 @@ var Storage = (function () {
             localStorage.setItem(testKey, '1');
             localStorage.removeItem(testKey);
             _available = true;
+            _checkSchema();
         } catch (e) {
             _available = false;
         }
 
         return _available;
+    }
+
+    /**
+     * Check the stored schema version. If it differs from the current
+     * version, clear all data (progress, settings, session) and stamp
+     * the new version. Safe to call multiple times; only acts once.
+     */
+    function _checkSchema() {
+        if (!isAvailable()) return;
+
+        try {
+            var stored = localStorage.getItem(SCHEMA_KEY);
+            if (stored !== null && Number(stored) === SCHEMA_VERSION) return;
+
+            // Version mismatch or first run — clear everything
+            if (stored !== null) {
+                localStorage.clear();
+            }
+            localStorage.setItem(SCHEMA_KEY, String(SCHEMA_VERSION));
+        } catch (e) {
+            // Silently ignore — storage may be full or locked
+        }
     }
 
     // ---------------------------------------------------------------
@@ -228,6 +257,9 @@ var Storage = (function () {
     // ---------------------------------------------------------------
 
     return {
+        // Schema
+        SCHEMA_VERSION: SCHEMA_VERSION,
+
         // Availability
         isAvailable: isAvailable,
 

@@ -92,6 +92,12 @@ var SpacedRepetition = (function () {
      * @returns {object} Updated card state.
      */
     function review(card, quality) {
+        if (quality !== 1 && quality !== 3 && quality !== 4 && quality !== 5) {
+            throw new Error(
+                'SpacedRepetition.review: quality must be 1, 3, 4, or 5, got ' + quality,
+            );
+        }
+
         var newEf = _adjustEase(card.ease_factor, quality);
         var newInterval, newReps;
 

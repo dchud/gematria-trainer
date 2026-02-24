@@ -99,5 +99,13 @@ describe('CardSelection', function () {
             assert.ok(result);
             assert.equal(result.type, 'card');
         });
+
+        it('returns review result (not null) when no cards exist', function () {
+            var result = CardSelection.selectReview([], []);
+            assert.ok(result);
+            assert.equal(result.type, 'review');
+            assert.equal(result.card, null);
+            assert.equal(result.spec, null);
+        });
     });
 });

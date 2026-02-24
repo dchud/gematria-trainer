@@ -104,6 +104,19 @@ describe('SpacedRepetition', function () {
             var updated = SpacedRepetition.review(card, 3);
             assert.equal(updated.last_quality, 3);
         });
+
+        it('throws on invalid quality value', function () {
+            var card = SpacedRepetition.createCard('test');
+            assert.throws(function () {
+                SpacedRepetition.review(card, 0);
+            }, /quality must be 1, 3, 4, or 5/);
+            assert.throws(function () {
+                SpacedRepetition.review(card, 2);
+            }, /quality must be 1, 3, 4, or 5/);
+            assert.throws(function () {
+                SpacedRepetition.review(card, 6);
+            }, /quality must be 1, 3, 4, or 5/);
+        });
     });
 
     describe('isDue', function () {

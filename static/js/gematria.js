@@ -229,7 +229,7 @@ var Gematria = (function () {
 
         if (omitThousands === undefined) omitThousands = true;
 
-        if (number <= 0) {
+        if (!Number.isInteger(number) || number <= 0) {
             throw new Error('Gematria.encode: number must be a positive integer, got ' + number);
         }
 

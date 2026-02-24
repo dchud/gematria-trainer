@@ -99,7 +99,7 @@ var CardSelection = (function () {
      *
      * @param {object[]} allCards - Card states from all tiers.
      * @param {object[]} allSpecs - Card specs from all tiers.
-     * @returns {SelectionResult|null} Selection result or null if nothing due.
+     * @returns {SelectionResult} Selection result (type "review" if nothing due).
      */
     function selectReview(allCards, allSpecs) {
         var specMap = {};
@@ -127,7 +127,8 @@ var CardSelection = (function () {
             };
         }
 
-        return null;
+        // All cards reviewed, nothing due — signal review mode idle
+        return { type: 'review', card: null, spec: null };
     }
 
     // ---------------------------------------------------------------

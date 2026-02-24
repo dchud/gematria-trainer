@@ -157,15 +157,16 @@ var Progression = (function () {
             return { advanced: false, completed: false };
         }
 
-        // Current tier is mastered
-        if (state.currentTier >= state.tierCount) {
-            // All tiers mastered — enter review mode
+        // Current tier is mastered — check if there's a next static tier
+        var nextTier = state.currentTier + 1;
+        if (nextTier > state.tierCount || !Tiers.isStatic(state.system, nextTier)) {
+            // No more tiers, or next tier is procedural (not yet implemented)
             state.completed = true;
             return { advanced: false, completed: true };
         }
 
         // Advance to next tier
-        state.currentTier += 1;
+        state.currentTier = nextTier;
         ensureTierCards(state, state.currentTier);
         return { advanced: true, newTier: state.currentTier };
     }

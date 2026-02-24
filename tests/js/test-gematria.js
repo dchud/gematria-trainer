@@ -204,5 +204,29 @@ describe('Gematria', function () {
             var stripped = Gematria.encode(5784);
             assert.equal(full, stripped);
         });
+
+        it('throws on zero', function () {
+            assert.throws(function () {
+                Gematria.encode(0);
+            }, /positive integer/);
+        });
+
+        it('throws on negative numbers', function () {
+            assert.throws(function () {
+                Gematria.encode(-5);
+            }, /positive integer/);
+        });
+
+        it('throws on non-integer input', function () {
+            assert.throws(function () {
+                Gematria.encode(1.5);
+            }, /positive integer/);
+        });
+
+        it('handles exact multiples of 1000 with omitThousands', function () {
+            // 1000 % 1000 = 0, falls back to encoding the full number
+            var result = Gematria.encode(1000);
+            assert.ok(result.length > 0);
+        });
     });
 });
