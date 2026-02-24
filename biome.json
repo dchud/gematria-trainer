@@ -26,7 +26,8 @@
       },
       "suspicious": {
         "noRedundantUseStrict": "off",
-        "noVar": "off"
+        "noVar": "off",
+        "noDocumentCookie": "off"
       },
       "correctness": {
         "noUnusedVariables": "off",

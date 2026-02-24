@@ -33,7 +33,7 @@ window.matchMedia = function () {
     };
 };
 
-// Mock document for dark mode and transitionToNextCard
+// Mock document for dark mode, transitionToNextCard, and cookies
 globalThis.document = globalThis.document || {};
 document.getElementById = function () {
     return { focus: function () {} };
@@ -52,6 +52,36 @@ document.documentElement = {
         },
     },
 };
+// Cookie mock: simulates browser cookie behavior via getter/setter
+var _cookieJar = {};
+Object.defineProperty(document, 'cookie', {
+    get: function () {
+        var parts = [];
+        var key;
+        for (key in _cookieJar) {
+            if (Object.hasOwn(_cookieJar, key)) {
+                parts.push(key + '=' + _cookieJar[key]);
+            }
+        }
+        return parts.join('; ');
+    },
+    set: function (str) {
+        var eqIdx = str.indexOf('=');
+        if (eqIdx === -1) return;
+        var name = str.substring(0, eqIdx).trim();
+        var rest = str.substring(eqIdx + 1);
+        // Check for expired cookies (deletion)
+        if (rest.indexOf('expires=Thu, 01 Jan 1970') !== -1) {
+            delete _cookieJar[name];
+            return;
+        }
+        // Extract just the value (before first semicolon)
+        var semiIdx = rest.indexOf(';');
+        var value = semiIdx !== -1 ? rest.substring(0, semiIdx) : rest;
+        _cookieJar[name] = value.trim();
+    },
+    configurable: true,
+});
 
 function freshStore() {
     var data = {};
@@ -79,6 +109,11 @@ function setup() {
     _reducedMotion = false;
     _mediaListeners = [];
     document.documentElement.classList._classes = {};
+    // Clear mock cookie jar
+    var k;
+    for (k in _cookieJar) {
+        if (Object.hasOwn(_cookieJar, k)) delete _cookieJar[k];
+    }
     globalThis.localStorage = freshStore();
     vm.runInThisContext(storageCode, { filename: 'storage.js' });
     vm.runInThisContext(settingsCode, { filename: 'settings.js' });
@@ -197,12 +232,15 @@ describe('app()', function () {
             assert.equal(a.degradedMode, false);
         });
 
-        it('detects saved progress', function () {
+        it('detects saved progress with session cookie', function () {
+            var a = createApp();
+            a._setCookie('gematria_session', '1', 30);
             var state = Progression.createState('hechrachi');
             Storage.saveProgress('hechrachi', state);
-            var a = createApp();
+
             a.init();
             assert.equal(a.hasSavedProgress, true);
+            assert.equal(a.view, 'welcome');
         });
 
         it('no saved progress when storage is empty', function () {
@@ -289,18 +327,15 @@ describe('app()', function () {
     });
 
     describe('startFresh()', function () {
-        it('resets progression and starts from tier 1', function () {
+        it('clears all progress and returns to splash', function () {
             var a = createApp();
             a.init();
             a.beginSession();
 
-            // Rate a card to create some progress
-            a.showAnswer();
-            a.rateCard(4);
-
             a.startFresh();
-            assert.equal(a.progression.currentTier, 1);
-            assert.equal(a.sessionActive, true);
+            assert.equal(a.progression, null);
+            assert.equal(a.sessionActive, false);
+            assert.equal(a.view, 'splash');
         });
     });
 
@@ -1029,6 +1064,94 @@ describe('app()', function () {
             var a = createApp();
             a.hebrewFont = 'unknown';
             assert.equal(a.fontClassName(), 'font-hebrew-standard');
+        });
+    });
+
+    describe('cookie helpers', function () {
+        it('_getCookie returns null when no cookies set', function () {
+            var a = createApp();
+            assert.equal(a._getCookie('gematria_session'), null);
+        });
+
+        it('_setCookie and _getCookie round-trip', function () {
+            var a = createApp();
+            a._setCookie('gematria_session', '1', 30);
+            assert.equal(a._getCookie('gematria_session'), '1');
+        });
+
+        it('_clearCookie removes the cookie', function () {
+            var a = createApp();
+            a._setCookie('gematria_session', '1', 30);
+            a._clearCookie('gematria_session');
+            assert.equal(a._getCookie('gematria_session'), null);
+        });
+    });
+
+    describe('page-load routing', function () {
+        it('routes to splash when no cookie and no progress', function () {
+            var a = createApp();
+            a.init();
+            assert.equal(a.view, 'splash');
+        });
+
+        it('routes to welcome when cookie and progress exist', function () {
+            var a = createApp();
+            // Set up cookie and progress before init
+            a._setCookie('gematria_session', '1', 30);
+            var state = Progression.createState('hechrachi');
+            Storage.saveProgress('hechrachi', state);
+
+            a.init();
+            assert.equal(a.view, 'welcome');
+            assert.equal(a.hasSavedProgress, true);
+        });
+
+        it('clears stale progress when no cookie but progress exists', function () {
+            var state = Progression.createState('hechrachi');
+            Storage.saveProgress('hechrachi', state);
+
+            var a = createApp();
+            a.init();
+            assert.equal(a.view, 'splash');
+            assert.equal(a.hasSavedProgress, false);
+            // Progress should be cleared
+            assert.equal(Storage.loadProgress('hechrachi'), null);
+        });
+    });
+
+    describe('startFresh() (welcome context)', function () {
+        it('clears all progress and cookie, returns to splash', function () {
+            var a = createApp();
+            a._setCookie('gematria_session', '1', 30);
+            var state = Progression.createState('hechrachi');
+            Storage.saveProgress('hechrachi', state);
+            a.init();
+            assert.equal(a.view, 'welcome');
+
+            a.startFresh();
+            assert.equal(a.view, 'splash');
+            assert.equal(a.hasSavedProgress, false);
+            assert.equal(a.sessionActive, false);
+            assert.equal(a.progression, null);
+            assert.equal(a._getCookie('gematria_session'), null);
+            assert.equal(Storage.loadProgress('hechrachi'), null);
+        });
+
+        it('resets confirmStartFresh flag', function () {
+            var a = createApp();
+            a.init();
+            a.confirmStartFresh = true;
+            a.startFresh();
+            assert.equal(a.confirmStartFresh, false);
+        });
+    });
+
+    describe('beginSession() sets cookie', function () {
+        it('sets session cookie on begin', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.equal(a._getCookie('gematria_session'), '1');
         });
     });
 

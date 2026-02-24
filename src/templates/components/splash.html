@@ -1,9 +1,24 @@
 <!-- Splash / landing view -->
 <div class="flex flex-col items-center justify-center min-h-[80vh] text-center">
     <h1 class="text-4xl font-bold mb-4">Gematria Trainer</h1>
-    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-        Interactive flashcard app for learning Hebrew Gematria
+    <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">
+        Practice Hebrew Gematria with spaced-repetition flashcards.
     </p>
+
+    <div class="text-left max-w-sm mb-8 space-y-3 text-sm text-gray-600 dark:text-gray-400">
+        <p>
+            Learn the numerical values and cipher mappings of the Hebrew letters
+            through progressive tiers, from basic letter values to advanced systems.
+        </p>
+        <p>
+            This app assumes familiarity with the Hebrew alphabet. Cards are
+            scheduled using a spaced-repetition algorithm that adapts to your performance.
+        </p>
+        <p class="text-xs">
+            Tip: Press <kbd class="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono">?</kbd>
+            at any time to see keyboard shortcuts.
+        </p>
+    </div>
 
     <div class="flex flex-col gap-3 w-full max-w-xs">
         <button @click="beginSession()"
@@ -12,16 +27,6 @@
                        dark:focus:ring-offset-gray-950 min-h-[48px]"
                 aria-label="Begin studying">
             Begin
-        </button>
-
-        <button x-show="hasSavedProgress" x-cloak
-                @click="resumeSession()"
-                class="px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                       rounded-lg text-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-700
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                       dark:focus:ring-offset-gray-950 min-h-[48px]"
-                aria-label="Continue previous session">
-            Continue
         </button>
     </div>
 </div>

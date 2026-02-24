@@ -92,12 +92,24 @@ function app() {
             // Apply dark mode to HTML element
             this._applyDarkMode();
 
-            // Check for saved progress
+            // Ensure gematria data is ready
+            Gematria.initialize();
+
+            // Page-load routing
+            var hasCookie = !!this._getCookie('gematria_session');
             var saved = Storage.loadProgress(this.system);
             this.hasSavedProgress = !!(saved && saved.system === this.system);
 
-            // Ensure gematria data is ready
-            Gematria.initialize();
+            if (hasCookie && this.hasSavedProgress) {
+                this.view = 'welcome';
+            } else if (!hasCookie && this.hasSavedProgress) {
+                // Stale progress without session cookie — clear it
+                Storage.clearProgress(this.system);
+                this.hasSavedProgress = false;
+                this.view = 'splash';
+            } else {
+                this.view = 'splash';
+            }
         },
 
         // -----------------------------------------------------------
@@ -138,6 +150,7 @@ function app() {
             Progression.ensureTierCards(this.progression, this.progression.currentTier);
             this.sessionActive = true;
             this.savedCardState = null;
+            this._setCookie('gematria_session', '1', 30);
             this._updateTierInfo();
             this.loadNextCard();
             this.navigate('flashcard');
@@ -149,13 +162,16 @@ function app() {
         },
 
         startFresh: function () {
-            this.progression = Progression.reset(this.system);
-            Progression.ensureTierCards(this.progression, this.progression.currentTier);
-            this.sessionActive = true;
+            // Clear ALL system progress and cookie, return to splash
+            Storage.clearAllProgress();
+            this._clearCookie('gematria_session');
+            this.hasSavedProgress = false;
+            this.sessionActive = false;
+            this.progression = null;
+            this.currentCard = null;
             this.savedCardState = null;
-            this._updateTierInfo();
-            this.loadNextCard();
-            this.navigate('flashcard');
+            this.confirmStartFresh = false;
+            this.navigate('splash');
         },
 
         switchSystem: function (newSystem) {
@@ -481,6 +497,31 @@ function app() {
                     event.preventDefault();
                     break;
             }
+        },
+
+        // -----------------------------------------------------------
+        // Cookie helpers
+        // -----------------------------------------------------------
+
+        _getCookie: function (name) {
+            var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+            return match ? decodeURIComponent(match[1]) : null;
+        },
+
+        _setCookie: function (name, value, days) {
+            var expires = '';
+            if (days) {
+                var d = new Date();
+                d.setTime(d.getTime() + days * 86400000);
+                expires = '; expires=' + d.toUTCString();
+            }
+            document.cookie =
+                name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
+        },
+
+        _clearCookie: function (name) {
+            document.cookie =
+                name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax';
         },
 
         // -----------------------------------------------------------
