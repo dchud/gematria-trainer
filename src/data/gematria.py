@@ -27,7 +27,7 @@ EXPECTED_FINAL_COUNT = 5
 def load_letters():
     """Load and validate letters.csv. Returns list of dicts."""
     log.info("loading_letters", path=str(LETTERS_CSV))
-    with open(LETTERS_CSV) as f:
+    with open(LETTERS_CSV, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         columns = set(reader.fieldnames or [])
         missing = REQUIRED_COLUMNS - columns
@@ -57,7 +57,7 @@ def load_letters():
 def load_examples():
     """Load and validate examples.json. Returns list of dicts."""
     log.info("loading_examples", path=str(EXAMPLES_JSON))
-    with open(EXAMPLES_JSON) as f:
+    with open(EXAMPLES_JSON, encoding="utf-8") as f:
         examples = json.load(f)
 
     required_keys = {

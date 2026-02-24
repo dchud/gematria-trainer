@@ -24,12 +24,25 @@ var csvText = fs.readFileSync(csvPath, 'utf8');
 var lines = csvText.trim().split('\n');
 var headers = lines[0].split(',');
 
+// Numeric fields that should be coerced to match production JSON types.
+// In production, Python's load_letters() converts these to int before
+// json.dumps(), so they arrive as numbers in the browser.
+var NUMERIC_FIELDS = { position: true, standard_value: true, final_value: true };
+
 var lettersData = [];
 for (var i = 1; i < lines.length; i++) {
     var values = lines[i].split(',');
     var row = {};
     for (var j = 0; j < headers.length; j++) {
-        row[headers[j]] = values[j] || '';
+        var key = headers[j];
+        var val = values[j] || '';
+        if (NUMERIC_FIELDS[key] && val !== '') {
+            row[key] = Number(val);
+        } else if (NUMERIC_FIELDS[key] && val === '') {
+            row[key] = null;
+        } else {
+            row[key] = val;
+        }
     }
     lettersData.push(row);
 }

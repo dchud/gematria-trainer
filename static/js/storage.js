@@ -1,16 +1,18 @@
 /**
  * localStorage persistence module.
  *
- * Provides namespaced read/write of card state arrays per gematria
+ * Provides namespaced read/write of progression state per gematria
  * system, plus settings and session state. Handles localStorage
  * unavailability gracefully (e.g. Safari private browsing).
  *
+ * Depends on registry.js (for clearAllProgress).
+ *
  * Key schema:
- *   progress_{systemKey}  - card state arrays per system
+ *   progress_{systemKey}  - progression state object per system
  *   settings              - user settings object
  *   session               - session metadata
  *
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const.
  */
 
 var Storage = (function () {

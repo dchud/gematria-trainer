@@ -8,7 +8,7 @@
  *   3. If current tier is exhausted and mastered, signal advancement
  *
  * Depends on spaced-repetition.js, tiers.js, and card-state.js.
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const.
  */
 
 var CardSelection = (function () {

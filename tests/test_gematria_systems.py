@@ -259,10 +259,17 @@ class TestAvgad:
     def alphabet(self, letter_data):
         return [row["letter"] for row in letter_data]
 
-    def test_forward_shift(self, alphabet):
+    @pytest.fixture(scope="class")
+    def avgad_map(self, alphabet):
+        """Build forward Avgad mapping: each letter -> next letter (wrapping)."""
+        return {alphabet[i]: alphabet[(i + 1) % 22] for i in range(22)}
+
+    def test_forward_shift(self, alphabet, avgad_map):
         for i, letter in enumerate(alphabet):
             expected = alphabet[(i + 1) % 22]
-            assert expected is not None, f"Avgad forward({letter})"
+            assert avgad_map[letter] == expected, (
+                f"Avgad forward({letter}) should be {expected}"
+            )
 
     def test_forward_reverse_inverse(self, alphabet):
         for i, letter in enumerate(alphabet):

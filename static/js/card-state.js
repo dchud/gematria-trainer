@@ -7,7 +7,7 @@
  * checking mastery criteria.
  *
  * Depends on spaced-repetition.js and tiers.js being loaded first.
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const.
  */
 
 var CardState = (function () {

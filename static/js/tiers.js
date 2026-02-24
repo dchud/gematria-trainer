@@ -11,7 +11,7 @@
  * for use as spaced repetition card identifiers.
  *
  * Depends on gematria.js and registry.js being loaded first.
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const. Requires ES2022+ (Object.hasOwn).
  */
 
 var Tiers = (function () {
@@ -200,7 +200,10 @@ var Tiers = (function () {
             });
 
             if (includeReverse) {
-                // Reverse: apply cipher in reverse direction
+                // Reverse: only used for Avgad (the only asymmetric cipher).
+                // Atbash and Albam are symmetric so includeReverse is never
+                // true for them. If a new asymmetric cipher is added, this
+                // will need to be generalized.
                 var reversed = Gematria.avgad(letter, true);
                 cards.push({
                     id: 'cipher-rev-' + name,

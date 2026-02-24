@@ -6,7 +6,7 @@
  * completion/review mode when all tiers are mastered.
  *
  * Depends on tiers.js, card-state.js, storage.js, and card-selection.js.
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const. Requires ES2022+ (Object.hasOwn).
  */
 
 var Progression = (function () {

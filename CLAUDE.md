@@ -63,7 +63,7 @@ node --test tests/js/test-*.js             # JS tests directly
 
 **Hebrew Gematria progression**: Individual letters (both directions: Hebrew-to-number, number-to-Hebrew) → multi-letter numbers → large numbers → years and real-world examples from traditional literature.
 
-**JavaScript conventions**: All client-side JS uses ES5-compatible IIFE pattern (no `let`/`const`, no arrow functions, no `import`/`export`). Modules attach to globals via `var ModuleName = (function() { ... })();`. Biome is configured in `biome.json` to enforce this style.
+**JavaScript conventions**: All client-side JS uses IIFE pattern with `var` (no `let`/`const`, no arrow functions, no `import`/`export`). Modules that use `Object.hasOwn()` require ES2022+. Modules attach to globals via `var ModuleName = (function() { ... })();`. Biome is configured in `biome.json` to enforce this style.
 
 ## Issue Tracking
 

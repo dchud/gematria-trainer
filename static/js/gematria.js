@@ -5,7 +5,7 @@
  * Reads letter data from the global LETTERS_DATA array injected by Flask.
  * Attaches all functions to the global Gematria object.
  *
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const. Requires ES2022+ (Object.hasOwn).
  */
 
 var Gematria = (function () {

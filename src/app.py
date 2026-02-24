@@ -5,7 +5,6 @@ from flask import Flask, render_template
 
 from src.data.gematria import (
     letters_to_json,
-    load_examples,
     load_letters,
 )
 
@@ -23,7 +22,6 @@ GITHUB_REPO_URL = os.environ.get("GITHUB_REPO_URL", "")
 
 # Load gematria data at build time
 _letters = load_letters()
-_examples = load_examples()
 _letters_json = letters_to_json(_letters)
 
 

@@ -5,7 +5,7 @@
  * Provides query methods for filtering by valuation/cipher type.
  * Depends on gematria.js being loaded first (Gematria global).
  *
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const. Requires ES2022+ (Object.hasOwn).
  */
 
 var GematriaRegistry = {

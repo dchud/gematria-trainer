@@ -5,7 +5,7 @@
  * with minute-based intervals (suitable for single-session learning).
  * Attaches all functions to the global SpacedRepetition object.
  *
- * ES5-compatible -- no import/export, no arrow functions, no let/const.
+ * No import/export, no arrow functions, no let/const.
  */
 
 var SpacedRepetition = (function () {
