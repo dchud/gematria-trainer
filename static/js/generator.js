@@ -192,6 +192,110 @@ var Generator = (function () {
         return cards;
     }
 
+    /**
+     * Tier 7: Hebrew years (5000-5899) + large numbers (1000-9999).
+     * 6 years + 6 large numbers, each x 2 directions = 24 cards.
+     *
+     * Years use omitThousands=true encoding (standard for Hebrew years).
+     * Large numbers use omitThousands=false (full encoding).
+     */
+    function _tier7Cards(_systemKey, seed) {
+        var rng = _prng(seed);
+        var cards = [];
+        var i, year, hebrew, num;
+
+        // Pick 6 Hebrew years from 5001-5899 (avoid round thousands)
+        var yearPool = _pickNumbers(rng, 5001, 5899, {}, 6);
+        for (i = 0; i < yearPool.length; i++) {
+            year = yearPool[i];
+            hebrew = Gematria.encode(year, true);
+            cards.push({
+                id: 'gen-t7-yr-' + year + '-to-heb',
+                type: 'year-to-hebrew',
+                prompt: String(year),
+                answer: hebrew,
+            });
+            cards.push({
+                id: 'gen-t7-heb-to-yr-' + year,
+                type: 'hebrew-to-year',
+                prompt: hebrew,
+                answer: String(year),
+            });
+        }
+
+        // Pick 6 large numbers from 1001-9999 (avoid round thousands)
+        var exclude = { 1000: true, 2000: true, 3000: true, 4000: true };
+        exclude[5000] = true;
+        exclude[6000] = true;
+        exclude[7000] = true;
+        exclude[8000] = true;
+        exclude[9000] = true;
+        var largePool = _pickNumbers(rng, 1001, 9999, exclude, 6);
+        for (i = 0; i < largePool.length; i++) {
+            num = largePool[i];
+            hebrew = Gematria.encode(num, false);
+            cards.push({
+                id: 'gen-t7-lg-' + num + '-to-heb',
+                type: 'number-to-hebrew',
+                prompt: String(num),
+                answer: hebrew,
+            });
+            cards.push({
+                id: 'gen-t7-heb-to-lg-' + num,
+                type: 'hebrew-to-number',
+                prompt: hebrew,
+                answer: String(num),
+            });
+        }
+
+        return cards;
+    }
+
+    /**
+     * Tier 8: real-world examples + procedural mixed numbers.
+     * Each example becomes one card (Hebrew prompt with meaning, value answer).
+     * Remaining slots filled with procedural numbers from all ranges.
+     *
+     * Depends on global EXAMPLES_DATA being set.
+     */
+    function _tier8Cards(systemKey, seed) {
+        var rng = _prng(seed);
+        var cards = [];
+        var i;
+
+        // Example cards from EXAMPLES_DATA
+        var examples = typeof EXAMPLES_DATA !== 'undefined' && EXAMPLES_DATA ? EXAMPLES_DATA : [];
+        var systemExamples = [];
+        for (i = 0; i < examples.length; i++) {
+            if (examples[i].system === systemKey) {
+                systemExamples.push(examples[i]);
+            }
+        }
+
+        for (i = 0; i < systemExamples.length; i++) {
+            var ex = systemExamples[i];
+            var slug = ex.transliteration.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            cards.push({
+                id: 'ex-' + i + '-' + slug,
+                type: 'example-to-value',
+                prompt: ex.hebrew + ' (' + ex.meaning + ')',
+                answer: String(ex.value),
+            });
+        }
+
+        // Fill remaining slots with mixed procedural numbers
+        var targetTotal = 30;
+        var remaining = targetTotal - cards.length;
+        if (remaining > 0) {
+            var mixed = _pickNumbers(rng, 11, 999, {}, remaining);
+            for (i = 0; i < mixed.length; i++) {
+                cards = cards.concat(_numberCardPair('gen-t8', mixed[i], systemKey));
+            }
+        }
+
+        return cards;
+    }
+
     // ---------------------------------------------------------------
     // Public API
     // ---------------------------------------------------------------
@@ -210,6 +314,10 @@ var Generator = (function () {
                 return _tier5Cards(systemKey, seed);
             case 6:
                 return _tier6Cards(systemKey, seed);
+            case 7:
+                return _tier7Cards(systemKey, seed);
+            case 8:
+                return _tier8Cards(systemKey, seed);
             default:
                 return [];
         }

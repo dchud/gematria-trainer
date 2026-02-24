@@ -50,6 +50,14 @@ for (var i = 1; i < lines.length; i++) {
 globalThis.LETTERS_DATA = lettersData;
 
 // ---------------------------------------------------------------
+// Load EXAMPLES_DATA from JSON
+// ---------------------------------------------------------------
+
+var examplesPath = path.resolve(__dirname, '../../../src/data/examples.json');
+var examplesText = fs.readFileSync(examplesPath, 'utf8');
+globalThis.EXAMPLES_DATA = JSON.parse(examplesText);
+
+// ---------------------------------------------------------------
 // Load JS modules in dependency order
 // ---------------------------------------------------------------
 

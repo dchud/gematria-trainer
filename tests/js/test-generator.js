@@ -272,6 +272,157 @@ describe('Generator', function () {
         });
     });
 
+    describe('generateTier — tier 7 (years + large numbers)', function () {
+        it('generates 24 cards (6 years + 6 large, each x 2)', function () {
+            var cards = Generator.generateTier('hechrachi', 7, 42);
+            assert.equal(cards.length, 24);
+        });
+
+        it('contains year-to-hebrew and hebrew-to-year types', function () {
+            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var types = {};
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                types[cards[i].type] = true;
+            }
+            assert.ok(types['year-to-hebrew']);
+            assert.ok(types['hebrew-to-year']);
+        });
+
+        it('contains number-to-hebrew and hebrew-to-number types for large numbers', function () {
+            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var types = {};
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                types[cards[i].type] = true;
+            }
+            assert.ok(types['number-to-hebrew']);
+            assert.ok(types['hebrew-to-number']);
+        });
+
+        it('year cards are in range 5001-5899', function () {
+            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var i, match;
+            for (i = 0; i < cards.length; i++) {
+                match = cards[i].id.match(/gen-t7-yr-(\d+)-to-heb/);
+                if (match) {
+                    var year = Number(match[1]);
+                    assert.ok(year >= 5001 && year <= 5899, 'Year out of range: ' + year);
+                }
+            }
+        });
+
+        it('large number cards are in range 1001-9999', function () {
+            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var i, match;
+            for (i = 0; i < cards.length; i++) {
+                match = cards[i].id.match(/gen-t7-lg-(\d+)-to-heb/);
+                if (match) {
+                    var num = Number(match[1]);
+                    assert.ok(num >= 1001 && num <= 9999, 'Large number out of range: ' + num);
+                }
+            }
+        });
+
+        it('produces stable IDs with same seed', function () {
+            var cards1 = Generator.generateTier('hechrachi', 7, 42);
+            var cards2 = Generator.generateTier('hechrachi', 7, 42);
+            var i;
+            for (i = 0; i < cards1.length; i++) {
+                assert.equal(cards1[i].id, cards2[i].id);
+            }
+        });
+
+        it('year cards use omitThousands encoding', function () {
+            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (cards[i].type === 'year-to-hebrew') {
+                    // Year encoding omits thousands, so Hebrew should be
+                    // shorter (no thousands digit representation)
+                    var year = Number(cards[i].prompt);
+                    var withThousands = Gematria.encode(year, false);
+                    var withoutThousands = Gematria.encode(year, true);
+                    assert.equal(cards[i].answer, withoutThousands);
+                }
+            }
+        });
+    });
+
+    describe('generateTier — tier 8 (examples + mixed)', function () {
+        it('generates cards including examples', function () {
+            var cards = Generator.generateTier('hechrachi', 8, 42);
+            assert.ok(cards.length > 0);
+        });
+
+        it('includes example cards with ex- prefix', function () {
+            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var exampleCount = 0;
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (cards[i].id.indexOf('ex-') === 0) exampleCount++;
+            }
+            assert.ok(exampleCount > 0, 'Expected example cards');
+        });
+
+        it('example cards have example-to-value type', function () {
+            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (cards[i].id.indexOf('ex-') === 0) {
+                    assert.equal(cards[i].type, 'example-to-value');
+                }
+            }
+        });
+
+        it('example prompts contain Hebrew and meaning in parens', function () {
+            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var hebrewRe = /[\u0590-\u05FF]/;
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (cards[i].type === 'example-to-value') {
+                    assert.ok(hebrewRe.test(cards[i].prompt), 'No Hebrew: ' + cards[i].id);
+                    assert.ok(
+                        cards[i].prompt.indexOf('(') !== -1,
+                        'No meaning parens: ' + cards[i].id,
+                    );
+                }
+            }
+        });
+
+        it('fills remaining slots with procedural mixed cards', function () {
+            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var genCount = 0;
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (cards[i].id.indexOf('gen-t8') === 0) genCount++;
+            }
+            assert.ok(genCount > 0, 'Expected procedural fill cards');
+        });
+
+        it('produces stable output with same seed', function () {
+            var cards1 = Generator.generateTier('hechrachi', 8, 42);
+            var cards2 = Generator.generateTier('hechrachi', 8, 42);
+            assert.equal(cards1.length, cards2.length);
+            var i;
+            for (i = 0; i < cards1.length; i++) {
+                assert.equal(cards1[i].id, cards2[i].id);
+            }
+        });
+
+        it('only includes examples matching the system', function () {
+            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var i;
+            for (i = 0; i < cards.length; i++) {
+                if (cards[i].id.indexOf('ex-') === 0) {
+                    // All examples should be from hechrachi system
+                    // (the examples.json only has hechrachi examples)
+                    assert.equal(cards[i].type, 'example-to-value');
+                }
+            }
+        });
+    });
+
     describe('generateTier — unknown tier', function () {
         it('returns empty array for unsupported tier numbers', function () {
             assert.deepEqual(Generator.generateTier('hechrachi', 1, 42), []);

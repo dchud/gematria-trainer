@@ -29,6 +29,7 @@
 
     <!-- Gematria data (build-time) -->
     <script>var LETTERS_DATA = {{ letters_json|safe }};</script>
+    <script>var EXAMPLES_DATA = {{ examples_json|safe }};</script>
 
     <!-- Application JS -->
     <script src="{{ url_for('static', filename='js/gematria.js') }}"></script>
