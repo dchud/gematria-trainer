@@ -53,6 +53,12 @@ function app() {
         degradedMode: false,
         shortcutsOpen: false,
 
+        // Placement assessment
+        placementActive: false,
+        placementState: null,
+        placementAnswerRevealed: false,
+        placementMessage: '',
+
         // Confirmation dialogs
         confirmResetSystem: false,
         confirmStartFresh: false,
@@ -268,6 +274,69 @@ function app() {
                 }
             }
             return 'font-hebrew-standard';
+        },
+
+        // -----------------------------------------------------------
+        // Placement assessment
+        // -----------------------------------------------------------
+
+        beginPlacement: function () {
+            this.placementState = Placement.create(this.system);
+            this.placementActive = true;
+            this.placementAnswerRevealed = false;
+            this.placementMessage = '';
+            this.navigate('placement');
+        },
+
+        placementPrompt: function () {
+            if (!this.placementState) return '';
+            var card = Placement.currentCard(this.placementState);
+            return card ? card.prompt : '';
+        },
+
+        placementAnswer: function () {
+            if (!this.placementState) return '';
+            var card = Placement.currentCard(this.placementState);
+            return card ? card.answer : '';
+        },
+
+        showPlacementAnswer: function () {
+            this.placementAnswerRevealed = true;
+        },
+
+        ratePlacementCard: function (correct) {
+            if (!this.placementState || !this.placementAnswerRevealed) return;
+
+            var result = Placement.recordResponse(this.placementState, correct);
+            this.placementAnswerRevealed = false;
+
+            if (result.done) {
+                this.finishPlacement(result.startTier);
+            }
+        },
+
+        finishPlacement: function (startTier) {
+            var self = this;
+            var tierLabel = Tiers.tierLetter(startTier);
+            this.placementMessage = 'Starting at Tier ' + tierLabel;
+
+            setTimeout(function () {
+                self.placementActive = false;
+                self.placementState = null;
+                self.placementMessage = '';
+
+                // Create progression at determined tier
+                self.progression = Progression.createState(self.system);
+                self.progression.currentTier = startTier;
+                Progression.ensureTierCards(self.progression, startTier);
+                Progression.save(self.progression);
+
+                self.sessionActive = true;
+                self._setCookie('gematria_session', '1', 30);
+                self._updateTierInfo();
+                self.loadNextCard();
+                self.navigate('flashcard');
+            }, 1500);
         },
 
         // -----------------------------------------------------------

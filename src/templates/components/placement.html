@@ -1,0 +1,76 @@
+<!-- Placement assessment view -->
+<div class="flex flex-col items-center min-h-[80vh]"
+     role="region" aria-label="Placement assessment">
+
+    <!-- Header -->
+    <div class="w-full text-center mb-6">
+        <h2 class="text-xl font-bold mb-1">Let's see what you know</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="systemName()"></p>
+    </div>
+
+    <!-- Card area (active assessment) -->
+    <template x-if="placementState && !placementState.done">
+        <div class="flex-1 flex flex-col items-center justify-center w-full">
+
+            <!-- Progress indicator -->
+            <p class="text-sm text-gray-400 dark:text-gray-500 mb-8"
+               x-text="'Step ' + (placementState.currentStep + 1) + ' of ' + placementState.steps.length"></p>
+
+            <!-- Prompt -->
+            <div class="mb-8 text-center">
+                <p class="text-7xl font-bold leading-tight"
+                   :dir="isHebrew(placementPrompt()) ? 'rtl' : 'ltr'"
+                   x-text="placementPrompt()"></p>
+            </div>
+
+            <!-- Answer area -->
+            <div class="mb-8 text-center min-h-[4rem]">
+                <template x-if="!placementAnswerRevealed">
+                    <button @click="showPlacementAnswer()"
+                            class="px-8 py-3 bg-blue-600 text-white rounded-lg text-lg font-medium
+                                   hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500
+                                   focus:ring-offset-2 dark:focus:ring-offset-gray-950 min-h-[48px]">
+                        Show Answer
+                    </button>
+                </template>
+                <template x-if="placementAnswerRevealed">
+                    <p class="text-5xl font-bold text-blue-600 dark:text-blue-400 leading-tight"
+                       :dir="isHebrew(placementAnswer()) ? 'rtl' : 'ltr'"
+                       x-text="placementAnswer()"></p>
+                </template>
+            </div>
+
+            <!-- Self-report buttons -->
+            <template x-if="placementAnswerRevealed">
+                <div class="w-full max-w-sm">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-3">
+                        Did you know this?
+                    </p>
+                    <div class="grid grid-cols-2 gap-3" role="group" aria-label="Rate your knowledge">
+                        <button @click="ratePlacementCard(false)"
+                                class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-medium
+                                       bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400
+                                       hover:bg-red-200 dark:hover:bg-red-900/50
+                                       focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[48px]">
+                            Not sure
+                        </button>
+                        <button @click="ratePlacementCard(true)"
+                                class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-medium
+                                       bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400
+                                       hover:bg-green-200 dark:hover:bg-green-900/50
+                                       focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[48px]">
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <!-- Completion message -->
+    <template x-if="placementMessage">
+        <div class="flex-1 flex flex-col items-center justify-center text-center">
+            <p class="text-xl font-medium" x-text="placementMessage"></p>
+        </div>
+    </template>
+</div>

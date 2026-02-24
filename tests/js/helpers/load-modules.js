@@ -65,6 +65,7 @@ var modules = [
     // settings.js depends on storage.js (browser only), skip in Node
     'card-selection.js',
     'progression.js',
+    'placement.js',
 ];
 
 for (var m = 0; m < modules.length; m++) {

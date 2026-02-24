@@ -160,6 +160,10 @@ describe('app()', function () {
             assert.equal(a.darkMode, 'system');
             assert.equal(a.degradedMode, false);
             assert.equal(a.shortcutsOpen, false);
+            assert.equal(a.placementActive, false);
+            assert.equal(a.placementState, null);
+            assert.equal(a.placementAnswerRevealed, false);
+            assert.equal(a.placementMessage, '');
             assert.equal(a.confirmResetSystem, false);
             assert.equal(a.confirmStartFresh, false);
         });
@@ -1240,6 +1244,81 @@ describe('app()', function () {
             a.init();
             a.beginSession();
             assert.equal(a._getCookie('gematria_session'), '1');
+        });
+    });
+
+    describe('placement flow', function () {
+        it('beginPlacement() creates state and navigates to placement', function () {
+            var a = createApp();
+            a.init();
+            a.beginPlacement();
+            assert.equal(a.placementActive, true);
+            assert.ok(a.placementState);
+            assert.equal(a.placementState.system, 'hechrachi');
+            assert.equal(a.view, 'placement');
+            assert.equal(a.placementAnswerRevealed, false);
+        });
+
+        it('placementPrompt() returns current card prompt', function () {
+            var a = createApp();
+            a.init();
+            a.beginPlacement();
+            var prompt = a.placementPrompt();
+            assert.ok(prompt);
+        });
+
+        it('placementAnswer() returns current card answer', function () {
+            var a = createApp();
+            a.init();
+            a.beginPlacement();
+            var answer = a.placementAnswer();
+            assert.ok(answer);
+        });
+
+        it('showPlacementAnswer() reveals answer', function () {
+            var a = createApp();
+            a.init();
+            a.beginPlacement();
+            assert.equal(a.placementAnswerRevealed, false);
+            a.showPlacementAnswer();
+            assert.equal(a.placementAnswerRevealed, true);
+        });
+
+        it('ratePlacementCard() does nothing when answer not revealed', function () {
+            var a = createApp();
+            a.init();
+            a.beginPlacement();
+            a.ratePlacementCard(true);
+            // Should not advance (answer not revealed)
+            assert.equal(a.placementState.cardIndex, 0);
+        });
+
+        it('ratePlacementCard(true) advances to next card', function () {
+            var a = createApp();
+            a.init();
+            a.beginPlacement();
+            a.showPlacementAnswer();
+            a.ratePlacementCard(true);
+            assert.equal(a.placementAnswerRevealed, false);
+            assert.equal(a.placementState.cardIndex, 1);
+        });
+
+        it('ratePlacementCard(false) finishes placement', function () {
+            var a = createApp();
+            a.init();
+            a.beginPlacement();
+            a.showPlacementAnswer();
+            a.ratePlacementCard(false);
+            assert.equal(a.placementState.done, true);
+            assert.equal(a.placementState.startTier, 1);
+            // placementMessage should be set
+            assert.ok(a.placementMessage);
+        });
+
+        it('placementPrompt/Answer return empty without state', function () {
+            var a = createApp();
+            assert.equal(a.placementPrompt(), '');
+            assert.equal(a.placementAnswer(), '');
         });
     });
 
