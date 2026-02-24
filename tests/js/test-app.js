@@ -1,0 +1,849 @@
+/**
+ * Tests for app.js — Alpine.js application controller.
+ *
+ * Tests the app() function's methods and state management with
+ * mocked localStorage and browser APIs.
+ */
+
+var { describe, it, beforeEach } = require('node:test');
+var assert = require('node:assert/strict');
+var fs = require('node:fs');
+var path = require('node:path');
+var vm = require('node:vm');
+
+// Load base modules (everything except storage.js)
+require('./helpers/load-modules');
+
+var jsDir = path.resolve(__dirname, '../../static/js');
+var storageCode = fs.readFileSync(path.join(jsDir, 'storage.js'), 'utf8');
+var appCode = fs.readFileSync(path.join(jsDir, 'app.js'), 'utf8');
+
+// Mock window.matchMedia for init()
+var _reducedMotion = false;
+var _mediaListeners = [];
+
+globalThis.window = globalThis.window || {};
+window.matchMedia = function () {
+    return {
+        matches: _reducedMotion,
+        addEventListener: function (_type, fn) {
+            _mediaListeners.push(fn);
+        },
+    };
+};
+
+// Mock document.getElementById for transitionToNextCard
+globalThis.document = globalThis.document || {};
+document.getElementById = function () {
+    return { focus: function () {} };
+};
+
+function freshStore() {
+    var data = {};
+    return {
+        getItem: function (key) {
+            return Object.hasOwn(data, key) ? data[key] : null;
+        },
+        setItem: function (key, val) {
+            data[key] = String(val);
+        },
+        removeItem: function (key) {
+            delete data[key];
+        },
+        clear: function () {
+            var k;
+            for (k in data) {
+                if (Object.hasOwn(data, k)) delete data[k];
+            }
+        },
+        _data: data,
+    };
+}
+
+function setup() {
+    _reducedMotion = false;
+    _mediaListeners = [];
+    globalThis.localStorage = freshStore();
+    vm.runInThisContext(storageCode, { filename: 'storage.js' });
+    vm.runInThisContext(appCode, { filename: 'app.js' });
+}
+
+function createApp() {
+    var a = app();
+    // Mock Alpine.js $nextTick
+    a.$nextTick = function (fn) {
+        fn();
+    };
+    return a;
+}
+
+// -------------------------------------------------------------------
+// Tests
+// -------------------------------------------------------------------
+
+describe('app()', function () {
+    beforeEach(function () {
+        setup();
+    });
+
+    describe('initial state', function () {
+        it('returns an object with expected properties', function () {
+            var a = createApp();
+            assert.equal(a.view, 'splash');
+            assert.equal(a.previousView, null);
+            assert.equal(a.system, 'hechrachi');
+            assert.equal(a.progression, null);
+            assert.equal(a.sessionActive, false);
+            assert.equal(a.hasSavedProgress, false);
+            assert.equal(a.currentCard, null);
+            assert.equal(a.answerRevealed, false);
+            assert.equal(a.cardIndex, 0);
+            assert.equal(a.totalCards, 0);
+            assert.equal(a.savedCardState, null);
+            assert.equal(a.transition, 'fade');
+            assert.equal(a.cardVisible, true);
+            assert.equal(a.reducedMotion, false);
+            assert.equal(a.darkMode, true);
+            assert.equal(a.shortcutsOpen, false);
+        });
+
+        it('each call returns a fresh instance', function () {
+            var a1 = createApp();
+            var a2 = createApp();
+            a1.view = 'flashcard';
+            assert.equal(a2.view, 'splash');
+        });
+    });
+
+    describe('init()', function () {
+        it('detects reduced motion preference', function () {
+            _reducedMotion = true;
+            var a = createApp();
+            a.init();
+            assert.equal(a.reducedMotion, true);
+        });
+
+        it('loads saved settings', function () {
+            Storage.saveSettings({ transition: 'slide-left', darkMode: false });
+            var a = createApp();
+            a.init();
+            assert.equal(a.transition, 'slide-left');
+            assert.equal(a.darkMode, false);
+        });
+
+        it('loads saved system from settings', function () {
+            Storage.saveSettings({ system: 'gadol' });
+            var a = createApp();
+            a.init();
+            assert.equal(a.system, 'gadol');
+        });
+
+        it('detects saved progress', function () {
+            var state = Progression.createState('hechrachi');
+            Storage.saveProgress('hechrachi', state);
+            var a = createApp();
+            a.init();
+            assert.equal(a.hasSavedProgress, true);
+        });
+
+        it('no saved progress when storage is empty', function () {
+            var a = createApp();
+            a.init();
+            assert.equal(a.hasSavedProgress, false);
+        });
+    });
+
+    describe('navigate()', function () {
+        it('switches view and tracks previous', function () {
+            var a = createApp();
+            a.navigate('flashcard');
+            assert.equal(a.view, 'flashcard');
+            assert.equal(a.previousView, 'splash');
+        });
+
+        it('closes shortcuts overlay on navigation', function () {
+            var a = createApp();
+            a.shortcutsOpen = true;
+            a.navigate('settings');
+            assert.equal(a.shortcutsOpen, false);
+        });
+
+        it('saves card state when leaving flashcard mid-session', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.equal(a.view, 'flashcard');
+            assert.ok(a.currentCard);
+
+            var savedCard = a.currentCard;
+            a.navigate('settings');
+            assert.ok(a.savedCardState);
+            assert.equal(a.savedCardState.currentCard, savedCard);
+        });
+
+        it('restores card state when returning to flashcard', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            var savedCard = a.currentCard;
+            var savedRevealed = a.answerRevealed;
+            a.navigate('settings');
+            a.navigate('flashcard');
+
+            assert.equal(a.currentCard, savedCard);
+            assert.equal(a.answerRevealed, savedRevealed);
+            assert.equal(a.savedCardState, null);
+        });
+    });
+
+    describe('beginSession()', function () {
+        it('creates progression and loads first card', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            assert.ok(a.progression);
+            assert.equal(a.progression.system, 'hechrachi');
+            assert.equal(a.sessionActive, true);
+            assert.ok(a.currentCard);
+            assert.equal(a.currentCard.type, 'card');
+            assert.ok(a.currentCard.spec);
+            assert.ok(a.currentCard.card);
+        });
+
+        it('sets totalCards to tier spec count', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            var specs = Tiers.getCards('hechrachi', 1);
+            assert.equal(a.totalCards, specs.length);
+        });
+
+        it('navigates to flashcard view', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.equal(a.view, 'flashcard');
+        });
+    });
+
+    describe('startFresh()', function () {
+        it('resets progression and starts from tier 1', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            // Rate a card to create some progress
+            a.showAnswer();
+            a.rateCard(4);
+
+            a.startFresh();
+            assert.equal(a.progression.currentTier, 1);
+            assert.equal(a.sessionActive, true);
+        });
+    });
+
+    describe('switchSystem()', function () {
+        it('changes system and reloads when session is active', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.switchSystem('katan');
+
+            assert.equal(a.system, 'katan');
+            assert.equal(a.progression.system, 'katan');
+            assert.ok(a.currentCard);
+        });
+
+        it('discards saved card state', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.navigate('settings');
+            assert.ok(a.savedCardState);
+
+            a.switchSystem('katan');
+            assert.equal(a.savedCardState, null);
+        });
+
+        it('checks for saved progress in new system', function () {
+            var state = Progression.createState('gadol');
+            Storage.saveProgress('gadol', state);
+
+            var a = createApp();
+            a.init();
+            assert.equal(a.hasSavedProgress, false);
+
+            a.switchSystem('gadol');
+            assert.equal(a.hasSavedProgress, true);
+        });
+    });
+
+    describe('loadNextCard()', function () {
+        it('loads first unreviewed card', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            assert.ok(a.currentCard);
+            assert.equal(a.currentCard.type, 'card');
+            assert.equal(a.answerRevealed, false);
+            assert.equal(a.cardVisible, true);
+        });
+
+        it('does nothing without progression', function () {
+            var a = createApp();
+            a.loadNextCard();
+            assert.equal(a.currentCard, null);
+        });
+    });
+
+    describe('showAnswer()', function () {
+        it('reveals the answer', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.equal(a.answerRevealed, false);
+
+            a.showAnswer();
+            assert.equal(a.answerRevealed, true);
+        });
+
+        it('does nothing without a card', function () {
+            var a = createApp();
+            a.showAnswer();
+            assert.equal(a.answerRevealed, false);
+        });
+    });
+
+    describe('rateCard()', function () {
+        it('records review and loads next card', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+
+            var firstCard = a.currentCard;
+            a.showAnswer();
+            a.rateCard(3);
+
+            // Card should have changed (or same card with updated state)
+            assert.equal(a.answerRevealed, false);
+            assert.ok(a.currentCard);
+        });
+
+        it('does nothing when answer is not revealed', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            var firstCard = a.currentCard;
+            a.rateCard(3); // answer not revealed
+            assert.equal(a.currentCard, firstCard);
+        });
+
+        it('does nothing with invalid rating', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.showAnswer();
+
+            var card = a.currentCard;
+            a.rateCard(0);
+            assert.equal(a.currentCard, card);
+            a.rateCard(5);
+            assert.equal(a.currentCard, card);
+        });
+
+        it('maps rating 1 to quality 1 (wrong)', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+            a.showAnswer();
+
+            var cardId = a.currentCard.card.card_id;
+            a.rateCard(1);
+
+            // Find the card in progression to verify quality
+            var cards = Progression.currentTierCards(a.progression);
+            var found = null;
+            for (var i = 0; i < cards.length; i++) {
+                if (cards[i].card_id === cardId) {
+                    found = cards[i];
+                    break;
+                }
+            }
+            assert.ok(found);
+            assert.equal(found.last_quality, 1);
+        });
+
+        it('maps rating 4 to quality 5 (easy)', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+            a.showAnswer();
+
+            var cardId = a.currentCard.card.card_id;
+            a.rateCard(4);
+
+            var cards = Progression.currentTierCards(a.progression);
+            var found = null;
+            for (var i = 0; i < cards.length; i++) {
+                if (cards[i].card_id === cardId) {
+                    found = cards[i];
+                    break;
+                }
+            }
+            assert.ok(found);
+            assert.equal(found.last_quality, 5);
+        });
+    });
+
+    describe('display helpers', function () {
+        it('promptText() returns card prompt', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.ok(a.promptText());
+            assert.equal(a.promptText(), a.currentCard.spec.prompt);
+        });
+
+        it('promptText() returns empty string without card', function () {
+            var a = createApp();
+            assert.equal(a.promptText(), '');
+        });
+
+        it('answerText() returns card answer', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.ok(a.answerText());
+            assert.equal(a.answerText(), a.currentCard.spec.answer);
+        });
+
+        it('answerText() returns empty string without card', function () {
+            var a = createApp();
+            assert.equal(a.answerText(), '');
+        });
+
+        it('isHebrew() detects Hebrew characters', function () {
+            var a = createApp();
+            assert.equal(a.isHebrew('\u05D0'), true);
+            assert.equal(a.isHebrew('\u05EA'), true);
+            assert.equal(a.isHebrew('123'), false);
+            assert.equal(a.isHebrew('abc'), false);
+            assert.equal(a.isHebrew(''), false);
+        });
+
+        it('tierLabel() returns Hebrew tier letter', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.equal(a.tierLabel(), Tiers.tierLetter(1));
+        });
+
+        it('tierLabel() returns empty string without progression', function () {
+            var a = createApp();
+            assert.equal(a.tierLabel(), '');
+        });
+
+        it('systemName() returns display name', function () {
+            var a = createApp();
+            assert.equal(a.systemName(), 'Mispar Hechrachi');
+        });
+
+        it('statusText() shows tier and progress', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            var text = a.statusText();
+            assert.ok(text.indexOf('Tier') !== -1);
+            assert.ok(text.indexOf('/') !== -1);
+        });
+
+        it('statusText() returns empty string without progression', function () {
+            var a = createApp();
+            assert.equal(a.statusText(), '');
+        });
+
+        it('statusText() shows review mode when completed', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.progression.completed = true;
+            assert.equal(a.statusText(), 'Review mode');
+        });
+
+        it('ratingLabel() maps numbers to names', function () {
+            var a = createApp();
+            assert.equal(a.ratingLabel(1), 'Wrong');
+            assert.equal(a.ratingLabel(2), 'Unsure');
+            assert.equal(a.ratingLabel(3), 'Good');
+            assert.equal(a.ratingLabel(4), 'Easy');
+            assert.equal(a.ratingLabel(0), '');
+            assert.equal(a.ratingLabel(5), '');
+        });
+    });
+
+    describe('effectiveTransition()', function () {
+        it('returns fade with 250ms by default', function () {
+            var a = createApp();
+            var t = a.effectiveTransition();
+            assert.equal(t.type, 'fade');
+            assert.equal(t.duration, 250);
+        });
+
+        it('returns none when reducedMotion is true', function () {
+            var a = createApp();
+            a.reducedMotion = true;
+            var t = a.effectiveTransition();
+            assert.equal(t.type, 'none');
+            assert.equal(t.duration, 0);
+        });
+
+        it('returns slide-left with 300ms', function () {
+            var a = createApp();
+            a.transition = 'slide-left';
+            var t = a.effectiveTransition();
+            assert.equal(t.type, 'slide-left');
+            assert.equal(t.duration, 300);
+        });
+
+        it('returns none for unknown transition type', function () {
+            var a = createApp();
+            a.transition = 'unknown';
+            var t = a.effectiveTransition();
+            assert.equal(t.type, 'none');
+            assert.equal(t.duration, 0);
+        });
+    });
+
+    describe('transitionStyle()', function () {
+        it('returns opacity transition for fade', function () {
+            var a = createApp();
+            a.transition = 'fade';
+            var style = a.transitionStyle();
+            assert.ok(style.indexOf('opacity') !== -1);
+            assert.ok(style.indexOf('250ms') !== -1);
+        });
+
+        it('returns transform+opacity transition for slide-left', function () {
+            var a = createApp();
+            a.transition = 'slide-left';
+            var style = a.transitionStyle();
+            assert.ok(style.indexOf('transform') !== -1);
+            assert.ok(style.indexOf('opacity') !== -1);
+            assert.ok(style.indexOf('300ms') !== -1);
+        });
+
+        it('returns empty string when reduced motion', function () {
+            var a = createApp();
+            a.reducedMotion = true;
+            assert.equal(a.transitionStyle(), '');
+        });
+    });
+
+    describe('transitionClasses()', function () {
+        it('returns opacity-0 when not visible (fade)', function () {
+            var a = createApp();
+            a.transition = 'fade';
+            a.cardVisible = false;
+            assert.equal(a.transitionClasses(), 'opacity-0');
+        });
+
+        it('returns opacity-100 when visible (fade)', function () {
+            var a = createApp();
+            a.transition = 'fade';
+            a.cardVisible = true;
+            assert.equal(a.transitionClasses(), 'opacity-100 translate-x-0');
+        });
+
+        it('returns translate class when not visible (slide-left)', function () {
+            var a = createApp();
+            a.transition = 'slide-left';
+            a.cardVisible = false;
+            assert.ok(a.transitionClasses().indexOf('-translate-x-8') !== -1);
+        });
+
+        it('returns empty string when reduced motion', function () {
+            var a = createApp();
+            a.reducedMotion = true;
+            a.cardVisible = false;
+            assert.equal(a.transitionClasses(), '');
+        });
+    });
+
+    describe('handleKeydown()', function () {
+        function makeEvent(key, extra) {
+            var prevented = false;
+            var evt = {
+                key: key,
+                code: '',
+                target: { tagName: 'BODY' },
+                preventDefault: function () {
+                    prevented = true;
+                },
+            };
+            if (extra) {
+                var k;
+                for (k in extra) {
+                    if (Object.hasOwn(extra, k)) evt[k] = extra[k];
+                }
+            }
+            evt._prevented = function () {
+                return prevented;
+            };
+            return evt;
+        }
+
+        it('toggles shortcuts overlay with ?', function () {
+            var a = createApp();
+            assert.equal(a.shortcutsOpen, false);
+
+            var e = makeEvent('?');
+            a.handleKeydown(e);
+            assert.equal(a.shortcutsOpen, true);
+            assert.ok(e._prevented());
+
+            e = makeEvent('?');
+            a.handleKeydown(e);
+            assert.equal(a.shortcutsOpen, false);
+        });
+
+        it('closes shortcuts overlay with Escape', function () {
+            var a = createApp();
+            a.shortcutsOpen = true;
+
+            var e = makeEvent('Escape');
+            a.handleKeydown(e);
+            assert.equal(a.shortcutsOpen, false);
+            assert.ok(e._prevented());
+        });
+
+        it('Escape does nothing when overlay is closed', function () {
+            var a = createApp();
+            a.shortcutsOpen = false;
+
+            var e = makeEvent('Escape');
+            a.handleKeydown(e);
+            assert.equal(a.shortcutsOpen, false);
+            assert.ok(!e._prevented());
+        });
+
+        it('Space flips card when on flashcard view', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            assert.equal(a.answerRevealed, false);
+
+            var e = makeEvent(' ', { code: 'Space' });
+            a.handleKeydown(e);
+            assert.equal(a.answerRevealed, true);
+            assert.ok(e._prevented());
+        });
+
+        it('Space does nothing when answer is already revealed', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.showAnswer();
+
+            var e = makeEvent(' ', { code: 'Space' });
+            a.handleKeydown(e);
+            // Should not error; answer remains revealed
+            assert.equal(a.answerRevealed, true);
+            assert.ok(!e._prevented());
+        });
+
+        it('Space does nothing on non-flashcard views', function () {
+            var a = createApp();
+            a.view = 'settings';
+
+            var e = makeEvent(' ', { code: 'Space' });
+            a.handleKeydown(e);
+            assert.ok(!e._prevented());
+        });
+
+        it('1-4 rate card when answer is revealed', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+            a.showAnswer();
+
+            var e = makeEvent('3');
+            a.handleKeydown(e);
+            assert.ok(e._prevented());
+            // Card should have been rated and next card loaded
+            assert.equal(a.answerRevealed, false);
+        });
+
+        it('1-4 do nothing when answer is not revealed', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+
+            var card = a.currentCard;
+            var e = makeEvent('1');
+            a.handleKeydown(e);
+            assert.ok(!e._prevented());
+            assert.equal(a.currentCard, card);
+        });
+
+        it('p navigates to progress', function () {
+            var a = createApp();
+            var e = makeEvent('p');
+            a.handleKeydown(e);
+            assert.equal(a.view, 'progress');
+            assert.ok(e._prevented());
+        });
+
+        it('r navigates to reference', function () {
+            var a = createApp();
+            var e = makeEvent('r');
+            a.handleKeydown(e);
+            assert.equal(a.view, 'reference');
+            assert.ok(e._prevented());
+        });
+
+        it('s navigates to settings', function () {
+            var a = createApp();
+            var e = makeEvent('s');
+            a.handleKeydown(e);
+            assert.equal(a.view, 'settings');
+            assert.ok(e._prevented());
+        });
+
+        it('a navigates to about', function () {
+            var a = createApp();
+            var e = makeEvent('a');
+            a.handleKeydown(e);
+            assert.equal(a.view, 'about');
+            assert.ok(e._prevented());
+        });
+
+        it('ignores keydown in input fields', function () {
+            var a = createApp();
+            var e = makeEvent('p', { target: { tagName: 'INPUT' } });
+            a.handleKeydown(e);
+            assert.equal(a.view, 'splash');
+            assert.ok(!e._prevented());
+        });
+
+        it('ignores keydown in textarea fields', function () {
+            var a = createApp();
+            var e = makeEvent('s', { target: { tagName: 'TEXTAREA' } });
+            a.handleKeydown(e);
+            assert.equal(a.view, 'splash');
+        });
+
+        it('blocks navigation keys when shortcuts overlay is open', function () {
+            var a = createApp();
+            a.shortcutsOpen = true;
+
+            var e = makeEvent('p');
+            a.handleKeydown(e);
+            assert.equal(a.view, 'splash');
+            assert.ok(!e._prevented());
+        });
+    });
+
+    describe('full session flow', function () {
+        it('begin -> flip -> rate -> next card cycle', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+
+            // Should have a card
+            assert.ok(a.currentCard);
+            assert.equal(a.view, 'flashcard');
+            var firstPrompt = a.promptText();
+            assert.ok(firstPrompt);
+
+            // Flip
+            a.showAnswer();
+            assert.equal(a.answerRevealed, true);
+            assert.ok(a.answerText());
+
+            // Rate
+            a.rateCard(4);
+            assert.equal(a.answerRevealed, false);
+            assert.ok(a.currentCard);
+
+            // Card index should update
+            assert.ok(a.cardIndex >= 1);
+        });
+
+        it('processes multiple cards in sequence', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+
+            for (var i = 0; i < 5; i++) {
+                assert.ok(a.currentCard, 'should have card on iteration ' + i);
+                a.showAnswer();
+                a.rateCard(4);
+            }
+
+            // Should still have a card (tier 1 has 18 cards for hechrachi)
+            assert.ok(a.currentCard);
+            assert.ok(a.cardIndex >= 5);
+        });
+
+        it('persists progress to localStorage', function () {
+            var a = createApp();
+            a.init();
+            a.reducedMotion = true;
+            a.beginSession();
+            a.showAnswer();
+            a.rateCard(4);
+
+            // Check that progress was saved
+            var saved = Storage.loadProgress('hechrachi');
+            assert.ok(saved);
+            assert.equal(saved.system, 'hechrachi');
+        });
+    });
+
+    describe('card state preservation', function () {
+        it('preserves revealed state across navigation', function () {
+            var a = createApp();
+            a.init();
+            a.beginSession();
+            a.showAnswer();
+            assert.equal(a.answerRevealed, true);
+
+            // Navigate away
+            a.navigate('settings');
+            assert.ok(a.savedCardState);
+            assert.equal(a.savedCardState.answerRevealed, true);
+
+            // Navigate back
+            a.navigate('flashcard');
+            assert.equal(a.answerRevealed, true);
+            assert.equal(a.savedCardState, null);
+        });
+
+        it('does not save state when not on flashcard view', function () {
+            var a = createApp();
+            a.view = 'settings';
+            a.sessionActive = true;
+            a.navigate('about');
+            assert.equal(a.savedCardState, null);
+        });
+
+        it('does not save state when session is not active', function () {
+            var a = createApp();
+            a.view = 'flashcard';
+            a.sessionActive = false;
+            a.navigate('settings');
+            assert.equal(a.savedCardState, null);
+        });
+    });
+});

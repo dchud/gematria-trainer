@@ -1,4 +1,72 @@
-<!-- Keyboard shortcuts help view -->
-<div class="flex flex-col items-center justify-center min-h-screen">
-    <h2 class="text-2xl font-bold mb-4">Keyboard Shortcuts</h2>
+<!-- Keyboard shortcuts overlay content -->
+<div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4"
+     @click.stop>
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold">Keyboard Shortcuts</h2>
+        <button @click="shortcutsOpen = false"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 rounded min-h-[48px] min-w-[48px]
+                       flex items-center justify-center"
+                aria-label="Close shortcuts">
+            &times;
+        </button>
+    </div>
+
+    <div class="space-y-4 text-sm">
+        <div>
+            <h3 class="font-medium text-gray-500 dark:text-gray-400 mb-2">Flashcard</h3>
+            <dl class="space-y-1">
+                <div class="flex justify-between">
+                    <dt>Show answer</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">Space</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Rate: Wrong</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">1</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Rate: Unsure</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">2</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Rate: Good</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">3</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Rate: Easy</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">4</kbd></dd>
+                </div>
+            </dl>
+        </div>
+
+        <div>
+            <h3 class="font-medium text-gray-500 dark:text-gray-400 mb-2">Navigation</h3>
+            <dl class="space-y-1">
+                <div class="flex justify-between">
+                    <dt>Progress</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">p</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Reference</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">r</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Settings</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">s</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>About</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">a</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Shortcuts</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">?</kbd></dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Close overlay</dt>
+                    <dd><kbd class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">Esc</kbd></dd>
+                </div>
+            </dl>
+        </div>
+    </div>
 </div>
