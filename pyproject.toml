@@ -1,0 +1,20 @@
+[project]
+name = "gematria-trainer"
+version = "0.1.0"
+description = "Web-based interactive flashcard app for teaching Hebrew Gematria"
+requires-python = ">= 3.13"
+dependencies = [
+    "flask",
+    "frozen-flask",
+    "python-dotenv",
+    "structlog",
+]
+
+[dependency-groups]
+dev = [
+    "ruff",
+    "pytest",
+]
+
+[tool.uv]
+package = false

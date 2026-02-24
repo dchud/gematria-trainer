@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hebrew font declarations */
+
+@font-face {
+    font-family: 'Noto Serif Hebrew';
+    src: url('../fonts/NotoSerifHebrew-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Noto Serif Hebrew';
+    src: url('../fonts/NotoSerifHebrew-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Noto Sans Hebrew';
+    src: url('../fonts/NotoSansHebrew-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Noto Rashi Hebrew';
+    src: url('../fonts/NotoRashiHebrew-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Hebrew font utility classes for font selector feature */
+
+.font-hebrew-standard { font-family: 'Noto Serif Hebrew', serif; }
+.font-hebrew-sans { font-family: 'Noto Sans Hebrew', sans-serif; }
+.font-hebrew-rashi { font-family: 'Noto Rashi Hebrew', serif; }

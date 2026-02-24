@@ -1,0 +1,25 @@
+# Environment and secrets
+.env
+.venv/
+
+# Build artifacts
+build/
+static/dist/
+static/js/vendor/
+tailwindcss
+
+# Python
+__pycache__/
+*.pyc
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+
+# Beads issue tracker
+.beads/.local_version
+.beads/daemon-error
+.beads/daemon.log
+.beads/beads.db
+.beads/beads.db-shm
+.beads/beads.db-wal
