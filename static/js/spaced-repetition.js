@@ -30,9 +30,8 @@ var SpacedRepetition = (function () {
         wrong: 1,
         unsure: 3,
         good: 4,
-        easy: 5
+        easy: 5,
     };
-
 
     // ---------------------------------------------------------------
     // Card state
@@ -51,10 +50,9 @@ var SpacedRepetition = (function () {
             interval_minutes: 1,
             repetitions: 0,
             next_review: new Date().toISOString(),
-            last_quality: null
+            last_quality: null,
         };
     }
-
 
     // ---------------------------------------------------------------
     // SM-2 algorithm
@@ -122,10 +120,9 @@ var SpacedRepetition = (function () {
             interval_minutes: newInterval,
             repetitions: newReps,
             next_review: nextReview.toISOString(),
-            last_quality: quality
+            last_quality: quality,
         };
     }
-
 
     // ---------------------------------------------------------------
     // Scheduling queries
@@ -151,11 +148,10 @@ var SpacedRepetition = (function () {
      * @returns {number} Minutes overdue (positive) or until due (negative).
      */
     function overdueMinutes(card) {
-        var now = new Date().getTime();
+        var now = Date.now();
         var due = new Date(card.next_review).getTime();
         return (now - due) / (60 * 1000);
     }
-
 
     // ---------------------------------------------------------------
     // Public API
@@ -175,6 +171,6 @@ var SpacedRepetition = (function () {
 
         // Scheduling
         isDue: isDue,
-        overdueMinutes: overdueMinutes
+        overdueMinutes: overdueMinutes,
     };
 })();

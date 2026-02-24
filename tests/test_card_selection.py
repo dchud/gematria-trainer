@@ -13,8 +13,9 @@ from datetime import UTC, datetime, timedelta
 DEFAULT_EASE = 2.5
 
 
-def _create_card(card_id, next_review=None, review_count=0, correct_count=0,
-                 repetitions=0):
+def _create_card(
+    card_id, next_review=None, review_count=0, correct_count=0, repetitions=0
+):
     if next_review is None:
         next_review = datetime.now(tz=UTC).isoformat()
     return {
@@ -87,8 +88,11 @@ def select_next(cards, specs):
     overdue = _find_most_overdue(cards)
     if overdue:
         spec_map = {s["id"]: s for s in specs}
-        return {"type": "card", "card": overdue,
-                "spec": spec_map.get(overdue["card_id"])}
+        return {
+            "type": "card",
+            "card": overdue,
+            "spec": spec_map.get(overdue["card_id"]),
+        }
 
     new = _find_new_card(cards, specs)
     if new:
@@ -100,8 +104,11 @@ def select_next(cards, specs):
     soonest = _find_soonest_due(cards)
     if soonest:
         spec_map = {s["id"]: s for s in specs}
-        return {"type": "card", "card": soonest,
-                "spec": spec_map.get(soonest["card_id"])}
+        return {
+            "type": "card",
+            "card": soonest,
+            "spec": spec_map.get(soonest["card_id"]),
+        }
 
     return {"type": "review", "card": None, "spec": None}
 
@@ -177,10 +184,20 @@ class TestNewCardSelection:
 class TestAdvancementSignal:
     def test_signals_advance_when_mastered(self):
         cards = [
-            _create_card("a", next_review=_future_time(10),
-                         review_count=3, correct_count=3, repetitions=3),
-            _create_card("b", next_review=_future_time(10),
-                         review_count=3, correct_count=3, repetitions=3),
+            _create_card(
+                "a",
+                next_review=_future_time(10),
+                review_count=3,
+                correct_count=3,
+                repetitions=3,
+            ),
+            _create_card(
+                "b",
+                next_review=_future_time(10),
+                review_count=3,
+                correct_count=3,
+                repetitions=3,
+            ),
         ]
         specs = [_make_spec("a"), _make_spec("b")]
         result = select_next(cards, specs)
@@ -188,10 +205,20 @@ class TestAdvancementSignal:
 
     def test_no_advance_when_not_mastered(self):
         cards = [
-            _create_card("a", next_review=_future_time(10),
-                         review_count=3, correct_count=3, repetitions=3),
-            _create_card("b", next_review=_future_time(10),
-                         review_count=1, correct_count=1, repetitions=1),
+            _create_card(
+                "a",
+                next_review=_future_time(10),
+                review_count=3,
+                correct_count=3,
+                repetitions=3,
+            ),
+            _create_card(
+                "b",
+                next_review=_future_time(10),
+                review_count=1,
+                correct_count=1,
+                repetitions=1,
+            ),
         ]
         specs = [_make_spec("a"), _make_spec("b")]
         result = select_next(cards, specs)
@@ -202,10 +229,12 @@ class TestAdvancementSignal:
 class TestSoonestDueFallback:
     def test_picks_soonest_when_all_reviewed_not_mastered(self):
         cards = [
-            _create_card("a", next_review=_future_time(30),
-                         review_count=2, correct_count=2),
-            _create_card("b", next_review=_future_time(5),
-                         review_count=2, correct_count=2),
+            _create_card(
+                "a", next_review=_future_time(30), review_count=2, correct_count=2
+            ),
+            _create_card(
+                "b", next_review=_future_time(5), review_count=2, correct_count=2
+            ),
         ]
         specs = [_make_spec("a"), _make_spec("b")]
         result = select_next(cards, specs)

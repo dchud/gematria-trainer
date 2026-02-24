@@ -30,7 +30,7 @@ var Progression = (function () {
             tierCount: tierCount,
             completed: false,
             // Card states keyed by tier number (1-based)
-            tiers: {}
+            tiers: {},
         };
     }
 
@@ -60,7 +60,6 @@ var Progression = (function () {
     function save(state) {
         return Storage.saveProgress(state.system, state);
     }
-
 
     // ---------------------------------------------------------------
     // Tier card management
@@ -114,7 +113,7 @@ var Progression = (function () {
         var cards = [];
         var key;
         for (key in state.tiers) {
-            if (state.tiers.hasOwnProperty(key)) {
+            if (Object.hasOwn(state.tiers, key)) {
                 cards = cards.concat(state.tiers[key]);
             }
         }
@@ -135,7 +134,6 @@ var Progression = (function () {
         }
         return specs;
     }
-
 
     // ---------------------------------------------------------------
     // Tier advancement
@@ -171,7 +169,6 @@ var Progression = (function () {
         ensureTierCards(state, state.currentTier);
         return { advanced: true, newTier: state.currentTier };
     }
-
 
     // ---------------------------------------------------------------
     // Card selection integration
@@ -214,7 +211,7 @@ var Progression = (function () {
         var key;
 
         for (key in state.tiers) {
-            if (state.tiers.hasOwnProperty(key)) {
+            if (Object.hasOwn(state.tiers, key)) {
                 card = CardState.findCard(state.tiers[key], cardId);
                 if (card) {
                     tierCards = state.tiers[key];
@@ -240,7 +237,6 @@ var Progression = (function () {
         return { card: updated, advancement: advancement };
     }
 
-
     // ---------------------------------------------------------------
     // Reset
     // ---------------------------------------------------------------
@@ -258,7 +254,6 @@ var Progression = (function () {
         save(state);
         return state;
     }
-
 
     // ---------------------------------------------------------------
     // Public API
@@ -283,6 +278,6 @@ var Progression = (function () {
 
         // Card flow
         nextCard: nextCard,
-        recordReview: recordReview
+        recordReview: recordReview,
     };
 })();

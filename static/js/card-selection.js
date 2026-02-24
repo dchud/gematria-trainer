@@ -57,7 +57,7 @@ var CardSelection = (function () {
             return {
                 type: 'card',
                 card: overdueCard,
-                spec: specMap[overdueCard.card_id] || null
+                spec: specMap[overdueCard.card_id] || null,
             };
         }
 
@@ -67,7 +67,7 @@ var CardSelection = (function () {
             return {
                 type: 'card',
                 card: newCard.card,
-                spec: newCard.spec
+                spec: newCard.spec,
             };
         }
 
@@ -83,7 +83,7 @@ var CardSelection = (function () {
             return {
                 type: 'card',
                 card: soonest,
-                spec: specMap[soonest.card_id] || null
+                spec: specMap[soonest.card_id] || null,
             };
         }
 
@@ -113,7 +113,7 @@ var CardSelection = (function () {
             return {
                 type: 'card',
                 card: overdueCard,
-                spec: specMap[overdueCard.card_id] || null
+                spec: specMap[overdueCard.card_id] || null,
             };
         }
 
@@ -123,13 +123,12 @@ var CardSelection = (function () {
             return {
                 type: 'card',
                 card: soonest,
-                spec: specMap[soonest.card_id] || null
+                spec: specMap[soonest.card_id] || null,
             };
         }
 
         return null;
     }
-
 
     // ---------------------------------------------------------------
     // Internal helpers
@@ -204,13 +203,12 @@ var CardSelection = (function () {
         return best;
     }
 
-
     // ---------------------------------------------------------------
     // Public API
     // ---------------------------------------------------------------
 
     return {
         selectNext: selectNext,
-        selectReview: selectReview
+        selectReview: selectReview,
     };
 })();

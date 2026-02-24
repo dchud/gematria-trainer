@@ -22,15 +22,24 @@ var Tiers = (function () {
     // ---------------------------------------------------------------
 
     /** Hebrew letter labels for each tier (1-indexed). */
-    var TIER_LABELS = ['', '\u05D0', '\u05D1', '\u05D2', '\u05D3',
-                            '\u05D4', '\u05D5', '\u05D6', '\u05D7'];
+    var TIER_LABELS = [
+        '',
+        '\u05D0',
+        '\u05D1',
+        '\u05D2',
+        '\u05D3',
+        '\u05D4',
+        '\u05D5',
+        '\u05D6',
+        '\u05D7',
+    ];
     //                      א          ב          ג          ד
     //                      ה          ו          ז          ח
 
     /** Mastery criteria: 80% accuracy with at least 3 reps per card. */
     var MASTERY = {
         accuracy: 0.8,
-        minReps: 3
+        minReps: 3,
     };
 
     /** Number of tiers per system. */
@@ -41,9 +50,8 @@ var Tiers = (function () {
         siduri: 4,
         atbash: 3,
         albam: 3,
-        avgad: 3
+        avgad: 3,
     };
-
 
     // ---------------------------------------------------------------
     // Internal helpers
@@ -115,7 +123,6 @@ var Tiers = (function () {
         return finals;
     }
 
-
     // ---------------------------------------------------------------
     // Card spec generators
     // ---------------------------------------------------------------
@@ -146,14 +153,14 @@ var Tiers = (function () {
                 id: name + '-to-val',
                 type: 'letter-to-value',
                 prompt: letter,
-                answer: String(value)
+                answer: String(value),
             });
 
             cards.push({
                 id: 'val-to-' + name,
                 type: 'value-to-letter',
                 prompt: String(value),
-                answer: letter
+                answer: letter,
             });
         }
 
@@ -189,7 +196,7 @@ var Tiers = (function () {
                 id: 'cipher-' + name,
                 type: 'cipher-forward',
                 prompt: letter,
-                answer: paired
+                answer: paired,
             });
 
             if (includeReverse) {
@@ -199,14 +206,13 @@ var Tiers = (function () {
                     id: 'cipher-rev-' + name,
                     type: 'cipher-reverse',
                     prompt: letter,
-                    answer: reversed
+                    answer: reversed,
                 });
             }
         }
 
         return cards;
     }
-
 
     // ---------------------------------------------------------------
     // Tier card definitions by system type
@@ -225,12 +231,17 @@ var Tiers = (function () {
      */
     function _eightTierCards(systemKey, tier) {
         switch (tier) {
-            case 1: return _valuationCards(_lettersInRange(1, 9), systemKey);
-            case 2: return _valuationCards(_lettersInRange(10, 18), systemKey);
-            case 3: return _valuationCards(_lettersInRange(19, 22), systemKey);
-            case 4: return _valuationCards(_finalForms(), systemKey);
+            case 1:
+                return _valuationCards(_lettersInRange(1, 9), systemKey);
+            case 2:
+                return _valuationCards(_lettersInRange(10, 18), systemKey);
+            case 3:
+                return _valuationCards(_lettersInRange(19, 22), systemKey);
+            case 4:
+                return _valuationCards(_finalForms(), systemKey);
             // Tiers 5-8 are procedural (implemented in E7: generator.js)
-            default: return [];
+            default:
+                return [];
         }
     }
 
@@ -248,8 +259,10 @@ var Tiers = (function () {
      */
     function _fourTierCards(systemKey, tier) {
         switch (tier) {
-            case 1: return _valuationCards(_lettersInRange(1, 9), systemKey);
-            case 2: return _valuationCards(_lettersInRange(10, 18), systemKey);
+            case 1:
+                return _valuationCards(_lettersInRange(1, 9), systemKey);
+            case 2:
+                return _valuationCards(_lettersInRange(10, 18), systemKey);
             case 3:
                 var letters3 = _lettersInRange(19, 22).concat(_finalForms());
                 return _valuationCards(letters3, systemKey);
@@ -257,7 +270,8 @@ var Tiers = (function () {
                 // Cumulative: all base letters + final forms
                 var all = Gematria.alphabet().concat(_finalForms());
                 return _valuationCards(all, systemKey);
-            default: return [];
+            default:
+                return [];
         }
     }
 
@@ -272,7 +286,7 @@ var Tiers = (function () {
      *         For Avgad (asymmetric): forward + reverse cards.
      */
     function _threeTierCards(systemKey, tier) {
-        var isAsymmetric = (systemKey === 'avgad');
+        var isAsymmetric = systemKey === 'avgad';
 
         switch (tier) {
             case 1:
@@ -281,10 +295,10 @@ var Tiers = (function () {
                 return _cipherCards(_lettersInRange(12, 22), systemKey, false);
             case 3:
                 return _cipherCards(Gematria.alphabet(), systemKey, isAsymmetric);
-            default: return [];
+            default:
+                return [];
         }
     }
-
 
     // ---------------------------------------------------------------
     // Public API
@@ -354,6 +368,6 @@ var Tiers = (function () {
             if (count === 8) return tierNumber <= 4;
             // All tiers in 4-tier and 3-tier systems are static
             return true;
-        }
+        },
     };
 })();

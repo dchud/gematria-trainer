@@ -86,9 +86,7 @@ class TestEightTierCards:
     def test_tier_2_has_letters_yod_through_tsade(self, letter_data):
         """Tier 2: letters with positions 10-18."""
         letters = [
-            row["letter"]
-            for row in letter_data
-            if 10 <= int(row["position"]) <= 18
+            row["letter"] for row in letter_data if 10 <= int(row["position"]) <= 18
         ]
         cards = _valuation_cards(letters, "hechrachi")
         assert len(cards) == 18  # 9 letters * 2 directions
@@ -96,9 +94,7 @@ class TestEightTierCards:
     def test_tier_3_has_letters_qof_through_tav(self, letter_data):
         """Tier 3: letters with positions 19-22."""
         letters = [
-            row["letter"]
-            for row in letter_data
-            if 19 <= int(row["position"]) <= 22
+            row["letter"] for row in letter_data if 19 <= int(row["position"]) <= 22
         ]
         cards = _valuation_cards(letters, "hechrachi")
         assert len(cards) == 8  # 4 letters * 2 directions
@@ -112,9 +108,9 @@ class TestEightTierCards:
         """In Hechrachi, final forms have same values as non-final."""
         for row in letter_data:
             if row["final_form"]:
-                assert _hechrachi_value(
-                    row["final_form"], letter_data
-                ) == int(row["standard_value"])
+                assert _hechrachi_value(row["final_form"], letter_data) == int(
+                    row["standard_value"]
+                )
 
     def test_gadol_tier_4_final_values_distinct(self, letter_data):
         """In Gadol, final forms have distinct 500-900 values."""
@@ -210,9 +206,17 @@ class TestThreeTierCards:
     def test_atbash_pairs(self, letter_data):
         """Verify Atbash cipher pairs for tier card content."""
         pairs = [
-            ("א", "ת"), ("ב", "ש"), ("ג", "ר"), ("ד", "ק"),
-            ("ה", "צ"), ("ו", "פ"), ("ז", "ע"), ("ח", "ס"),
-            ("ט", "נ"), ("י", "מ"), ("כ", "ל"),
+            ("א", "ת"),
+            ("ב", "ש"),
+            ("ג", "ר"),
+            ("ד", "ק"),
+            ("ה", "צ"),
+            ("ו", "פ"),
+            ("ז", "ע"),
+            ("ח", "ס"),
+            ("ט", "נ"),
+            ("י", "מ"),
+            ("כ", "ל"),
         ]
         for a, b in pairs:
             pos_a = _position(a, letter_data)
@@ -222,9 +226,17 @@ class TestThreeTierCards:
     def test_albam_pairs(self, letter_data):
         """Verify Albam cipher pairs for tier card content."""
         pairs = [
-            ("א", "ל"), ("ב", "מ"), ("ג", "נ"), ("ד", "ס"),
-            ("ה", "ע"), ("ו", "פ"), ("ז", "צ"), ("ח", "ק"),
-            ("ט", "ר"), ("י", "ש"), ("כ", "ת"),
+            ("א", "ל"),
+            ("ב", "מ"),
+            ("ג", "נ"),
+            ("ד", "ס"),
+            ("ה", "ע"),
+            ("ו", "פ"),
+            ("ז", "צ"),
+            ("ח", "ק"),
+            ("ט", "ר"),
+            ("י", "ש"),
+            ("כ", "ת"),
         ]
         for a, b in pairs:
             pos_a = _position(a, letter_data)
@@ -298,14 +310,24 @@ class TestMasteryCriteria:
 
 
 TIER_COUNTS = {
-    "hechrachi": 8, "gadol": 8,
-    "katan": 4, "siduri": 4,
-    "atbash": 3, "albam": 3, "avgad": 3,
+    "hechrachi": 8,
+    "gadol": 8,
+    "katan": 4,
+    "siduri": 4,
+    "atbash": 3,
+    "albam": 3,
+    "avgad": 3,
 }
 
 TIER_LABELS_MAP = {
-    1: "א", 2: "ב", 3: "ג", 4: "ד",
-    5: "ה", 6: "ו", 7: "ז", 8: "ח",
+    1: "א",
+    2: "ב",
+    3: "ג",
+    4: "ד",
+    5: "ה",
+    6: "ו",
+    7: "ז",
+    8: "ח",
 }
 
 
@@ -354,18 +376,22 @@ def _valuation_cards(letters, system):
     cards = []
     for letter in letters:
         name = _letter_slug(letter)
-        cards.append({
-            "id": name + "-to-val",
-            "type": "letter-to-value",
-            "prompt": letter,
-            "answer": str(_compute_value(letter, system)),
-        })
-        cards.append({
-            "id": "val-to-" + name,
-            "type": "value-to-letter",
-            "prompt": str(_compute_value(letter, system)),
-            "answer": letter,
-        })
+        cards.append(
+            {
+                "id": name + "-to-val",
+                "type": "letter-to-value",
+                "prompt": letter,
+                "answer": str(_compute_value(letter, system)),
+            }
+        )
+        cards.append(
+            {
+                "id": "val-to-" + name,
+                "type": "value-to-letter",
+                "prompt": str(_compute_value(letter, system)),
+                "answer": letter,
+            }
+        )
     return cards
 
 
@@ -374,19 +400,23 @@ def _cipher_cards(letters, system, include_reverse=False):
     cards = []
     for letter in letters:
         name = _letter_slug(letter)
-        cards.append({
-            "id": "cipher-" + name,
-            "type": "cipher-forward",
-            "prompt": letter,
-            "answer": letter,  # placeholder
-        })
-        if include_reverse:
-            cards.append({
-                "id": "cipher-rev-" + name,
-                "type": "cipher-reverse",
+        cards.append(
+            {
+                "id": "cipher-" + name,
+                "type": "cipher-forward",
                 "prompt": letter,
                 "answer": letter,  # placeholder
-            })
+            }
+        )
+        if include_reverse:
+            cards.append(
+                {
+                    "id": "cipher-rev-" + name,
+                    "type": "cipher-reverse",
+                    "prompt": letter,
+                    "answer": letter,  # placeholder
+                }
+            )
     return cards
 
 

@@ -13,38 +13,38 @@ var GematriaRegistry = {
         hechrachi: {
             name: 'Mispar Hechrachi',
             type: 'valuation',
-            fn: Gematria.hechrachi
+            fn: Gematria.hechrachi,
         },
         gadol: {
             name: 'Mispar Gadol',
             type: 'valuation',
-            fn: Gematria.gadol
+            fn: Gematria.gadol,
         },
         katan: {
             name: 'Mispar Katan',
             type: 'valuation',
-            fn: Gematria.katan
+            fn: Gematria.katan,
         },
         siduri: {
             name: 'Mispar Siduri',
             type: 'valuation',
-            fn: Gematria.siduri
+            fn: Gematria.siduri,
         },
         atbash: {
             name: 'Atbash',
             type: 'cipher',
-            fn: Gematria.atbash
+            fn: Gematria.atbash,
         },
         albam: {
             name: 'Albam',
             type: 'cipher',
-            fn: Gematria.albam
+            fn: Gematria.albam,
         },
         avgad: {
             name: 'Avgad',
             type: 'cipher',
-            fn: Gematria.avgad
-        }
+            fn: Gematria.avgad,
+        },
     },
 
     /**
@@ -54,7 +54,7 @@ var GematriaRegistry = {
      * @returns {object|null} System descriptor or null if not found.
      */
     get: function (name) {
-        return this.systems.hasOwnProperty(name) ? this.systems[name] : null;
+        return Object.hasOwn(this.systems, name) ? this.systems[name] : null;
     },
 
     /**
@@ -66,7 +66,7 @@ var GematriaRegistry = {
         var keys = [];
         var key;
         for (key in this.systems) {
-            if (this.systems.hasOwnProperty(key) && this.systems[key].type === 'valuation') {
+            if (Object.hasOwn(this.systems, key) && this.systems[key].type === 'valuation') {
                 keys.push(key);
             }
         }
@@ -82,7 +82,7 @@ var GematriaRegistry = {
         var keys = [];
         var key;
         for (key in this.systems) {
-            if (this.systems.hasOwnProperty(key) && this.systems[key].type === 'cipher') {
+            if (Object.hasOwn(this.systems, key) && this.systems[key].type === 'cipher') {
                 keys.push(key);
             }
         }
@@ -98,10 +98,10 @@ var GematriaRegistry = {
         var keys = [];
         var key;
         for (key in this.systems) {
-            if (this.systems.hasOwnProperty(key)) {
+            if (Object.hasOwn(this.systems, key)) {
                 keys.push(key);
             }
         }
         return keys;
-    }
+    },
 };

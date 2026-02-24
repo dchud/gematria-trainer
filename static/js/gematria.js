@@ -37,8 +37,10 @@ var Gematria = (function () {
         if (_initialized) return;
 
         if (typeof LETTERS_DATA === 'undefined' || !LETTERS_DATA) {
-            throw new Error('Gematria: LETTERS_DATA is not defined. ' +
-                'Ensure the letter data is injected before loading gematria.js.');
+            throw new Error(
+                'Gematria: LETTERS_DATA is not defined. ' +
+                    'Ensure the letter data is injected before loading gematria.js.',
+            );
         }
 
         var i, entry;
@@ -55,7 +57,7 @@ var Gematria = (function () {
                 position: position,
                 standardValue: standardValue,
                 finalValue: finalValue,
-                finalForm: finalForm
+                finalForm: finalForm,
             };
 
             _alphabet.push(letter);
@@ -69,7 +71,7 @@ var Gematria = (function () {
                     position: position,
                     standardValue: standardValue,
                     finalValue: finalValue,
-                    finalForm: null
+                    finalForm: null,
                 };
             }
         }
@@ -96,9 +98,8 @@ var Gematria = (function () {
      * @returns {boolean}
      */
     function _isLetter(ch) {
-        return _letterMap.hasOwnProperty(ch);
+        return Object.hasOwn(_letterMap, ch);
     }
-
 
     // ---------------------------------------------------------------
     // Valuation systems
@@ -146,7 +147,7 @@ var Gematria = (function () {
             info = _letterMap[ch];
             // If the character IS a final form, use its finalValue.
             // Otherwise use standardValue.
-            if (_finalToNonFinal.hasOwnProperty(ch) && info.finalValue !== null) {
+            if (Object.hasOwn(_finalToNonFinal, ch) && info.finalValue !== null) {
                 sum += info.finalValue;
             } else {
                 sum += info.standardValue;
@@ -205,7 +206,6 @@ var Gematria = (function () {
         return sum;
     }
 
-
     // ---------------------------------------------------------------
     // Number-to-Hebrew encoding
     // ---------------------------------------------------------------
@@ -247,23 +247,36 @@ var Gematria = (function () {
 
         // Value-to-letter mapping for decomposition (descending order)
         var values = [
-            400, 300, 200, 100,
-            90, 80, 70, 60, 50, 40, 30, 20, 10,
-            9, 8, 7, 6, 5, 4, 3, 2, 1
+            400, 300, 200, 100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1,
         ];
         // Corresponding Hebrew letters
         var letters = [
-            '\u05EA', '\u05E9', '\u05E8', '\u05E7',       // ת ש ר ק
-            '\u05E6', '\u05E4', '\u05E2', '\u05E1',       // צ פ ע ס
-            '\u05E0', '\u05DE', '\u05DC', '\u05DB',       // נ מ ל כ
-            '\u05D9',                                      // י
-            '\u05D8', '\u05D7', '\u05D6', '\u05D5',       // ט ח ז ו
-            '\u05D4', '\u05D3', '\u05D2', '\u05D1',       // ה ד ג ב
-            '\u05D0'                                       // א
+            '\u05EA',
+            '\u05E9',
+            '\u05E8',
+            '\u05E7', // ת ש ר ק
+            '\u05E6',
+            '\u05E4',
+            '\u05E2',
+            '\u05E1', // צ פ ע ס
+            '\u05E0',
+            '\u05DE',
+            '\u05DC',
+            '\u05DB', // נ מ ל כ
+            '\u05D9', // י
+            '\u05D8',
+            '\u05D7',
+            '\u05D6',
+            '\u05D5', // ט ח ז ו
+            '\u05D4',
+            '\u05D3',
+            '\u05D2',
+            '\u05D1', // ה ד ג ב
+            '\u05D0', // א
         ];
 
-        var GERESH = '\u05F3';      // ׳
-        var GERSHAYIM = '\u05F4';   // ״
+        var GERESH = '\u05F3'; // ׳
+        var GERSHAYIM = '\u05F4'; // ״
 
         // Greedy decomposition
         var result = [];
@@ -285,8 +298,8 @@ var Gematria = (function () {
         // Fix up 15 (י״ה -> ט״ו) and 16 (י״ו -> ט״ז)
         // Detect: the last two characters are י then ה (15) or י then ו (16)
         var resultStr = result.join('');
-        resultStr = resultStr.replace('\u05D9\u05D4', '\u05D8\u05D5');  // יה -> טו
-        resultStr = resultStr.replace('\u05D9\u05D5', '\u05D8\u05D6');  // יו -> טז
+        resultStr = resultStr.replace('\u05D9\u05D4', '\u05D8\u05D5'); // יה -> טו
+        resultStr = resultStr.replace('\u05D9\u05D5', '\u05D8\u05D6'); // יו -> טז
 
         // Add punctuation
         if (resultStr.length === 1) {
@@ -299,7 +312,6 @@ var Gematria = (function () {
 
         return resultStr;
     }
-
 
     // ---------------------------------------------------------------
     // Cipher systems
@@ -424,7 +436,6 @@ var Gematria = (function () {
         return result.join('');
     }
 
-
     // ---------------------------------------------------------------
     // Utility functions
     // ---------------------------------------------------------------
@@ -473,7 +484,6 @@ var Gematria = (function () {
         _init();
     }
 
-
     // ---------------------------------------------------------------
     // Public API
     // ---------------------------------------------------------------
@@ -497,6 +507,6 @@ var Gematria = (function () {
         letterInfo: letterInfo,
         alphabet: alphabet,
         isInitialized: isInitialized,
-        initialize: initialize
+        initialize: initialize,
     };
 })();

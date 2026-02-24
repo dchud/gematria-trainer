@@ -45,7 +45,6 @@ var Storage = (function () {
         return _available;
     }
 
-
     // ---------------------------------------------------------------
     // Progress state (per system)
     // ---------------------------------------------------------------
@@ -129,7 +128,6 @@ var Storage = (function () {
         }
     }
 
-
     // ---------------------------------------------------------------
     // Settings
     // ---------------------------------------------------------------
@@ -169,7 +167,6 @@ var Storage = (function () {
             return false;
         }
     }
-
 
     // ---------------------------------------------------------------
     // Session metadata
@@ -224,7 +221,6 @@ var Storage = (function () {
         }
     }
 
-
     // ---------------------------------------------------------------
     // Public API
     // ---------------------------------------------------------------
@@ -246,6 +242,6 @@ var Storage = (function () {
         // Session
         loadSession: loadSession,
         saveSession: saveSession,
-        clearSession: clearSession
+        clearSession: clearSession,
     };
 })();

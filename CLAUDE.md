@@ -20,6 +20,8 @@ All project documentation must be strictly factual, clear, and detailed. Avoid s
 - **Alpine.js** for client-side interactivity
 - **structlog** for logging, **python-dotenv** for config
 - **justfile** for task automation
+- **Biome** for JavaScript formatting and linting
+- **Node.js built-in test runner** (`node:test`) for JavaScript tests
 
 ## Development Commands
 
@@ -28,18 +30,24 @@ All project documentation must be strictly factual, clear, and detailed. Avoid s
 uv sync                    # Install/sync dependencies
 
 # Development server
-just run                   # Start Flask dev server (or: uv run flask run)
+just dev                   # Start Flask dev server
 
-# Code quality
-just lint                  # Run ruff linting
-just format                # Run ruff formatting
-uv run ruff check .        # Lint directly
-uv run ruff format .       # Format directly
+# Code quality (Python + JavaScript)
+just check                 # Run all formatters, linters, and tests
+just lint                  # Run ruff + biome linting
+just format                # Run ruff + biome formatting
+just test                  # Run pytest + node:test
 
-# Testing
-just test                  # Run full test suite
-uv run pytest              # Run tests directly
-uv run pytest tests/path/test_file.py::test_name  # Run single test
+# Python-specific
+uv run ruff check .        # Python lint directly
+uv run ruff format .       # Python format directly
+uv run pytest              # Python tests directly
+uv run pytest tests/path/test_file.py::test_name  # Single Python test
+
+# JavaScript-specific
+biome check static/js/ tests/js/           # JS lint/format check
+biome check --fix static/js/ tests/js/     # JS auto-fix
+node --test tests/js/test-*.js             # JS tests directly
 ```
 
 ## Architecture
@@ -54,6 +62,8 @@ uv run pytest tests/path/test_file.py::test_name  # Run single test
 - Cookie-based session persistence for anonymous returning users
 
 **Hebrew Gematria progression**: Individual letters (both directions: Hebrew-to-number, number-to-Hebrew) → multi-letter numbers → large numbers → years and real-world examples from traditional literature.
+
+**JavaScript conventions**: All client-side JS uses ES5-compatible IIFE pattern (no `let`/`const`, no arrow functions, no `import`/`export`). Modules attach to globals via `var ModuleName = (function() { ... })();`. Biome is configured in `biome.json` to enforce this style.
 
 ## Issue Tracking
 

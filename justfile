@@ -74,19 +74,24 @@ css:
 check:
     uv run ruff format .
     uv run ruff check .
+    biome check static/js/ tests/js/
     uv run pytest
+    node --test tests/js/test-*.js
 
-# Run test suite
+# Run test suite (Python and JavaScript)
 test:
     uv run pytest
+    node --test tests/js/test-*.js
 
-# Run linter
+# Run linters (Python and JavaScript)
 lint:
     uv run ruff check .
+    biome check static/js/ tests/js/
 
-# Run formatter
+# Run formatters (Python and JavaScript)
 format:
     uv run ruff format .
+    biome check --fix static/js/ tests/js/
 
 # Install git hooks (opt-in, runs just check on commit and push)
 hooks:

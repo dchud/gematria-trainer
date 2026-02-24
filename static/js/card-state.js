@@ -51,7 +51,6 @@ var CardState = (function () {
         return updated;
     }
 
-
     // ---------------------------------------------------------------
     // Collection management
     // ---------------------------------------------------------------
@@ -109,7 +108,6 @@ var CardState = (function () {
         }
     }
 
-
     // ---------------------------------------------------------------
     // Tier mastery evaluation (T3.8)
     // ---------------------------------------------------------------
@@ -161,7 +159,6 @@ var CardState = (function () {
         return tierAccuracy(cards) >= Tiers.MASTERY.accuracy;
     }
 
-
     // ---------------------------------------------------------------
     // Public API
     // ---------------------------------------------------------------
@@ -178,6 +175,6 @@ var CardState = (function () {
 
         // Mastery evaluation
         tierAccuracy: tierAccuracy,
-        checkMastery: checkMastery
+        checkMastery: checkMastery,
     };
 })();

@@ -14,9 +14,13 @@ MASTERY_ACCURACY = 0.8
 MASTERY_MIN_REPS = 3
 
 TIER_COUNTS = {
-    "hechrachi": 8, "gadol": 8,
-    "katan": 4, "siduri": 4,
-    "atbash": 3, "albam": 3, "avgad": 3,
+    "hechrachi": 8,
+    "gadol": 8,
+    "katan": 4,
+    "siduri": 4,
+    "atbash": 3,
+    "albam": 3,
+    "avgad": 3,
 }
 
 
@@ -68,16 +72,14 @@ def _try_advance(state, cards):
 def _make_mastered_cards(count):
     """Create a set of cards that meet mastery criteria."""
     return [
-        _create_card(f"card-{i}", review_count=4, correct_count=4)
-        for i in range(count)
+        _create_card(f"card-{i}", review_count=4, correct_count=4) for i in range(count)
     ]
 
 
 def _make_unmastered_cards(count):
     """Create cards that do NOT meet mastery criteria."""
     return [
-        _create_card(f"card-{i}", review_count=1, correct_count=1)
-        for i in range(count)
+        _create_card(f"card-{i}", review_count=1, correct_count=1) for i in range(count)
     ]
 
 
