@@ -44,7 +44,7 @@ function reloadModules() {
     globalThis.localStorage = mock;
 
     var jsDir = path.resolve(__dirname, '../../static/js');
-    var modules = ['storage.js', 'progression.js'];
+    var modules = ['storage.js', 'generator.js', 'progression.js'];
     for (var i = 0; i < modules.length; i++) {
         var code = fs.readFileSync(path.join(jsDir, modules[i]), 'utf8');
         vm.runInThisContext(code, { filename: modules[i] });
@@ -178,7 +178,7 @@ describe('Progression', function () {
             assert.equal(state.completed, true);
         });
 
-        it('stops at tier 4 for 8-tier systems (procedural tiers not ready)', function () {
+        it('advances past tier 4 to procedural tier 5 for 8-tier systems', function () {
             var state = Progression.createState('hechrachi');
             state.currentTier = 4;
             var cards = Progression.ensureTierCards(state, 4);
@@ -191,9 +191,8 @@ describe('Progression', function () {
             state.tiers['4'] = cards;
 
             var result = Progression.tryAdvance(state);
-            // Should mark completed rather than advancing to empty tier 5
-            assert.equal(result.advanced, false);
-            assert.equal(result.completed, true);
+            assert.equal(result.advanced, true);
+            assert.equal(result.newTier, 5);
         });
     });
 
@@ -300,6 +299,151 @@ describe('Progression', function () {
             var tier1Specs = Tiers.getCards('katan', 1);
             var tier2Specs = Tiers.getCards('katan', 2);
             assert.equal(specs.length, tier1Specs.length + tier2Specs.length);
+        });
+    });
+
+    describe('procedural tiers', function () {
+        it('createState includes seeds for 8-tier systems', function () {
+            var state = Progression.createState('hechrachi');
+            assert.ok(state.seeds);
+            assert.equal(typeof state.seeds[5], 'number');
+            assert.equal(typeof state.seeds[6], 'number');
+            assert.equal(typeof state.seeds[7], 'number');
+            assert.equal(typeof state.seeds[8], 'number');
+        });
+
+        it('createState has empty seeds for non-8-tier systems', function () {
+            var state = Progression.createState('katan');
+            assert.deepEqual(state.seeds, {});
+        });
+
+        it('createState initializes empty tierSpecs', function () {
+            var state = Progression.createState('hechrachi');
+            assert.deepEqual(state.tierSpecs, {});
+        });
+
+        it('ensureTierCards generates procedural cards for tier 5', function () {
+            var state = Progression.createState('hechrachi');
+            state.currentTier = 5;
+            var cards = Progression.ensureTierCards(state, 5);
+            assert.ok(cards.length > 0);
+            assert.equal(cards.length, 24);
+        });
+
+        it('caches generated specs in tierSpecs', function () {
+            var state = Progression.createState('hechrachi');
+            state.currentTier = 5;
+            Progression.ensureTierCards(state, 5);
+            assert.ok(state.tierSpecs['5']);
+            assert.equal(state.tierSpecs['5'].length, 24);
+        });
+
+        it('currentTierSpecs returns cached specs for procedural tiers', function () {
+            var state = Progression.createState('hechrachi');
+            state.currentTier = 5;
+            Progression.ensureTierCards(state, 5);
+            var specs = Progression.currentTierSpecs(state);
+            assert.equal(specs.length, 24);
+            assert.equal(specs[0].id.indexOf('gen-t5'), 0);
+        });
+
+        it('allSpecs includes both static and procedural specs', function () {
+            var state = Progression.createState('hechrachi');
+            state.currentTier = 5;
+            // Ensure tiers 1-5 exist
+            Progression.ensureTierCards(state, 1);
+            Progression.ensureTierCards(state, 2);
+            Progression.ensureTierCards(state, 3);
+            Progression.ensureTierCards(state, 4);
+            Progression.ensureTierCards(state, 5);
+
+            var specs = Progression.allSpecs(state);
+            var staticCount =
+                Tiers.getCards('hechrachi', 1).length +
+                Tiers.getCards('hechrachi', 2).length +
+                Tiers.getCards('hechrachi', 3).length +
+                Tiers.getCards('hechrachi', 4).length;
+            assert.equal(specs.length, staticCount + 24);
+        });
+
+        it('reset generates new seeds', function () {
+            var state = Progression.createState('hechrachi');
+            var oldSeed5 = state.seeds[5];
+            // Reset gets fresh state with new seeds
+            var fresh = Progression.reset('hechrachi');
+            // Seeds are random, so we just verify they exist
+            assert.equal(typeof fresh.seeds[5], 'number');
+            assert.deepEqual(fresh.tierSpecs, {});
+        });
+
+        it('marks completed when last procedural tier is mastered', function () {
+            var state = Progression.createState('hechrachi');
+            state.currentTier = 8;
+            var cards = Progression.ensureTierCards(state, 8);
+
+            for (var i = 0; i < cards.length; i++) {
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+                cards[i] = CardState.reviewCard(cards[i], 5);
+            }
+            state.tiers['8'] = cards;
+
+            var result = Progression.tryAdvance(state);
+            assert.equal(result.advanced, false);
+            assert.equal(result.completed, true);
+        });
+    });
+
+    describe('reviewLog', function () {
+        it('createState initializes empty reviewLog', function () {
+            var state = Progression.createState('hechrachi');
+            assert.ok(Array.isArray(state.reviewLog));
+            assert.equal(state.reviewLog.length, 0);
+        });
+
+        it('recordReview appends to reviewLog', function () {
+            var state = Progression.createState('hechrachi');
+            Progression.ensureTierCards(state, 1);
+            var cardId = state.tiers['1'][0].card_id;
+
+            Progression.recordReview(state, cardId, 4);
+            assert.equal(state.reviewLog.length, 1);
+            assert.equal(typeof state.reviewLog[0].ts, 'number');
+            assert.equal(state.reviewLog[0].correct, true);
+        });
+
+        it('marks incorrect for quality < 3', function () {
+            var state = Progression.createState('hechrachi');
+            Progression.ensureTierCards(state, 1);
+            var cardId = state.tiers['1'][0].card_id;
+
+            Progression.recordReview(state, cardId, 1);
+            assert.equal(state.reviewLog[0].correct, false);
+        });
+
+        it('caps reviewLog at 500 entries', function () {
+            var state = Progression.createState('hechrachi');
+            Progression.ensureTierCards(state, 1);
+            var cardId = state.tiers['1'][0].card_id;
+
+            // Pre-fill with 500 entries
+            state.reviewLog = [];
+            for (var i = 0; i < 500; i++) {
+                state.reviewLog.push({ ts: i, correct: true });
+            }
+
+            Progression.recordReview(state, cardId, 4);
+            assert.equal(state.reviewLog.length, 500);
+            // First entry should have been shifted out
+            assert.equal(state.reviewLog[0].ts, 1);
+        });
+
+        it('does not append for unknown card', function () {
+            var state = Progression.createState('hechrachi');
+            Progression.ensureTierCards(state, 1);
+
+            Progression.recordReview(state, 'nonexistent', 4);
+            assert.equal(state.reviewLog.length, 0);
         });
     });
 });

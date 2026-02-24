@@ -31,6 +31,12 @@ var Progression = (function () {
             completed: false,
             // Card states keyed by tier number (1-based)
             tiers: {},
+            // Seeds for procedural tiers (8-tier systems only)
+            seeds: Generator.generateSeeds(systemKey),
+            // Cached specs for procedural tiers
+            tierSpecs: {},
+            // Review log for progress tracking
+            reviewLog: [],
         };
     }
 
@@ -78,7 +84,26 @@ var Progression = (function () {
     function ensureTierCards(state, tierNumber) {
         var key = String(tierNumber);
         if (!state.tiers[key]) {
-            state.tiers[key] = CardState.initTier(state.system, tierNumber);
+            if (Tiers.isStatic(state.system, tierNumber)) {
+                state.tiers[key] = CardState.initTier(state.system, tierNumber);
+            } else {
+                // Procedural tier — generate and cache specs, then init cards
+                var seed = state.seeds?.[tierNumber];
+                if (seed !== undefined) {
+                    var specs = Generator.generateTier(state.system, tierNumber, seed);
+                    if (!state.tierSpecs) state.tierSpecs = {};
+                    state.tierSpecs[key] = specs;
+                    // Create card states from generated specs
+                    var cards = [];
+                    var i;
+                    for (i = 0; i < specs.length; i++) {
+                        cards.push(CardState.createCard(specs[i].id));
+                    }
+                    state.tiers[key] = cards;
+                } else {
+                    state.tiers[key] = [];
+                }
+            }
         }
         return state.tiers[key];
     }
@@ -100,6 +125,10 @@ var Progression = (function () {
      * @returns {object[]} Card spec array.
      */
     function currentTierSpecs(state) {
+        var key = String(state.currentTier);
+        if (state.tierSpecs?.[key]) {
+            return state.tierSpecs[key];
+        }
         return Tiers.getCards(state.system, state.currentTier);
     }
 
@@ -128,9 +157,14 @@ var Progression = (function () {
      */
     function allSpecs(state) {
         var specs = [];
-        var tier;
+        var tier, key;
         for (tier = 1; tier <= state.currentTier; tier++) {
-            specs = specs.concat(Tiers.getCards(state.system, tier));
+            key = String(tier);
+            if (state.tierSpecs?.[key]) {
+                specs = specs.concat(state.tierSpecs[key]);
+            } else {
+                specs = specs.concat(Tiers.getCards(state.system, tier));
+            }
         }
         return specs;
     }
@@ -157,10 +191,9 @@ var Progression = (function () {
             return { advanced: false, completed: false };
         }
 
-        // Current tier is mastered — check if there's a next static tier
+        // Current tier is mastered — check if there's a next tier
         var nextTier = state.currentTier + 1;
-        if (nextTier > state.tierCount || !Tiers.isStatic(state.system, nextTier)) {
-            // No more tiers, or next tier is procedural (not yet implemented)
+        if (nextTier > state.tierCount) {
             state.completed = true;
             return { advanced: false, completed: true };
         }
@@ -229,6 +262,17 @@ var Progression = (function () {
         var updated = CardState.reviewCard(card, quality);
         CardState.replaceCard(tierCards, updated);
 
+        // Append to review log
+        if (!state.reviewLog) state.reviewLog = [];
+        state.reviewLog.push({
+            ts: Date.now(),
+            correct: quality >= 3,
+        });
+        // Cap at 500 entries
+        if (state.reviewLog.length > 500) {
+            state.reviewLog.shift();
+        }
+
         // Check for tier advancement
         var advancement = tryAdvance(state);
 
@@ -252,6 +296,7 @@ var Progression = (function () {
      */
     function reset(systemKey) {
         var state = createState(systemKey);
+        // createState already calls Generator.generateSeeds for new seeds
         save(state);
         return state;
     }
