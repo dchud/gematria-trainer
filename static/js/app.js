@@ -432,6 +432,66 @@ function app() {
             return labels[rating] || '';
         },
 
+        isCipherSystem: function () {
+            var sys = GematriaRegistry.get(this.system);
+            return sys ? sys.type === 'cipher' : false;
+        },
+
+        referenceData: function () {
+            var alpha = Gematria.alphabet();
+            var sys = GematriaRegistry.get(this.system);
+            if (!sys) return [];
+
+            var rows = [];
+            var i, letter, info, value;
+
+            if (sys.type === 'cipher') {
+                // Cipher systems: 22 rows, Letter | Name | Maps To
+                for (i = 0; i < alpha.length; i++) {
+                    letter = alpha[i];
+                    info = Gematria.letterInfo(letter);
+                    rows.push({
+                        letter: letter,
+                        name: info.name,
+                        value: sys.fn(letter),
+                        isFinal: false,
+                    });
+                }
+            } else {
+                // Valuation systems: 22 base + 5 final forms
+                for (i = 0; i < alpha.length; i++) {
+                    letter = alpha[i];
+                    info = Gematria.letterInfo(letter);
+                    value = sys.fn(letter);
+                    rows.push({
+                        letter: letter,
+                        name: info.name,
+                        value: String(value),
+                        isFinal: false,
+                    });
+                    // Add final form if exists
+                    if (info.finalForm) {
+                        var finalValue = sys.fn(info.finalForm);
+                        rows.push({
+                            letter: info.finalForm,
+                            name: info.name + ' (final)',
+                            value: String(finalValue),
+                            isFinal: true,
+                        });
+                    }
+                }
+            }
+
+            return rows;
+        },
+
+        referenceNote: function () {
+            if (this.system === 'hechrachi') {
+                return 'Note: 15 and 16 are written as \u05D8\u05F4\u05D5 and \u05D8\u05F4\u05D6 to avoid spelling divine names.';
+            }
+            return '';
+        },
+
         // -----------------------------------------------------------
         // Keyboard handling
         // -----------------------------------------------------------

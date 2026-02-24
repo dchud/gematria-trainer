@@ -1,4 +1,50 @@
 <!-- About view -->
-<div class="flex flex-col items-center justify-center min-h-screen">
-    <h2 class="text-2xl font-bold mb-4">About</h2>
+<div class="py-4">
+    <h2 class="text-2xl font-bold mb-6">About</h2>
+
+    <div class="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+        <div>
+            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Purpose</h3>
+            <p>
+                Gematria Trainer is a free flashcard app for practicing Hebrew Gematria.
+                It uses a spaced-repetition algorithm to schedule reviews at optimal intervals,
+                helping you learn the numerical values and cipher mappings of the Hebrew letters
+                efficiently.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">Privacy</h3>
+            <p>
+                This app has no user accounts, no tracking, and no data collection.
+                All your progress and settings are stored locally in your browser.
+                Nothing is sent to any server.
+            </p>
+        </div>
+
+        <div>
+            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">About this project</h3>
+            <p>
+                Built for personal use and shared for others who want to practice gematria.
+            </p>
+        </div>
+
+        {% if github_repo_url %}
+        <div>
+            <a href="{{ github_repo_url }}" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline">
+                View source on GitHub
+            </a>
+        </div>
+        {% endif %}
+
+        {% if kofi_username %}
+        <div>
+            <a href="https://ko-fi.com/{{ kofi_username }}" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline">
+                Support on Ko-fi
+            </a>
+        </div>
+        {% endif %}
+    </div>
 </div>

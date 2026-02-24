@@ -1067,6 +1067,94 @@ describe('app()', function () {
         });
     });
 
+    describe('isCipherSystem()', function () {
+        it('returns false for valuation systems', function () {
+            var a = createApp();
+            a.system = 'hechrachi';
+            assert.equal(a.isCipherSystem(), false);
+        });
+
+        it('returns true for cipher systems', function () {
+            var a = createApp();
+            a.system = 'atbash';
+            assert.equal(a.isCipherSystem(), true);
+        });
+    });
+
+    describe('referenceData()', function () {
+        it('returns 27 rows for hechrachi (22 base + 5 finals)', function () {
+            var a = createApp();
+            a.init();
+            a.system = 'hechrachi';
+            var rows = a.referenceData();
+            assert.equal(rows.length, 27);
+        });
+
+        it('returns 22 rows for atbash (cipher, no finals)', function () {
+            var a = createApp();
+            a.init();
+            a.system = 'atbash';
+            var rows = a.referenceData();
+            assert.equal(rows.length, 22);
+        });
+
+        it('includes letter, name, value fields', function () {
+            var a = createApp();
+            a.init();
+            a.system = 'hechrachi';
+            var rows = a.referenceData();
+            var first = rows[0];
+            assert.ok(first.letter);
+            assert.ok(first.name);
+            assert.ok(first.value);
+            assert.equal(first.isFinal, false);
+        });
+
+        it('marks final forms with isFinal flag', function () {
+            var a = createApp();
+            a.init();
+            a.system = 'hechrachi';
+            var rows = a.referenceData();
+            var finals = rows.filter(function (r) {
+                return r.isFinal;
+            });
+            assert.equal(finals.length, 5);
+        });
+
+        it('cipher system values are Hebrew letters', function () {
+            var a = createApp();
+            a.init();
+            a.system = 'atbash';
+            var rows = a.referenceData();
+            // Atbash maps Alef to Tav
+            assert.equal(rows[0].value, '\u05EA');
+        });
+
+        it('returns empty for unknown system', function () {
+            var a = createApp();
+            a.init();
+            a.system = 'nonexistent';
+            var rows = a.referenceData();
+            assert.equal(rows.length, 0);
+        });
+    });
+
+    describe('referenceNote()', function () {
+        it('returns note for hechrachi', function () {
+            var a = createApp();
+            a.system = 'hechrachi';
+            var note = a.referenceNote();
+            assert.ok(note.indexOf('15') !== -1);
+            assert.ok(note.indexOf('16') !== -1);
+        });
+
+        it('returns empty string for other systems', function () {
+            var a = createApp();
+            a.system = 'atbash';
+            assert.equal(a.referenceNote(), '');
+        });
+    });
+
     describe('cookie helpers', function () {
         it('_getCookie returns null when no cookies set', function () {
             var a = createApp();
