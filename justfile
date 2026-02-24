@@ -64,7 +64,7 @@ build: setup
     ./tailwindcss -i static/css/input.css -o static/dist/output.css --minify
 
     # Freeze static site
-    # TODO: run uv run python build.py once build.py exists
+    uv run python -m src.build
 
 # Tailwind CSS watch mode for development
 css:

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="he" dir="ltr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Gematria Trainer{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Interactive flashcard app for learning Hebrew Gematria{% endblock %}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}Gematria Trainer{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Interactive flashcard app for learning Hebrew Gematria{% endblock %}">
+    <meta property="og:type" content="website">
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
+    <!-- Tailwind CSS (compiled) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}">
+
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+    {% block body %}
+    <main id="app" class="container mx-auto px-4">
+        {% block content %}{% endblock %}
+    </main>
+    {% endblock %}
+
+    <!-- Vendor JS -->
+    <script src="{{ url_for('static', filename='js/vendor/alpine.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/vendor/chart.min.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

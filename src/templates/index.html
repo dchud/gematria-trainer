@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="{ view: 'splash' }">
+    <!-- View containers: Alpine.js will control which view is visible -->
+    <div x-show="view === 'splash'">
+        {% include "components/splash.html" %}
+    </div>
+    <div x-show="view === 'welcome'" x-cloak>
+        {% include "components/welcome.html" %}
+    </div>
+    <div x-show="view === 'flashcard'" x-cloak>
+        {% include "components/flashcard.html" %}
+    </div>
+    <div x-show="view === 'progress'" x-cloak>
+        {% include "components/progress.html" %}
+    </div>
+    <div x-show="view === 'reference'" x-cloak>
+        {% include "components/reference.html" %}
+    </div>
+    <div x-show="view === 'settings'" x-cloak>
+        {% include "components/settings.html" %}
+    </div>
+    <div x-show="view === 'about'" x-cloak>
+        {% include "components/about.html" %}
+    </div>
+    <div x-show="view === 'shortcuts'" x-cloak>
+        {% include "components/shortcuts.html" %}
+    </div>
+</div>
+{% endblock %}
