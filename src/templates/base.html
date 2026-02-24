@@ -27,9 +27,16 @@
     </main>
     {% endblock %}
 
+    <!-- Gematria data (build-time) -->
+    <script>var LETTERS_DATA = {{ letters_json|safe }};</script>
+
+    <!-- Application JS -->
+    <script src="{{ url_for('static', filename='js/gematria.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/registry.js') }}"></script>
+
     <!-- Vendor JS -->
-    <script src="{{ url_for('static', filename='js/vendor/alpine.min.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/vendor/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/alpine.min.js') }}" defer></script>
 
     {% block scripts %}{% endblock %}
 </body>

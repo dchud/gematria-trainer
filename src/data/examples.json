@@ -1,0 +1,164 @@
+[
+  {
+    "hebrew": "חי",
+    "value": 18,
+    "transliteration": "Chai",
+    "meaning": "Life",
+    "attribution": "Traditional",
+    "system": "hechrachi",
+    "notes": "One of the most widely recognized gematria values. The custom of giving monetary gifts in multiples of 18 derives from this equivalence."
+  },
+  {
+    "hebrew": "אמת",
+    "value": 441,
+    "transliteration": "Emet",
+    "meaning": "Truth",
+    "attribution": "Traditional",
+    "system": "hechrachi",
+    "notes": "Composed of the first, middle, and last letters of the Hebrew alphabet (aleph, mem, tav), symbolizing that truth spans from beginning to end."
+  },
+  {
+    "hebrew": "שלום",
+    "value": 376,
+    "transliteration": "Shalom",
+    "meaning": "Peace",
+    "attribution": "Traditional",
+    "system": "hechrachi",
+    "notes": null
+  },
+  {
+    "hebrew": "אחד",
+    "value": 13,
+    "transliteration": "Echad",
+    "meaning": "One",
+    "attribution": "Deuteronomy 6:4",
+    "system": "hechrachi",
+    "notes": "Shares its gematria value (13) with ahavah (love). This is frequently cited in connection with the Shema prayer: 'Hear O Israel, the Lord our God, the Lord is One.'"
+  },
+  {
+    "hebrew": "אהבה",
+    "value": 13,
+    "transliteration": "Ahavah",
+    "meaning": "Love",
+    "attribution": "Traditional",
+    "system": "hechrachi",
+    "notes": "Equals echad (one) at 13, teaching that love and unity are connected. Together they sum to 26, the value of the Tetragrammaton (YHVH)."
+  },
+  {
+    "hebrew": "יהוה",
+    "value": 26,
+    "transliteration": "YHVH",
+    "meaning": "The Tetragrammaton (four-letter name of God)",
+    "attribution": "Torah",
+    "system": "hechrachi",
+    "notes": "The most sacred name of God. Its gematria value of 26 is among the most frequently referenced in Jewish numerology."
+  },
+  {
+    "hebrew": "משיח",
+    "value": 358,
+    "transliteration": "Mashiach",
+    "meaning": "Messiah",
+    "attribution": "Traditional",
+    "system": "hechrachi",
+    "notes": "Shares its value of 358 with nachash (serpent), a connection explored extensively in kabbalistic literature (see Genesis 3 and the concept of rectification)."
+  },
+  {
+    "hebrew": "נחש",
+    "value": 358,
+    "transliteration": "Nachash",
+    "meaning": "Serpent",
+    "attribution": "Genesis 3:1",
+    "system": "hechrachi",
+    "notes": "Equals mashiach (messiah) at 358. Kabbalistic teaching holds that the messiah rectifies the damage caused by the serpent in the Garden of Eden."
+  },
+  {
+    "hebrew": "תורה",
+    "value": 611,
+    "transliteration": "Torah",
+    "meaning": "Torah (the Law)",
+    "attribution": "Talmud, Makkot 23b",
+    "system": "hechrachi",
+    "notes": "The Talmud notes that Moses transmitted 611 commandments, and two more were heard directly from God, totaling 613."
+  },
+  {
+    "hebrew": "יין",
+    "value": 70,
+    "transliteration": "Yayin",
+    "meaning": "Wine",
+    "attribution": "Talmud, Eruvin 65a",
+    "system": "hechrachi",
+    "notes": "Shares its value of 70 with sod (secret), giving rise to the Talmudic saying: 'When wine enters, secrets come out' (nichnas yayin yatza sod)."
+  },
+  {
+    "hebrew": "סוד",
+    "value": 70,
+    "transliteration": "Sod",
+    "meaning": "Secret",
+    "attribution": "Talmud, Eruvin 65a",
+    "system": "hechrachi",
+    "notes": "Shares its value of 70 with yayin (wine). The word also denotes the deepest level of Torah interpretation in the PaRDeS system."
+  },
+  {
+    "hebrew": "אלהים",
+    "value": 86,
+    "transliteration": "Elohim",
+    "meaning": "God (divine name associated with judgment and nature)",
+    "attribution": "Genesis 1:1",
+    "system": "hechrachi",
+    "notes": "Shares its value of 86 with ha-teva (the nature), teaching that God's presence is embedded within the natural world."
+  },
+  {
+    "hebrew": "הטבע",
+    "value": 86,
+    "transliteration": "HaTeva",
+    "meaning": "The Nature",
+    "attribution": "Kabbalistic tradition",
+    "system": "hechrachi",
+    "notes": "Equals Elohim (86). This equivalence, cited by the Vilna Gaon and others, is taken to mean that nature is a manifestation of divine power."
+  },
+  {
+    "hebrew": "חכמה",
+    "value": 73,
+    "transliteration": "Chokhmah",
+    "meaning": "Wisdom",
+    "attribution": "Kabbalah (Sefirot)",
+    "system": "hechrachi",
+    "notes": "Chokhmah is the second of the ten Sefirot (divine emanations) in Kabbalistic thought, representing the first flash of intellectual insight."
+  },
+  {
+    "hebrew": "שרה",
+    "value": 505,
+    "transliteration": "Sarah",
+    "meaning": "Sarah (the matriarch)",
+    "attribution": "Genesis 17:15",
+    "system": "hechrachi",
+    "notes": "Sarah's name was changed from Sarai (שרי, value 510) to Sarah (שרה, value 505) by God in Genesis 17:15."
+  },
+  {
+    "hebrew": "משה",
+    "value": 345,
+    "transliteration": "Moshe",
+    "meaning": "Moses",
+    "attribution": "Torah",
+    "system": "hechrachi",
+    "notes": "Shares its value of 345 with El Shaddai (אל שדי), one of the names of God, a connection noted in traditional commentaries."
+  },
+  {
+    "hebrew": "שמע",
+    "value": 410,
+    "transliteration": "Shma",
+    "meaning": "Hear / Listen",
+    "attribution": "Deuteronomy 6:4",
+    "system": "hechrachi",
+    "notes": "The opening word of the Shema, the central declaration of Jewish faith. Also equals the numerical value of kadosh (holy, קדוש = 410)."
+  },
+  {
+    "hebrew": "דם",
+    "value": 44,
+    "transliteration": "Dam",
+    "meaning": "Blood",
+    "attribution": "Traditional",
+    "system": "hechrachi",
+    "notes": "Shares its value of 44 with yeled (ילד, child), connecting the concepts of blood and progeny in traditional interpretation."
+  }
+]
