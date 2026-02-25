@@ -1,5 +1,6 @@
 import hashlib
 import os
+import tomllib
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -23,6 +24,10 @@ app = Flask(
 
 KOFI_USERNAME = os.environ.get("KOFI_USERNAME", "")
 GITHUB_REPO_URL = os.environ.get("GITHUB_REPO_URL", "")
+
+_pyproject = Path(__file__).resolve().parent.parent / "pyproject.toml"
+with open(_pyproject, "rb") as _f:
+    APP_VERSION = tomllib.load(_f)["project"]["version"]
 
 # Load gematria data at build time
 _letters = load_letters()
@@ -64,6 +69,7 @@ _asset_manifest, _cache_version = _build_asset_manifest()
 @app.context_processor
 def inject_globals():
     return {
+        "app_version": APP_VERSION,
         "kofi_username": KOFI_USERNAME,
         "github_repo_url": GITHUB_REPO_URL,
         "letters_json": _letters_json,

@@ -1,6 +1,12 @@
 """Tests for the Flask application."""
 
-from src.app import _asset_manifest, _build_asset_manifest, _cache_version, app
+from src.app import (
+    APP_VERSION,
+    _asset_manifest,
+    _build_asset_manifest,
+    _cache_version,
+    app,
+)
 
 
 def test_asset_manifest_includes_js_files():
@@ -63,3 +69,16 @@ def test_sw_route_contains_cache_version():
         resp = client.get("/sw.js")
         body = resp.data.decode()
         assert _cache_version in body
+
+
+def test_version_from_pyproject():
+    parts = APP_VERSION.split(".")
+    assert len(parts) == 3
+    assert all(p.isdigit() for p in parts)
+
+
+def test_about_page_shows_version():
+    with app.test_client() as client:
+        resp = client.get("/")
+        body = resp.data.decode()
+        assert f"Version {APP_VERSION}" in body
