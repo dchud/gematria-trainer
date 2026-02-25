@@ -50,8 +50,9 @@ def _build_asset_manifest():
             continue
         rel = path.relative_to(static_dir)
         urls.append(f"static/{rel}")
-    # Include the root page
-    urls.append("index.html")
+    # Include the root page (use "./" for compatibility with both Flask dev
+    # server and frozen static files served with relative URLs)
+    urls.append("./")
     urls.sort()
     digest = hashlib.md5("".join(urls).encode()).hexdigest()[:8]
     return urls, f"gematria-v{digest}"

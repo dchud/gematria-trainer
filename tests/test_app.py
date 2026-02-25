@@ -25,9 +25,9 @@ def test_asset_manifest_includes_fonts():
     assert "static/fonts/NotoSerifHebrew-Regular.woff2" in urls
 
 
-def test_asset_manifest_includes_index():
+def test_asset_manifest_includes_root_page():
     urls, _ = _build_asset_manifest()
-    assert "index.html" in urls
+    assert "./" in urls
 
 
 def test_cache_version_format():

@@ -66,7 +66,7 @@ def test_sw_contains_precache_urls(frozen_build):
     assert "PRECACHE_URLS" in sw
     assert "static/js/app.js" in sw
     assert "static/dist/output.css" in sw
-    assert "index.html" in sw
+    assert '"./"' in sw
 
 
 def test_frozen_index_registers_service_worker(frozen_build):
