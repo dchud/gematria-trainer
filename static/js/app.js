@@ -43,7 +43,7 @@ function app() {
 
         // Transitions
         transition: 'fade',
-        transitionDuration: 250,
+        transitionDuration: 200,
         cardVisible: true,
         reducedMotion: false,
 

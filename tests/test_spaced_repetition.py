@@ -31,9 +31,9 @@ def sm2_review(reps, interval, ef, quality):
         return (0, 1, new_ef)
 
     if reps == 0:
-        new_interval = 1
+        new_interval = 2
     elif reps == 1:
-        new_interval = 6
+        new_interval = 10
     else:
         new_interval = round(interval * new_ef)
 
@@ -84,17 +84,17 @@ class TestIntervalProgression:
     def test_first_correct_review(self):
         reps, interval, ef = sm2_review(0, 1, DEFAULT_EASE, QUALITY_GOOD)
         assert reps == 1
-        assert interval == 1
+        assert interval == 2
 
     def test_second_correct_review(self):
-        reps, interval, ef = sm2_review(1, 1, DEFAULT_EASE, QUALITY_GOOD)
+        reps, interval, ef = sm2_review(1, 2, DEFAULT_EASE, QUALITY_GOOD)
         assert reps == 2
-        assert interval == 6
+        assert interval == 10
 
     def test_third_correct_review(self):
-        reps, interval, ef = sm2_review(2, 6, DEFAULT_EASE, QUALITY_GOOD)
+        reps, interval, ef = sm2_review(2, 10, DEFAULT_EASE, QUALITY_GOOD)
         assert reps == 3
-        assert interval == round(6 * DEFAULT_EASE)
+        assert interval == round(10 * DEFAULT_EASE)
 
     def test_wrong_resets(self):
         reps, interval, ef = sm2_review(5, 100, DEFAULT_EASE, QUALITY_WRONG)
@@ -117,7 +117,7 @@ class TestIntervalProgression:
         assert reps == 3
         # EF has increased from 2.5 after two Easy reviews
         assert ef > DEFAULT_EASE
-        assert interval > round(6 * DEFAULT_EASE)
+        assert interval > round(10 * DEFAULT_EASE)
 
     def test_interval_after_wrong_then_recovery(self):
         """After a wrong answer, recovery starts from scratch."""
@@ -127,11 +127,11 @@ class TestIntervalProgression:
 
         reps, interval, ef = sm2_review(reps, interval, ef, QUALITY_GOOD)
         assert reps == 1
-        assert interval == 1
+        assert interval == 2
 
         reps, interval, ef = sm2_review(reps, interval, ef, QUALITY_GOOD)
         assert reps == 2
-        assert interval == 6
+        assert interval == 10
 
 
 # -------------------------------------------------------------------

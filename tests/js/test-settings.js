@@ -61,7 +61,7 @@ describe('Settings', function () {
             assert.equal(Settings.DEFAULTS.hebrewFont, 'standard');
             assert.equal(Settings.DEFAULTS.darkMode, 'system');
             assert.equal(Settings.DEFAULTS.transition, 'fade');
-            assert.equal(Settings.DEFAULTS.transitionDuration, 250);
+            assert.equal(Settings.DEFAULTS.transitionDuration, 200);
         });
     });
 
@@ -157,7 +157,7 @@ describe('Settings', function () {
             assert.equal(result.hebrewFont, 'standard');
             assert.equal(result.darkMode, 'system');
             assert.equal(result.transition, 'fade');
-            assert.equal(result.transitionDuration, 250);
+            assert.equal(result.transitionDuration, 200);
         });
 
         it('overwrites all matching keys', function () {

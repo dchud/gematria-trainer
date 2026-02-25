@@ -22,7 +22,7 @@ var Settings = (function () {
         hebrewFont: 'standard',
         darkMode: 'system',
         transition: 'fade',
-        transitionDuration: 250,
+        transitionDuration: 200,
     };
 
     // ---------------------------------------------------------------

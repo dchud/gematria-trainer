@@ -46,21 +46,21 @@ describe('SpacedRepetition', function () {
             var card = SpacedRepetition.createCard('test');
             card = SpacedRepetition.review(card, 4);
             assert.equal(card.repetitions, 1);
-            assert.equal(card.interval_minutes, 1);
+            assert.equal(card.interval_minutes, 2);
 
             card = SpacedRepetition.review(card, 4);
             assert.equal(card.repetitions, 2);
-            assert.equal(card.interval_minutes, 6);
+            assert.equal(card.interval_minutes, 10);
         });
 
         it('scales interval by ease factor after rep 2', function () {
             var card = SpacedRepetition.createCard('test');
-            card = SpacedRepetition.review(card, 5); // rep 1, interval 1
-            card = SpacedRepetition.review(card, 5); // rep 2, interval 6
-            card = SpacedRepetition.review(card, 5); // rep 3, interval = 6 * newEf
+            card = SpacedRepetition.review(card, 5); // rep 1, interval 2
+            card = SpacedRepetition.review(card, 5); // rep 2, interval 10
+            card = SpacedRepetition.review(card, 5); // rep 3, interval = 10 * newEf
             assert.equal(card.repetitions, 3);
-            // EF adjusts again on this review, so interval = round(6 * currentEf)
-            assert.equal(card.interval_minutes, Math.round(6 * card.ease_factor));
+            // EF adjusts again on this review, so interval = round(10 * currentEf)
+            assert.equal(card.interval_minutes, Math.round(10 * card.ease_factor));
         });
 
         it('does not mutate the input card', function () {

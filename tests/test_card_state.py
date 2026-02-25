@@ -31,9 +31,9 @@ def _sm2_review(card, quality):
         new_interval = 1
     else:
         if card["repetitions"] == 0:
-            new_interval = 1
+            new_interval = 2
         elif card["repetitions"] == 1:
-            new_interval = 6
+            new_interval = 10
         else:
             new_interval = round(card["interval_minutes"] * new_ef)
         new_reps = card["repetitions"] + 1

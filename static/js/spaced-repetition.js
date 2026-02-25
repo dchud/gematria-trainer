@@ -108,9 +108,9 @@ var SpacedRepetition = (function () {
         } else {
             // Correct: advance
             if (card.repetitions === 0) {
-                newInterval = 1;
+                newInterval = 2;
             } else if (card.repetitions === 1) {
-                newInterval = 6;
+                newInterval = 10;
             } else {
                 newInterval = Math.round(card.interval_minutes * newEf);
             }

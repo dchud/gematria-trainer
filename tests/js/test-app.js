@@ -153,7 +153,7 @@ describe('app()', function () {
             assert.equal(a.totalCards, 0);
             assert.equal(a.savedCardState, null);
             assert.equal(a.transition, 'fade');
-            assert.equal(a.transitionDuration, 250);
+            assert.equal(a.transitionDuration, 200);
             assert.equal(a.cardVisible, true);
             assert.equal(a.reducedMotion, false);
             assert.equal(a.hebrewFont, 'standard');
@@ -592,7 +592,7 @@ describe('app()', function () {
             var a = createApp();
             var t = a.effectiveTransition();
             assert.equal(t.type, 'fade');
-            assert.equal(t.duration, 250);
+            assert.equal(t.duration, 200);
         });
 
         it('returns none when reducedMotion is true', function () {
@@ -635,7 +635,7 @@ describe('app()', function () {
             a.transition = 'fade';
             var style = a.transitionStyle();
             assert.ok(style.indexOf('opacity') !== -1);
-            assert.ok(style.indexOf('250ms') !== -1);
+            assert.ok(style.indexOf('200ms') !== -1);
         });
 
         it('returns transform+opacity transition for slide-left', function () {
@@ -644,7 +644,7 @@ describe('app()', function () {
             var style = a.transitionStyle();
             assert.ok(style.indexOf('transform') !== -1);
             assert.ok(style.indexOf('opacity') !== -1);
-            assert.ok(style.indexOf('250ms') !== -1);
+            assert.ok(style.indexOf('200ms') !== -1);
         });
 
         it('returns empty string when reduced motion', function () {
