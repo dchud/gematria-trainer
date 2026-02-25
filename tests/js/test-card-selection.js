@@ -19,12 +19,23 @@ describe('CardSelection', function () {
             assert.equal(result.card.review_count, 0);
         });
 
-        it('presents cards in spec order for new cards', function () {
+        it('presents new cards in random order', function () {
             var cards = CardState.initLevel('hechrachi', 1);
             var specs = Levels.getCards('hechrachi', 1);
-            var result = CardSelection.selectNext(cards, specs);
-            // First new card should be the first spec
-            assert.equal(result.card.card_id, specs[0].id);
+            // Run multiple selections to verify randomness —
+            // with 44 cards, getting the first spec every time is
+            // vanishingly unlikely (1/44^10 ≈ 3e-17)
+            var sawDifferent = false;
+            for (var i = 0; i < 10; i++) {
+                var result = CardSelection.selectNext(cards, specs);
+                assert.equal(result.type, 'card');
+                assert.equal(result.card.review_count, 0);
+                if (result.card.card_id !== specs[0].id) {
+                    sawDifferent = true;
+                    break;
+                }
+            }
+            assert.ok(sawDifferent, 'new cards should not always be the first spec');
         });
 
         it('selects overdue card over new card', function () {

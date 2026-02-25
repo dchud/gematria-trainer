@@ -136,7 +136,11 @@ var CardSelection = (function () {
     // ---------------------------------------------------------------
 
     /**
-     * Find the most overdue card (greatest positive overdue time).
+     * Find the most overdue reviewed card (greatest positive overdue time).
+     *
+     * Only considers cards that have been reviewed at least once.
+     * Unreviewed cards are handled by _findNewCard instead, which
+     * randomizes their introduction order.
      *
      * @param {object[]} cards - Card state array.
      * @returns {object|null} Most overdue card, or null if none are due.
@@ -147,6 +151,9 @@ var CardSelection = (function () {
         var i, overdue;
 
         for (i = 0; i < cards.length; i++) {
+            if (cards[i].review_count === 0) {
+                continue;
+            }
             overdue = SpacedRepetition.overdueMinutes(cards[i]);
             if (overdue > 0 && (best === null || overdue > bestOverdue)) {
                 best = cards[i];
@@ -158,15 +165,18 @@ var CardSelection = (function () {
     }
 
     /**
-     * Find a new (unreviewed) card, matching against the spec order
-     * so that cards are introduced in level-defined order.
+     * Find a random new (unreviewed) card from the current level.
+     *
+     * Collects all unreviewed cards and picks one at random to avoid
+     * predictable sequential ordering that undermines learning.
      *
      * @param {object[]} cards - Card state array.
-     * @param {object[]} specs - Card spec array (defines introduction order).
+     * @param {object[]} specs - Card spec array.
      * @returns {{card: object, spec: object}|null} Card and spec, or null.
      */
     function _findNewCard(cards, specs) {
         var cardMap = {};
+        var candidates = [];
         var i;
         for (i = 0; i < cards.length; i++) {
             cardMap[cards[i].card_id] = cards[i];
@@ -175,11 +185,15 @@ var CardSelection = (function () {
         for (i = 0; i < specs.length; i++) {
             var card = cardMap[specs[i].id];
             if (card && card.review_count === 0) {
-                return { card: card, spec: specs[i] };
+                candidates.push({ card: card, spec: specs[i] });
             }
         }
 
-        return null;
+        if (candidates.length === 0) {
+            return null;
+        }
+
+        return candidates[Math.floor(Math.random() * candidates.length)];
     }
 
     /**
