@@ -1,8 +1,8 @@
 var CACHE_NAME = "{{ cache_version }}";
 var PRECACHE_URLS = [
-{% for url in asset_manifest %}
+{%- for url in asset_manifest %}
     "{{ url }}"{{ "," if not loop.last }}
-{% endfor %}
+{%- endfor %}
 ];
 
 self.addEventListener("install", function (event) {
