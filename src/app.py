@@ -80,5 +80,5 @@ def index():
 
 @app.route("/sw.js")
 def service_worker():
-    js = render_template("sw.js")
+    js = render_template("sw.js.jinja2")
     return Response(js, content_type="text/javascript")
