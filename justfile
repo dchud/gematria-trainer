@@ -83,6 +83,10 @@ test:
     uv run pytest
     node --test tests/js/test-*.js
 
+# Run Playwright e2e tests (requires browser install)
+e2e:
+    uv run pytest tests/e2e/ -v
+
 # Run linters (Python and JavaScript)
 lint:
     uv run ruff check .
