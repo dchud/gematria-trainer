@@ -42,8 +42,8 @@
                 </template>
             </div>
 
-            <!-- Action zone: anchored at bottom, stable height -->
-            <div class="w-full flex flex-col items-center pb-4 min-h-[7rem]">
+            <!-- Action zone: anchored at bottom, justify-end so buttons align -->
+            <div class="w-full flex flex-col items-center justify-end pb-4 min-h-[9rem]">
                 <template x-if="!answerRevealed">
                     <button @click="showAnswer()"
                             class="w-full max-w-sm px-8 py-3 bg-blue-600 text-white rounded-lg text-lg font-medium
