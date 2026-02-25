@@ -506,6 +506,20 @@ function app() {
             return sys ? sys.name : this.system;
         },
 
+        viewLabel: function () {
+            var labels = {
+                splash: 'Gematria Trainer',
+                welcome: 'Welcome back',
+                placement: 'Placement assessment',
+                flashcard: 'Study flashcards',
+                progress: 'Progress',
+                reference: 'Reference table',
+                settings: 'Settings',
+                about: 'About',
+            };
+            return labels[this.view] || '';
+        },
+
         statusText: function () {
             if (!this.progression) return '';
             if (this.progression.completed) return 'Review mode';

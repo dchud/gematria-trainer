@@ -14,12 +14,14 @@
 
             <!-- Progress indicator -->
             <p class="text-sm text-gray-400 dark:text-gray-500 mb-8"
+               aria-live="polite" role="status"
                x-text="'Step ' + (placementState.currentStep + 1) + ' of ' + placementState.steps.length"></p>
 
             <!-- Prompt -->
-            <div class="mb-8 text-center">
+            <div class="mb-8 text-center" aria-live="polite">
                 <p class="text-7xl font-bold leading-tight"
                    :dir="isHebrew(placementPrompt()) ? 'rtl' : 'ltr'"
+                   :lang="isHebrew(placementPrompt()) ? 'he' : 'en'"
                    x-text="placementPrompt()"></p>
             </div>
 
@@ -29,13 +31,15 @@
                     <button @click="showPlacementAnswer()"
                             class="px-8 py-3 bg-blue-600 text-white rounded-lg text-lg font-medium
                                    hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500
-                                   focus:ring-offset-2 dark:focus:ring-offset-gray-950 min-h-[48px]">
+                                   focus:ring-offset-2 dark:focus:ring-offset-gray-950 min-h-[48px]"
+                            aria-label="Show answer">
                         Show Answer
                     </button>
                 </template>
                 <template x-if="placementAnswerRevealed">
                     <p class="text-5xl font-bold text-blue-600 dark:text-blue-400 leading-tight"
                        :dir="isHebrew(placementAnswer()) ? 'rtl' : 'ltr'"
+                       :lang="isHebrew(placementAnswer()) ? 'he' : 'en'"
                        x-text="placementAnswer()"></p>
                 </template>
             </div>
@@ -51,14 +55,16 @@
                                 class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-medium
                                        bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400
                                        hover:bg-red-200 dark:hover:bg-red-900/50
-                                       focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[48px]">
+                                       focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[48px]"
+                                aria-label="Not sure, mark as incorrect">
                             Not sure
                         </button>
                         <button @click="ratePlacementCard(true)"
                                 class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-medium
                                        bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400
                                        hover:bg-green-200 dark:hover:bg-green-900/50
-                                       focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[48px]">
+                                       focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[48px]"
+                                aria-label="Got it, mark as correct">
                             Got it
                         </button>
                     </div>

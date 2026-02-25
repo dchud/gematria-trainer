@@ -5,6 +5,7 @@
 
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
+            <caption class="sr-only" x-text="systemName() + ' reference table'"></caption>
             <thead>
                 <tr class="border-b-2 border-gray-200 dark:border-gray-700">
                     <th class="py-2 pr-4 text-sm font-semibold text-gray-500 dark:text-gray-400">Letter</th>
@@ -17,7 +18,7 @@
                 <template x-for="(row, idx) in referenceData()" :key="idx">
                     <tr class="border-b border-gray-100 dark:border-gray-800"
                         :class="row.isFinal ? 'bg-gray-50 dark:bg-gray-900/50' : ''">
-                        <td class="py-2 pr-4 text-2xl" dir="rtl" x-text="row.letter"></td>
+                        <td class="py-2 pr-4 text-2xl" dir="rtl" lang="he" x-text="row.letter"></td>
                         <td class="py-2 pr-4 text-sm" x-text="row.name"></td>
                         <td class="py-2 text-sm font-medium"
                             :dir="isHebrew(String(row.value)) ? 'rtl' : 'ltr'"

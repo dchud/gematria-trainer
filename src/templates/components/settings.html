@@ -119,8 +119,8 @@
         <legend class="text-lg font-semibold mb-3">Card Animation</legend>
 
         <div class="mb-4">
-            <label class="block text-sm font-medium mb-2">Transition style</label>
-            <select @change="updateTransition($event.target.value)"
+            <label for="transition-select" class="block text-sm font-medium mb-2">Transition style</label>
+            <select id="transition-select" @change="updateTransition($event.target.value)"
                     class="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700
                            bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
                            focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -131,10 +131,10 @@
         </div>
 
         <div class="mb-2" :class="transition === 'none' ? 'opacity-50' : ''">
-            <label class="block text-sm font-medium mb-2">
+            <label for="transition-duration" class="block text-sm font-medium mb-2">
                 Duration: <span x-text="transitionDuration + 'ms'"></span>
             </label>
-            <input type="range" min="0" max="500" step="50"
+            <input id="transition-duration" type="range" min="0" max="500" step="50"
                    :value="transitionDuration"
                    :disabled="transition === 'none'"
                    @input="updateTransitionDuration($event.target.value)"
@@ -171,14 +171,16 @@
                 <button @click="resetCurrentSystem()"
                         class="px-4 py-2 rounded-lg text-sm font-medium
                                bg-red-600 text-white hover:bg-red-700
-                               focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[48px]">
+                               focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[48px]"
+                        aria-label="Confirm resetting current system progress">
                     Confirm
                 </button>
                 <button @click="confirmResetSystem = false"
                         class="px-4 py-2 rounded-lg text-sm font-medium
                                bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100
                                hover:bg-gray-300 dark:hover:bg-gray-700
-                               focus:outline-none focus:ring-2 focus:ring-gray-500 min-h-[48px]">
+                               focus:outline-none focus:ring-2 focus:ring-gray-500 min-h-[48px]"
+                        aria-label="Cancel, keep current progress">
                     Cancel
                 </button>
             </div>

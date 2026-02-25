@@ -73,3 +73,7 @@ def test_frozen_index_registers_service_worker(frozen_build):
     html = (frozen_build / "index.html").read_text()
     assert "serviceWorker" in html
     assert 'register("sw.js")' in html
+
+
+def test_freeze_creates_nojekyll(frozen_build):
+    assert (frozen_build / ".nojekyll").exists()

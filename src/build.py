@@ -1,5 +1,7 @@
 """Frozen-Flask build script. Generates a static site in build/."""
 
+from pathlib import Path
+
 import structlog
 from flask_frozen import Freezer
 
@@ -14,6 +16,8 @@ def freeze():
     freezer = Freezer(app)
     log.info("freezing_site")
     freezer.freeze()
+    build_dir = Path(__file__).resolve().parent.parent / "build"
+    (build_dir / ".nojekyll").touch()
     log.info("freeze_complete", destination="build/")
 
 

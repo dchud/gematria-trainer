@@ -55,9 +55,13 @@
                         <span>Current level mastery</span>
                         <span x-text="formatAccuracy(masteryProgress())"></span>
                     </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3"
+                         role="progressbar"
+                         :aria-valuenow="Math.round(masteryProgress() * 100)"
+                         aria-valuemin="0" aria-valuemax="100"
+                         :aria-label="'Current level mastery: ' + Math.round(masteryProgress() * 100) + ' percent'">
                         <div class="bg-blue-600 dark:bg-blue-500 h-3 rounded-full transition-all duration-300"
-                             :style="'width: ' + (masteryProgress() * 100) + '%'"></div>
+                             :style="'width: ' + (masteryProgress() * 100) + '%'" aria-hidden="true"></div>
                     </div>
                 </div>
 
@@ -66,13 +70,15 @@
                      class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-8">
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Daily Accuracy</h3>
                     <div class="h-48">
-                        <canvas id="accuracy-chart"></canvas>
+                        <canvas id="accuracy-chart" role="img"
+                                aria-label="Daily accuracy chart showing review performance over time"></canvas>
                     </div>
                 </div>
 
                 <!-- Per-level table -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8">
                     <table class="w-full text-sm">
+                        <caption class="sr-only">Per-level progress statistics</caption>
                         <thead>
                             <tr class="border-b border-gray-200 dark:border-gray-700">
                                 <th class="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Level</th>
@@ -110,7 +116,9 @@
         <!-- Back button -->
         <div class="text-center mt-4">
             <button @click="navigate(previousView || 'flashcard')"
-                    class="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                    class="text-blue-600 dark:text-blue-400 hover:underline text-sm
+                           min-h-[48px] inline-flex items-center
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
                 Back
             </button>
         </div>

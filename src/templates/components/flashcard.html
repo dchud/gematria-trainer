@@ -3,6 +3,8 @@
      class="flex flex-col items-center min-h-[80vh] outline-none"
      role="region" aria-label="Flashcard study area">
 
+    <h2 class="sr-only">Flashcard Study</h2>
+
     <!-- Status line -->
     <div class="w-full flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-6"
          aria-live="polite">
@@ -19,7 +21,8 @@
             <div class="mb-8 text-center" aria-live="polite">
                 <p class="text-7xl font-bold leading-tight"
                    :dir="isHebrew(promptText()) ? 'rtl' : 'ltr'"
-                   :class="isHebrew(promptText()) ? 'font-hebrew-standard' : ''"
+                   :lang="isHebrew(promptText()) ? 'he' : 'en'"
+                   :class="isHebrew(promptText()) ? fontClassName() : ''"
                    x-text="promptText()"
                    aria-label="Prompt"></p>
             </div>
@@ -38,7 +41,8 @@
                 <template x-if="answerRevealed">
                     <p class="text-5xl font-bold text-blue-600 dark:text-blue-400 leading-tight"
                        :dir="isHebrew(answerText()) ? 'rtl' : 'ltr'"
-                       :class="isHebrew(answerText()) ? 'font-hebrew-standard' : ''"
+                       :lang="isHebrew(answerText()) ? 'he' : 'en'"
+                       :class="isHebrew(answerText()) ? fontClassName() : ''"
                        x-text="answerText()"
                        aria-label="Answer"></p>
                 </template>
