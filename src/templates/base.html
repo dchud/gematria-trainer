@@ -32,13 +32,6 @@
     </main>
     {% endblock %}
 
-    {% if kofi_username %}
-    <footer class="container mx-auto px-4 py-4 mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
-        <a href="https://ko-fi.com/{{ kofi_username }}" target="_blank" rel="noopener noreferrer"
-           class="hover:text-gray-700 dark:hover:text-gray-300">Support on Ko-fi</a>
-    </footer>
-    {% endif %}
-
     <!-- Gematria data (build-time) -->
     <script>var LETTERS_DATA = {{ letters_json|safe }};</script>
     <script>var EXAMPLES_DATA = {{ examples_json|safe }};</script>
