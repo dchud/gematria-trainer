@@ -59,6 +59,9 @@ function app() {
         placementAnswerRevealed: false,
         placementMessage: '',
 
+        // Session expiry
+        sessionExpired: false,
+
         // Confirmation dialogs
         confirmResetSystem: false,
         confirmStartFresh: false,
@@ -112,10 +115,9 @@ function app() {
             if (hasCookie && this.hasSavedProgress) {
                 this.view = 'welcome';
             } else if (!hasCookie && this.hasSavedProgress) {
-                // Stale progress without session cookie — clear it
-                Storage.clearProgress(this.system);
-                this.hasSavedProgress = false;
-                this.view = 'splash';
+                // Session cookie expired but progress remains — warn user
+                this.sessionExpired = true;
+                this.view = 'welcome';
             } else {
                 this.view = 'splash';
             }

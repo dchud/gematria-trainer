@@ -164,6 +164,7 @@ describe('app()', function () {
             assert.equal(a.placementState, null);
             assert.equal(a.placementAnswerRevealed, false);
             assert.equal(a.placementMessage, '');
+            assert.equal(a.sessionExpired, false);
             assert.equal(a.confirmResetSystem, false);
             assert.equal(a.confirmStartFresh, false);
         });
@@ -1198,16 +1199,28 @@ describe('app()', function () {
             assert.equal(a.hasSavedProgress, true);
         });
 
-        it('clears stale progress when no cookie but progress exists', function () {
+        it('sets sessionExpired and routes to welcome when no cookie but progress exists', function () {
             var state = Progression.createState('hechrachi');
             Storage.saveProgress('hechrachi', state);
 
             var a = createApp();
             a.init();
-            assert.equal(a.view, 'splash');
-            assert.equal(a.hasSavedProgress, false);
-            // Progress should be cleared
-            assert.equal(Storage.loadProgress('hechrachi'), null);
+            assert.equal(a.view, 'welcome');
+            assert.equal(a.sessionExpired, true);
+            assert.equal(a.hasSavedProgress, true);
+            // Progress should NOT be cleared
+            assert.notEqual(Storage.loadProgress('hechrachi'), null);
+        });
+
+        it('sessionExpired is false when cookie and progress both exist', function () {
+            var a = createApp();
+            a._setCookie('gematria_session', '1', 30);
+            var state = Progression.createState('hechrachi');
+            Storage.saveProgress('hechrachi', state);
+
+            a.init();
+            assert.equal(a.view, 'welcome');
+            assert.equal(a.sessionExpired, false);
         });
     });
 
