@@ -55,3 +55,21 @@ def test_frozen_index_has_relative_asset_paths(frozen_build):
     html = (frozen_build / "index.html").read_text()
     assert "static/dist/output.css" in html
     assert "static/js/vendor/alpine.min.js" in html
+
+
+def test_freeze_creates_sw_js(frozen_build):
+    assert (frozen_build / "sw.js").exists()
+
+
+def test_sw_contains_precache_urls(frozen_build):
+    sw = (frozen_build / "sw.js").read_text()
+    assert "PRECACHE_URLS" in sw
+    assert "static/js/app.js" in sw
+    assert "static/dist/output.css" in sw
+    assert "index.html" in sw
+
+
+def test_frozen_index_registers_service_worker(frozen_build):
+    html = (frozen_build / "index.html").read_text()
+    assert "serviceWorker" in html
+    assert 'register("sw.js")' in html

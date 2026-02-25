@@ -27,6 +27,13 @@
     </main>
     {% endblock %}
 
+    {% if kofi_username %}
+    <footer class="container mx-auto px-4 py-4 mt-8 text-center text-xs text-gray-400 dark:text-gray-600">
+        <a href="https://ko-fi.com/{{ kofi_username }}" target="_blank" rel="noopener noreferrer"
+           class="hover:text-gray-600 dark:hover:text-gray-400">Support on Ko-fi</a>
+    </footer>
+    {% endif %}
+
     <!-- Gematria data (build-time) -->
     <script>var LETTERS_DATA = {{ letters_json|safe }};</script>
     <script>var EXAMPLES_DATA = {{ examples_json|safe }};</script>
@@ -48,6 +55,12 @@
     <!-- Vendor JS -->
     <script src="{{ url_for('static', filename='js/vendor/chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/alpine.min.js') }}" defer></script>
+
+    <script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
+    }
+    </script>
 
     {% block scripts %}{% endblock %}
 </body>
