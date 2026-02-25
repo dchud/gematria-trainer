@@ -2,7 +2,7 @@
 <div class="flex flex-col items-center min-h-screen px-4 py-8 sm:py-12">
     <div class="w-full max-w-lg">
 
-        <!-- Header: tier + system -->
+        <!-- Header: level + system -->
         <div class="text-center mb-6">
             <h2 class="text-2xl font-bold dark:text-white">Progress</h2>
             <p class="text-gray-600 dark:text-gray-400 mt-1"
@@ -33,16 +33,16 @@
                     </div>
                     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-sm">
                         <div class="text-2xl font-bold text-purple-600 dark:text-purple-400"
-                             x-text="'Tier ' + tierLabel()"></div>
+                             x-text="'Level ' + levelLabel()"></div>
                         <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Current</div>
                     </div>
                 </div>
 
-                <!-- Completion banner (shown when all tiers mastered) -->
+                <!-- Completion banner (shown when all levels mastered) -->
                 <div x-show="progression.completed"
                      class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-8 text-center">
                     <div class="text-lg font-bold text-green-700 dark:text-green-400 mb-1">
-                        All tiers mastered
+                        All levels mastered
                     </div>
                     <p class="text-sm text-green-600 dark:text-green-500">
                         Spaced repetition continues in review mode to maintain your knowledge.
@@ -52,7 +52,7 @@
                 <!-- Mastery progress bar (hidden when completed) -->
                 <div x-show="!progression.completed" class="mb-8">
                     <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        <span>Current tier mastery</span>
+                        <span>Current level mastery</span>
                         <span x-text="formatAccuracy(masteryProgress())"></span>
                     </div>
                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
@@ -70,12 +70,12 @@
                     </div>
                 </div>
 
-                <!-- Per-tier table -->
+                <!-- Per-level table -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Tier</th>
+                                <th class="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Level</th>
                                 <th class="px-4 py-3 text-center text-gray-500 dark:text-gray-400 font-medium">Cards</th>
                                 <th class="px-4 py-3 text-center text-gray-500 dark:text-gray-400 font-medium">Reviewed</th>
                                 <th class="px-4 py-3 text-center text-gray-500 dark:text-gray-400 font-medium">Accuracy</th>
@@ -83,7 +83,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <template x-for="ts in tierStats()" :key="ts.tier">
+                            <template x-for="ts in levelStats()" :key="ts.level">
                                 <tr class="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
                                     <td class="px-4 py-3 font-medium dark:text-white"
                                         x-text="ts.label"></td>

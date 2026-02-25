@@ -53,16 +53,16 @@ describe('CardState', function () {
         });
     });
 
-    describe('initTier', function () {
-        it('creates cards for all specs in a tier', function () {
-            var cards = CardState.initTier('hechrachi', 1);
-            var specs = Tiers.getCards('hechrachi', 1);
+    describe('initLevel', function () {
+        it('creates cards for all specs in a level', function () {
+            var cards = CardState.initLevel('hechrachi', 1);
+            var specs = Levels.getCards('hechrachi', 1);
             assert.equal(cards.length, specs.length);
         });
 
         it('cards have matching IDs to specs', function () {
-            var cards = CardState.initTier('hechrachi', 1);
-            var specs = Tiers.getCards('hechrachi', 1);
+            var cards = CardState.initLevel('hechrachi', 1);
+            var specs = Levels.getCards('hechrachi', 1);
             for (var i = 0; i < cards.length; i++) {
                 assert.equal(cards[i].card_id, specs[i].id);
             }
@@ -71,38 +71,38 @@ describe('CardState', function () {
 
     describe('findCard', function () {
         it('finds a card by ID', function () {
-            var cards = CardState.initTier('hechrachi', 1);
+            var cards = CardState.initLevel('hechrachi', 1);
             var found = CardState.findCard(cards, 'alef-to-val');
             assert.ok(found);
             assert.equal(found.card_id, 'alef-to-val');
         });
 
         it('returns null for missing ID', function () {
-            var cards = CardState.initTier('hechrachi', 1);
+            var cards = CardState.initLevel('hechrachi', 1);
             assert.equal(CardState.findCard(cards, 'nonexistent'), null);
         });
     });
 
     describe('replaceCard', function () {
         it('replaces a card in the array', function () {
-            var cards = CardState.initTier('hechrachi', 1);
+            var cards = CardState.initLevel('hechrachi', 1);
             var updated = CardState.reviewCard(cards[0], 4);
             CardState.replaceCard(cards, updated);
             assert.equal(cards[0].review_count, 1);
         });
     });
 
-    describe('tierAccuracy', function () {
+    describe('levelAccuracy', function () {
         it('returns 0 for unreviewed cards', function () {
-            var cards = CardState.initTier('hechrachi', 1);
-            assert.equal(CardState.tierAccuracy(cards), 0);
+            var cards = CardState.initLevel('hechrachi', 1);
+            assert.equal(CardState.levelAccuracy(cards), 0);
         });
 
         it('returns 1.0 for all correct', function () {
             var cards = [CardState.createCard('a'), CardState.createCard('b')];
             cards[0] = CardState.reviewCard(cards[0], 4);
             cards[1] = CardState.reviewCard(cards[1], 5);
-            assert.equal(CardState.tierAccuracy(cards), 1.0);
+            assert.equal(CardState.levelAccuracy(cards), 1.0);
         });
 
         it('computes accuracy across all cards', function () {
@@ -110,7 +110,7 @@ describe('CardState', function () {
             cards[0] = CardState.reviewCard(cards[0], 4); // correct
             cards[1] = CardState.reviewCard(cards[1], 1); // wrong
             // 1 correct out of 2 reviews = 0.5
-            assert.equal(CardState.tierAccuracy(cards), 0.5);
+            assert.equal(CardState.levelAccuracy(cards), 0.5);
         });
     });
 

@@ -1,28 +1,28 @@
 /**
- * Tier definitions for all gematria system types.
+ * Level definitions for all gematria system types.
  *
- * Defines the card sets, mastery criteria, and tier structure for each
+ * Defines the card sets, mastery criteria, and level structure for each
  * system category:
- *   - 8-tier: Mispar Hechrachi, Mispar Gadol
- *   - 4-tier: Mispar Katan, Mispar Siduri
- *   - 3-tier: Atbash, Albam, Avgad (ciphers)
+ *   - 8-level: Mispar Hechrachi, Mispar Gadol
+ *   - 4-level: Mispar Katan, Mispar Siduri
+ *   - 3-level: Atbash, Albam, Avgad (ciphers)
  *
- * Each tier generates an array of card specs with stable IDs suitable
+ * Each level generates an array of card specs with stable IDs suitable
  * for use as spaced repetition card identifiers.
  *
  * Depends on gematria.js and registry.js being loaded first.
  * No import/export, no arrow functions, no let/const. Requires ES2022+ (Object.hasOwn).
  */
 
-var Tiers = (function () {
+var Levels = (function () {
     'use strict';
 
     // ---------------------------------------------------------------
     // Constants
     // ---------------------------------------------------------------
 
-    /** Hebrew letter labels for each tier (1-indexed). */
-    var TIER_LABELS = [
+    /** Hebrew letter labels for each level (1-indexed). */
+    var LEVEL_LABELS = [
         '',
         '\u05D0',
         '\u05D1',
@@ -42,8 +42,8 @@ var Tiers = (function () {
         minReps: 3,
     };
 
-    /** Number of tiers per system. */
-    var SYSTEM_TIER_COUNT = {
+    /** Number of levels per system. */
+    var SYSTEM_LEVEL_COUNT = {
         hechrachi: 8,
         gadol: 8,
         katan: 4,
@@ -218,22 +218,22 @@ var Tiers = (function () {
     }
 
     // ---------------------------------------------------------------
-    // Tier card definitions by system type
+    // Level card definitions by system type
     // ---------------------------------------------------------------
 
     /**
-     * 8-tier card sets for Hechrachi and Gadol.
+     * 8-level card sets for Hechrachi and Gadol.
      *
-     * Tier 1: Letters א-ט (1-9), both directions
-     * Tier 2: Letters י-צ (10-90), both directions
-     * Tier 3: Letters ק-ת (100-400), both directions
-     * Tier 4: Final forms (ך ם ן ף ץ), both directions
+     * Level 1: Letters א-ט (1-9), both directions
+     * Level 2: Letters י-צ (10-90), both directions
+     * Level 3: Letters ק-ת (100-400), both directions
+     * Level 4: Final forms (ך ם ן ף ץ), both directions
      *         Hechrachi: same values as non-final (reinforcement)
      *         Gadol: distinct 500-900 values
-     * Tiers 5-8: Procedural (defined in E7, returns empty here)
+     * Levels 5-8: Procedural (defined in E7, returns empty here)
      */
-    function _eightTierCards(systemKey, tier) {
-        switch (tier) {
+    function _eightLevelCards(systemKey, level) {
+        switch (level) {
             case 1:
                 return _valuationCards(_lettersInRange(1, 9), systemKey);
             case 2:
@@ -242,26 +242,26 @@ var Tiers = (function () {
                 return _valuationCards(_lettersInRange(19, 22), systemKey);
             case 4:
                 return _valuationCards(_finalForms(), systemKey);
-            // Tiers 5-8 are procedural (implemented in E7: generator.js)
+            // Levels 5-8 are procedural (implemented in E7: generator.js)
             default:
                 return [];
         }
     }
 
     /**
-     * 4-tier card sets for Katan and Siduri.
+     * 4-level card sets for Katan and Siduri.
      *
-     * Tier 1: Letters א-ט (first 9), both directions
-     * Tier 2: Letters י-צ (next 9), both directions
-     * Tier 3: Letters ק-ת (last 4) + final forms, both directions
-     * Tier 4: All letters mixed, both directions (cumulative review)
+     * Level 1: Letters א-ט (first 9), both directions
+     * Level 2: Letters י-צ (next 9), both directions
+     * Level 3: Letters ק-ת (last 4) + final forms, both directions
+     * Level 4: All letters mixed, both directions (cumulative review)
      *
      * For Katan, multiple letters share the same reduced value (e.g.
      * א=1, י=1, ק=1). Each gets its own value-to-letter card so the
      * user encounters all variants through spaced repetition.
      */
-    function _fourTierCards(systemKey, tier) {
-        switch (tier) {
+    function _fourLevelCards(systemKey, level) {
+        switch (level) {
             case 1:
                 return _valuationCards(_lettersInRange(1, 9), systemKey);
             case 2:
@@ -279,19 +279,19 @@ var Tiers = (function () {
     }
 
     /**
-     * 3-tier card sets for cipher systems.
+     * 3-level card sets for cipher systems.
      *
-     * Tier 1: Letters א-כ (first 11), forward direction only
-     * Tier 2: Letters ל-ת (last 11), forward direction only
-     * Tier 3: All 22 letters, both directions
+     * Level 1: Letters א-כ (first 11), forward direction only
+     * Level 2: Letters ל-ת (last 11), forward direction only
+     * Level 3: All 22 letters, both directions
      *         For symmetric ciphers (Atbash, Albam): both directions
      *         are identical, so only forward cards are generated.
      *         For Avgad (asymmetric): forward + reverse cards.
      */
-    function _threeTierCards(systemKey, tier) {
+    function _threeLevelCards(systemKey, level) {
         var isAsymmetric = systemKey === 'avgad';
 
-        switch (tier) {
+        switch (level) {
             case 1:
                 return _cipherCards(_lettersInRange(1, 11), systemKey, false);
             case 2:
@@ -308,31 +308,31 @@ var Tiers = (function () {
     // ---------------------------------------------------------------
 
     return {
-        /** Mastery criteria for tier advancement. */
+        /** Mastery criteria for level advancement. */
         MASTERY: MASTERY,
 
         /**
-         * Get the number of tiers for a given system.
+         * Get the number of levels for a given system.
          *
          * @param {string} systemKey - Registry key.
-         * @returns {number} Tier count (3, 4, or 8), or 0 if unknown.
+         * @returns {number} Level count (3, 4, or 8), or 0 if unknown.
          */
-        tierCount: function (systemKey) {
-            return SYSTEM_TIER_COUNT[systemKey] || 0;
+        levelCount: function (systemKey) {
+            return SYSTEM_LEVEL_COUNT[systemKey] || 0;
         },
 
         /**
-         * Get the Hebrew letter label for a tier number.
+         * Get the Hebrew letter label for a level number.
          *
-         * @param {number} tierNumber - Tier number (1-8).
-         * @returns {string} Hebrew letter (e.g. tier 1 = א).
+         * @param {number} levelNumber - Level number (1-8).
+         * @returns {string} Hebrew letter (e.g. level 1 = א).
          */
-        tierLetter: function (tierNumber) {
-            return TIER_LABELS[tierNumber] || '';
+        levelLetter: function (levelNumber) {
+            return LEVEL_LABELS[levelNumber] || '';
         },
 
         /**
-         * Generate card specs for a given system and tier.
+         * Generate card specs for a given system and level.
          *
          * Each card spec has: { id, type, prompt, answer }
          * - id: stable string identifier for spaced repetition state
@@ -342,34 +342,34 @@ var Tiers = (function () {
          * - answer: the correct answer
          *
          * @param {string} systemKey - Registry key (e.g. "hechrachi").
-         * @param {number} tierNumber - Tier number (1-based).
+         * @param {number} levelNumber - Level number (1-based).
          * @returns {object[]} Array of card spec objects.
          */
-        getCards: function (systemKey, tierNumber) {
-            var count = SYSTEM_TIER_COUNT[systemKey];
-            if (!count || tierNumber < 1 || tierNumber > count) return [];
+        getCards: function (systemKey, levelNumber) {
+            var count = SYSTEM_LEVEL_COUNT[systemKey];
+            if (!count || levelNumber < 1 || levelNumber > count) return [];
 
-            if (count === 8) return _eightTierCards(systemKey, tierNumber);
-            if (count === 4) return _fourTierCards(systemKey, tierNumber);
-            if (count === 3) return _threeTierCards(systemKey, tierNumber);
+            if (count === 8) return _eightLevelCards(systemKey, levelNumber);
+            if (count === 4) return _fourLevelCards(systemKey, levelNumber);
+            if (count === 3) return _threeLevelCards(systemKey, levelNumber);
             return [];
         },
 
         /**
-         * Check if a tier's card set is static (fixed) or procedural.
+         * Check if a level's card set is static (fixed) or procedural.
          *
-         * Static tiers have a known card set defined here. Procedural
-         * tiers (8-tier systems, tiers 5-8) generate cards at runtime
+         * Static levels have a known card set defined here. Procedural
+         * levels (8-level systems, levels 5-8) generate cards at runtime
          * via the generator module (E7).
          *
          * @param {string} systemKey - Registry key.
-         * @param {number} tierNumber - Tier number (1-based).
-         * @returns {boolean} True if the tier has a static card set.
+         * @param {number} levelNumber - Level number (1-based).
+         * @returns {boolean} True if the level has a static card set.
          */
-        isStatic: function (systemKey, tierNumber) {
-            var count = SYSTEM_TIER_COUNT[systemKey];
-            if (count === 8) return tierNumber <= 4;
-            // All tiers in 4-tier and 3-tier systems are static
+        isStatic: function (systemKey, levelNumber) {
+            var count = SYSTEM_LEVEL_COUNT[systemKey];
+            if (count === 8) return levelNumber <= 4;
+            // All levels in 4-level and 3-level systems are static
             return true;
         },
     };

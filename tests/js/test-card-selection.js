@@ -10,8 +10,8 @@ require('./helpers/load-modules');
 describe('CardSelection', function () {
     describe('selectNext', function () {
         it('returns a new card when all are unreviewed', function () {
-            var cards = CardState.initTier('hechrachi', 1);
-            var specs = Tiers.getCards('hechrachi', 1);
+            var cards = CardState.initLevel('hechrachi', 1);
+            var specs = Levels.getCards('hechrachi', 1);
             var result = CardSelection.selectNext(cards, specs);
             assert.equal(result.type, 'card');
             assert.ok(result.card);
@@ -20,16 +20,16 @@ describe('CardSelection', function () {
         });
 
         it('presents cards in spec order for new cards', function () {
-            var cards = CardState.initTier('hechrachi', 1);
-            var specs = Tiers.getCards('hechrachi', 1);
+            var cards = CardState.initLevel('hechrachi', 1);
+            var specs = Levels.getCards('hechrachi', 1);
             var result = CardSelection.selectNext(cards, specs);
             // First new card should be the first spec
             assert.equal(result.card.card_id, specs[0].id);
         });
 
         it('selects overdue card over new card', function () {
-            var cards = CardState.initTier('hechrachi', 1);
-            var specs = Tiers.getCards('hechrachi', 1);
+            var cards = CardState.initLevel('hechrachi', 1);
+            var specs = Levels.getCards('hechrachi', 1);
 
             // Review the first card so it's been seen
             var reviewed = CardState.reviewCard(cards[0], 4);
@@ -42,8 +42,8 @@ describe('CardSelection', function () {
             assert.equal(result.card.card_id, cards[0].card_id);
         });
 
-        it('returns advance when tier is mastered', function () {
-            // Create a single-card tier by making a minimal set
+        it('returns advance when level is mastered', function () {
+            // Create a single-card level by making a minimal set
             var specs = [{ id: 'test-card', type: 'letter-to-value', prompt: 'x', answer: '1' }];
             var cards = [CardState.createCard('test-card')];
 
@@ -74,7 +74,7 @@ describe('CardSelection', function () {
     });
 
     describe('selectReview', function () {
-        it('returns overdue card from all tiers', function () {
+        it('returns overdue card from all levels', function () {
             var cards = [CardState.createCard('test')];
             var specs = [{ id: 'test', type: 'letter-to-value', prompt: 'x', answer: '1' }];
 

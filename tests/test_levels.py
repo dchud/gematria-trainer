@@ -1,7 +1,7 @@
-"""Tests for tier definitions and card generation.
+"""Tests for level definitions and card generation.
 
-These tests verify the tier structure and card generation logic as
-implemented in static/js/tiers.js by testing the same rules in Python.
+These tests verify the level structure and card generation logic as
+implemented in static/js/levels.js by testing the same rules in Python.
 They serve as a reference implementation to catch regressions.
 """
 
@@ -33,48 +33,48 @@ def final_forms(letter_data):
 
 
 # -------------------------------------------------------------------
-# Tier structure tests
+# Level structure tests
 # -------------------------------------------------------------------
 
 
-class TestTierCounts:
-    def test_hechrachi_has_8_tiers(self):
-        assert _tier_count("hechrachi") == 8
+class TestLevelCounts:
+    def test_hechrachi_has_8_levels(self):
+        assert _level_count("hechrachi") == 8
 
-    def test_gadol_has_8_tiers(self):
-        assert _tier_count("gadol") == 8
+    def test_gadol_has_8_levels(self):
+        assert _level_count("gadol") == 8
 
-    def test_katan_has_4_tiers(self):
-        assert _tier_count("katan") == 4
+    def test_katan_has_4_levels(self):
+        assert _level_count("katan") == 4
 
-    def test_siduri_has_4_tiers(self):
-        assert _tier_count("siduri") == 4
+    def test_siduri_has_4_levels(self):
+        assert _level_count("siduri") == 4
 
-    def test_atbash_has_3_tiers(self):
-        assert _tier_count("atbash") == 3
+    def test_atbash_has_3_levels(self):
+        assert _level_count("atbash") == 3
 
-    def test_albam_has_3_tiers(self):
-        assert _tier_count("albam") == 3
+    def test_albam_has_3_levels(self):
+        assert _level_count("albam") == 3
 
-    def test_avgad_has_3_tiers(self):
-        assert _tier_count("avgad") == 3
+    def test_avgad_has_3_levels(self):
+        assert _level_count("avgad") == 3
 
 
-class TestTierLabels:
-    def test_tier_labels_are_hebrew_letters(self):
+class TestLevelLabels:
+    def test_level_labels_are_hebrew_letters(self):
         expected = ["א", "ב", "ג", "ד", "ה", "ו", "ז", "ח"]
         for i, letter in enumerate(expected, 1):
-            assert _tier_label(i) == letter
+            assert _level_label(i) == letter
 
 
 # -------------------------------------------------------------------
-# 8-tier card generation (Hechrachi, Gadol)
+# 8-level card generation (Hechrachi, Gadol)
 # -------------------------------------------------------------------
 
 
-class TestEightTierCards:
-    def test_tier_1_has_letters_alef_through_tet(self, letter_data):
-        """Tier 1: letters with positions 1-9, both directions."""
+class TestEightLevelCards:
+    def test_level_1_has_letters_alef_through_tet(self, letter_data):
+        """Level 1: letters with positions 1-9, both directions."""
         letters = [row["letter"] for row in letter_data if int(row["position"]) <= 9]
         cards = _valuation_cards(letters, "hechrachi")
         assert len(cards) == 18  # 9 letters * 2 directions
@@ -83,28 +83,28 @@ class TestEightTierCards:
         assert _has_card(cards, "tet-to-val")
         assert _has_card(cards, "val-to-tet")
 
-    def test_tier_2_has_letters_yod_through_tsade(self, letter_data):
-        """Tier 2: letters with positions 10-18."""
+    def test_level_2_has_letters_yod_through_tsade(self, letter_data):
+        """Level 2: letters with positions 10-18."""
         letters = [
             row["letter"] for row in letter_data if 10 <= int(row["position"]) <= 18
         ]
         cards = _valuation_cards(letters, "hechrachi")
         assert len(cards) == 18  # 9 letters * 2 directions
 
-    def test_tier_3_has_letters_qof_through_tav(self, letter_data):
-        """Tier 3: letters with positions 19-22."""
+    def test_level_3_has_letters_qof_through_tav(self, letter_data):
+        """Level 3: letters with positions 19-22."""
         letters = [
             row["letter"] for row in letter_data if 19 <= int(row["position"]) <= 22
         ]
         cards = _valuation_cards(letters, "hechrachi")
         assert len(cards) == 8  # 4 letters * 2 directions
 
-    def test_tier_4_has_final_forms(self, final_forms):
-        """Tier 4: 5 final-form letters, both directions."""
+    def test_level_4_has_final_forms(self, final_forms):
+        """Level 4: 5 final-form letters, both directions."""
         cards = _valuation_cards(final_forms, "hechrachi")
         assert len(cards) == 10  # 5 finals * 2 directions
 
-    def test_hechrachi_tier_4_final_values_same_as_base(self, letter_data):
+    def test_hechrachi_level_4_final_values_same_as_base(self, letter_data):
         """In Hechrachi, final forms have same values as non-final."""
         for row in letter_data:
             if row["final_form"]:
@@ -112,43 +112,43 @@ class TestEightTierCards:
                     row["standard_value"]
                 )
 
-    def test_gadol_tier_4_final_values_distinct(self, letter_data):
+    def test_gadol_level_4_final_values_distinct(self, letter_data):
         """In Gadol, final forms have distinct 500-900 values."""
         expected = {"ך": 500, "ם": 600, "ן": 700, "ף": 800, "ץ": 900}
         for row in letter_data:
             if row["final_form"]:
                 assert int(row["final_value"]) == expected[row["final_form"]]
 
-    def test_tiers_5_through_8_are_procedural(self):
-        """Tiers 5-8 return empty (procedural cards handled by E7)."""
-        for tier in [5, 6, 7, 8]:
-            assert _is_static("hechrachi", tier) is False
+    def test_levels_5_through_8_are_procedural(self):
+        """Levels 5-8 return empty (procedural cards handled by E7)."""
+        for level in [5, 6, 7, 8]:
+            assert _is_static("hechrachi", level) is False
 
 
 # -------------------------------------------------------------------
-# 4-tier card generation (Katan, Siduri)
+# 4-level card generation (Katan, Siduri)
 # -------------------------------------------------------------------
 
 
-class TestFourTierCards:
-    def test_tier_1_letters(self, letter_data):
-        """Tier 1: first 9 letters."""
+class TestFourLevelCards:
+    def test_level_1_letters(self, letter_data):
+        """Level 1: first 9 letters."""
         letters = [row["letter"] for row in letter_data[:9]]
         assert len(letters) == 9
 
-    def test_tier_2_letters(self, letter_data):
-        """Tier 2: next 9 letters."""
+    def test_level_2_letters(self, letter_data):
+        """Level 2: next 9 letters."""
         letters = [row["letter"] for row in letter_data[9:18]]
         assert len(letters) == 9
 
-    def test_tier_3_includes_finals(self, letter_data, final_forms):
-        """Tier 3: last 4 letters + 5 final forms = 9 characters."""
+    def test_level_3_includes_finals(self, letter_data, final_forms):
+        """Level 3: last 4 letters + 5 final forms = 9 characters."""
         base = [row["letter"] for row in letter_data[18:22]]
         all_t3 = base + final_forms
         assert len(all_t3) == 9
 
-    def test_tier_4_is_cumulative(self, alphabet, final_forms):
-        """Tier 4: all 22 base letters + 5 finals = 27 characters."""
+    def test_level_4_is_cumulative(self, alphabet, final_forms):
+        """Level 4: all 22 base letters + 5 finals = 27 characters."""
         all_letters = alphabet + final_forms
         assert len(all_letters) == 27
 
@@ -169,42 +169,42 @@ class TestFourTierCards:
         positions = [int(row["position"]) for row in letter_data]
         assert sorted(positions) == list(range(1, 23))
 
-    def test_all_4_tier_systems_are_static(self):
-        """All tiers in 4-tier systems are static."""
-        for tier in [1, 2, 3, 4]:
-            assert _is_static("katan", tier) is True
-            assert _is_static("siduri", tier) is True
+    def test_all_4_level_systems_are_static(self):
+        """All levels in 4-level systems are static."""
+        for level in [1, 2, 3, 4]:
+            assert _is_static("katan", level) is True
+            assert _is_static("siduri", level) is True
 
 
 # -------------------------------------------------------------------
-# 3-tier card generation (ciphers)
+# 3-level card generation (ciphers)
 # -------------------------------------------------------------------
 
 
-class TestThreeTierCards:
-    def test_tier_1_has_first_11_letters(self, alphabet):
-        """Tier 1: letters positions 1-11."""
+class TestThreeLevelCards:
+    def test_level_1_has_first_11_letters(self, alphabet):
+        """Level 1: letters positions 1-11."""
         assert len(alphabet[:11]) == 11
 
-    def test_tier_2_has_last_11_letters(self, alphabet):
-        """Tier 2: letters positions 12-22."""
+    def test_level_2_has_last_11_letters(self, alphabet):
+        """Level 2: letters positions 12-22."""
         assert len(alphabet[11:]) == 11
 
-    def test_symmetric_cipher_tier_3_no_reverse(self, alphabet):
-        """For symmetric ciphers, tier 3 has 22 forward cards (no reverse)."""
+    def test_symmetric_cipher_level_3_no_reverse(self, alphabet):
+        """For symmetric ciphers, level 3 has 22 forward cards (no reverse)."""
         # Atbash and Albam are symmetric: f(f(x)) = x
         cards = _cipher_cards(alphabet, "atbash", include_reverse=False)
         assert len(cards) == 22
 
-    def test_avgad_tier_3_has_reverse(self, alphabet):
-        """For Avgad, tier 3 adds reverse cards: 22 forward + 22 reverse."""
+    def test_avgad_level_3_has_reverse(self, alphabet):
+        """For Avgad, level 3 adds reverse cards: 22 forward + 22 reverse."""
         fwd_cards = _cipher_cards(alphabet, "avgad", include_reverse=False)
         all_cards = _cipher_cards(alphabet, "avgad", include_reverse=True)
         assert len(fwd_cards) == 22
         assert len(all_cards) == 44
 
     def test_atbash_pairs(self, letter_data):
-        """Verify Atbash cipher pairs for tier card content."""
+        """Verify Atbash cipher pairs for level card content."""
         pairs = [
             ("א", "ת"),
             ("ב", "ש"),
@@ -224,7 +224,7 @@ class TestThreeTierCards:
             assert pos_a + pos_b == 23, f"Atbash: {a}({pos_a}) + {b}({pos_b}) != 23"
 
     def test_albam_pairs(self, letter_data):
-        """Verify Albam cipher pairs for tier card content."""
+        """Verify Albam cipher pairs for level card content."""
         pairs = [
             ("א", "ל"),
             ("ב", "מ"),
@@ -245,12 +245,12 @@ class TestThreeTierCards:
                 f"Albam: |{a}({pos_a}) - {b}({pos_b})| != 11"
             )
 
-    def test_all_3_tier_systems_are_static(self):
-        """All tiers in 3-tier systems are static."""
-        for tier in [1, 2, 3]:
-            assert _is_static("atbash", tier) is True
-            assert _is_static("albam", tier) is True
-            assert _is_static("avgad", tier) is True
+    def test_all_3_level_systems_are_static(self):
+        """All levels in 3-level systems are static."""
+        for level in [1, 2, 3]:
+            assert _is_static("atbash", level) is True
+            assert _is_static("albam", level) is True
+            assert _is_static("avgad", level) is True
 
 
 # -------------------------------------------------------------------
@@ -277,8 +277,8 @@ class TestCardSpecs:
             assert "prompt" in card
             assert "answer" in card
 
-    def test_card_ids_are_unique_within_tier(self, alphabet):
-        """No duplicate IDs within a single tier's card set."""
+    def test_card_ids_are_unique_within_level(self, alphabet):
+        """No duplicate IDs within a single level's card set."""
         cards = _valuation_cards(alphabet[:9], "hechrachi")
         ids = [c["id"] for c in cards]
         assert len(ids) == len(set(ids))
@@ -309,7 +309,7 @@ class TestMasteryCriteria:
 # -------------------------------------------------------------------
 
 
-TIER_COUNTS = {
+LEVEL_COUNTS = {
     "hechrachi": 8,
     "gadol": 8,
     "katan": 4,
@@ -319,7 +319,7 @@ TIER_COUNTS = {
     "avgad": 3,
 }
 
-TIER_LABELS_MAP = {
+LEVEL_LABELS_MAP = {
     1: "א",
     2: "ב",
     3: "ג",
@@ -331,18 +331,18 @@ TIER_LABELS_MAP = {
 }
 
 
-def _tier_count(system):
-    return TIER_COUNTS.get(system, 0)
+def _level_count(system):
+    return LEVEL_COUNTS.get(system, 0)
 
 
-def _tier_label(n):
-    return TIER_LABELS_MAP.get(n, "")
+def _level_label(n):
+    return LEVEL_LABELS_MAP.get(n, "")
 
 
-def _is_static(system, tier):
-    count = TIER_COUNTS.get(system, 0)
+def _is_static(system, level):
+    count = LEVEL_COUNTS.get(system, 0)
     if count == 8:
-        return tier <= 4
+        return level <= 4
     return True
 
 

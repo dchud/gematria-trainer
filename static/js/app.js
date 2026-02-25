@@ -2,7 +2,7 @@
  * Alpine.js application controller.
  *
  * Thin layer that wires Alpine.js reactive state to the existing
- * IIFE modules (Progression, CardSelection, Storage, Tiers, etc.).
+ * IIFE modules (Progression, CardSelection, Storage, Levels, etc.).
  * All business logic lives in those modules; this file handles
  * view routing, UI state, and event binding.
  *
@@ -169,11 +169,11 @@ function app() {
 
         beginSession: function () {
             this.progression = Progression.loadOrCreate(this.system);
-            Progression.ensureTierCards(this.progression, this.progression.currentTier);
+            Progression.ensureLevelCards(this.progression, this.progression.currentLevel);
             this.sessionActive = true;
             this.savedCardState = null;
             this._setCookie('gematria_session', '1', 30);
-            this._updateTierInfo();
+            this._updateLevelInfo();
             this.loadNextCard();
             this.navigate('flashcard');
         },
@@ -205,8 +205,8 @@ function app() {
 
             if (this.sessionActive) {
                 this.progression = Progression.loadOrCreate(newSystem);
-                Progression.ensureTierCards(this.progression, this.progression.currentTier);
-                this._updateTierInfo();
+                Progression.ensureLevelCards(this.progression, this.progression.currentLevel);
+                this._updateLevelInfo();
                 this.loadNextCard();
             }
         },
@@ -256,8 +256,8 @@ function app() {
             Progression.reset(this.system);
             if (this.sessionActive) {
                 this.progression = Progression.loadOrCreate(this.system);
-                Progression.ensureTierCards(this.progression, this.progression.currentTier);
-                this._updateTierInfo();
+                Progression.ensureLevelCards(this.progression, this.progression.currentLevel);
+                this._updateLevelInfo();
                 this.loadNextCard();
             }
             this.confirmResetSystem = false;
@@ -327,29 +327,29 @@ function app() {
             this.placementAnswerRevealed = false;
 
             if (result.done) {
-                this.finishPlacement(result.startTier);
+                this.finishPlacement(result.startLevel);
             }
         },
 
-        finishPlacement: function (startTier) {
+        finishPlacement: function (startLevel) {
             var self = this;
-            var tierLabel = Tiers.tierLetter(startTier);
-            this.placementMessage = 'Starting at Tier ' + tierLabel;
+            var levelLabel = Levels.levelLetter(startLevel);
+            this.placementMessage = 'Starting at Level ' + levelLabel;
 
             setTimeout(function () {
                 self.placementActive = false;
                 self.placementState = null;
                 self.placementMessage = '';
 
-                // Create progression at determined tier
+                // Create progression at determined level
                 self.progression = Progression.createState(self.system);
-                self.progression.currentTier = startTier;
-                Progression.ensureTierCards(self.progression, startTier);
+                self.progression.currentLevel = startLevel;
+                Progression.ensureLevelCards(self.progression, startLevel);
                 Progression.save(self.progression);
 
                 self.sessionActive = true;
                 self._setCookie('gematria_session', '1', 30);
-                self._updateTierInfo();
+                self._updateLevelInfo();
                 self.loadNextCard();
                 self.navigate('flashcard');
             }, 1500);
@@ -369,8 +369,8 @@ function app() {
                 Progression.save(this.progression);
 
                 if (adv.advanced) {
-                    Progression.ensureTierCards(this.progression, this.progression.currentTier);
-                    this._updateTierInfo();
+                    Progression.ensureLevelCards(this.progression, this.progression.currentLevel);
+                    this._updateLevelInfo();
                 }
 
                 result = Progression.nextCard(this.progression);
@@ -496,9 +496,9 @@ function app() {
             return /[\u0590-\u05FF]/.test(text);
         },
 
-        tierLabel: function () {
+        levelLabel: function () {
             if (!this.progression) return '';
-            return Tiers.tierLetter(this.progression.currentTier);
+            return Levels.levelLetter(this.progression.currentLevel);
         },
 
         systemName: function () {
@@ -509,7 +509,9 @@ function app() {
         statusText: function () {
             if (!this.progression) return '';
             if (this.progression.completed) return 'Review mode';
-            return 'Tier ' + this.tierLabel() + ' \u2014 ' + this.cardIndex + '/' + this.totalCards;
+            return (
+                'Level ' + this.levelLabel() + ' \u2014 ' + this.cardIndex + '/' + this.totalCards
+            );
         },
 
         ratingLabel: function (rating) {
@@ -607,29 +609,29 @@ function app() {
         },
 
         /**
-         * Compute per-tier statistics for progress display.
+         * Compute per-level statistics for progress display.
          *
-         * Returns an array of tier stat objects (1-indexed by tier number),
-         * up to and including the current tier.
+         * Returns an array of level stat objects (1-indexed by level number),
+         * up to and including the current level.
          *
-         * @returns {object[]} Array of { tier, label, cardCount, reviewed,
+         * @returns {object[]} Array of { level, label, cardCount, reviewed,
          *     mastered, accuracy }
          */
-        tierStats: function () {
+        levelStats: function () {
             if (!this.progression) return [];
 
             var stats = [];
-            var tier, key, cards, specs, reviewed, i, acc;
+            var level, key, cards, specs, reviewed, i, acc;
 
-            for (tier = 1; tier <= this.progression.currentTier; tier++) {
-                key = String(tier);
-                cards = this.progression.tiers[key];
+            for (level = 1; level <= this.progression.currentLevel; level++) {
+                key = String(level);
+                cards = this.progression.levels[key];
                 if (!cards) continue;
 
-                if (this.progression.tierSpecs?.[key]) {
-                    specs = this.progression.tierSpecs[key];
+                if (this.progression.levelSpecs?.[key]) {
+                    specs = this.progression.levelSpecs[key];
                 } else {
-                    specs = Tiers.getCards(this.progression.system, tier);
+                    specs = Levels.getCards(this.progression.system, level);
                 }
 
                 reviewed = 0;
@@ -637,11 +639,11 @@ function app() {
                     if (cards[i].review_count > 0) reviewed++;
                 }
 
-                acc = CardState.tierAccuracy(cards);
+                acc = CardState.levelAccuracy(cards);
 
                 stats.push({
-                    tier: tier,
-                    label: Tiers.tierLetter(tier),
+                    level: level,
+                    label: Levels.levelLetter(level),
                     cardCount: specs.length,
                     reviewed: reviewed,
                     mastered: CardState.checkMastery(cards),
@@ -664,24 +666,24 @@ function app() {
         },
 
         /**
-         * Compute overall mastery progress for the current tier as 0-1.
+         * Compute overall mastery progress for the current level as 0-1.
          *
          * Combined metric:
          *   50% weight: cards with >= minReps reviews / total cards
-         *   50% weight: min(tier accuracy / mastery threshold, 1.0)
+         *   50% weight: min(level accuracy / mastery threshold, 1.0)
          *
-         * Returns 0 when no cards exist. Returns 1 when tier is mastered.
+         * Returns 0 when no cards exist. Returns 1 when level is mastered.
          *
          * @returns {number} Progress value between 0 and 1.
          */
         masteryProgress: function () {
             if (!this.progression) return 0;
 
-            var cards = Progression.currentTierCards(this.progression);
+            var cards = Progression.currentLevelCards(this.progression);
             if (cards.length === 0) return 0;
 
-            var minReps = Tiers.MASTERY.minReps;
-            var threshold = Tiers.MASTERY.accuracy;
+            var minReps = Levels.MASTERY.minReps;
+            var threshold = Levels.MASTERY.accuracy;
 
             // Card completion: fraction of cards with enough reviews
             var readyCount = 0;
@@ -692,7 +694,7 @@ function app() {
             var completionRatio = readyCount / cards.length;
 
             // Accuracy component: clamped to mastery threshold
-            var acc = CardState.tierAccuracy(cards);
+            var acc = CardState.levelAccuracy(cards);
             var accuracyRatio = Math.min(acc / threshold, 1.0);
 
             return 0.5 * completionRatio + 0.5 * accuracyRatio;
@@ -902,15 +904,15 @@ function app() {
         // Internal helpers
         // -----------------------------------------------------------
 
-        _updateTierInfo: function () {
+        _updateLevelInfo: function () {
             if (!this.progression) return;
-            var specs = Progression.currentTierSpecs(this.progression);
+            var specs = Progression.currentLevelSpecs(this.progression);
             this.totalCards = specs.length;
         },
 
         _updateCardIndex: function () {
             if (!this.progression) return;
-            var cards = Progression.currentTierCards(this.progression);
+            var cards = Progression.currentLevelCards(this.progression);
             var count = 0;
             for (var i = 0; i < cards.length; i++) {
                 if (cards[i].review_count > 0) count++;

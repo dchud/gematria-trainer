@@ -2,11 +2,11 @@
  * Card state management module.
  *
  * Extends SpacedRepetition card objects with review tracking (total
- * reviews, correct count) needed for tier mastery evaluation. Provides
- * helpers for initializing tier card sets, looking up cards, and
+ * reviews, correct count) needed for level mastery evaluation. Provides
+ * helpers for initializing level card sets, looking up cards, and
  * checking mastery criteria.
  *
- * Depends on spaced-repetition.js and tiers.js being loaded first.
+ * Depends on spaced-repetition.js and levels.js being loaded first.
  * No import/export, no arrow functions, no let/const.
  */
 
@@ -56,17 +56,17 @@ var CardState = (function () {
     // ---------------------------------------------------------------
 
     /**
-     * Create card states for all cards in a tier.
+     * Create card states for all cards in a level.
      *
-     * Generates card specs from the tier definition, then creates an
+     * Generates card specs from the level definition, then creates an
      * extended card state for each.
      *
      * @param {string} systemKey - Registry key (e.g. "hechrachi").
-     * @param {number} tierNumber - Tier number (1-based).
+     * @param {number} levelNumber - Level number (1-based).
      * @returns {object[]} Array of card state objects.
      */
-    function initTier(systemKey, tierNumber) {
-        var specs = Tiers.getCards(systemKey, tierNumber);
+    function initLevel(systemKey, levelNumber) {
+        var specs = Levels.getCards(systemKey, levelNumber);
         var cards = [];
         var i;
         for (i = 0; i < specs.length; i++) {
@@ -109,7 +109,7 @@ var CardState = (function () {
     }
 
     // ---------------------------------------------------------------
-    // Tier mastery evaluation (T3.8)
+    // Level mastery evaluation (T3.8)
     // ---------------------------------------------------------------
 
     /**
@@ -121,7 +121,7 @@ var CardState = (function () {
      * @param {object[]} cards - Array of card state objects.
      * @returns {number} Accuracy as a decimal (0.0 to 1.0).
      */
-    function tierAccuracy(cards) {
+    function levelAccuracy(cards) {
         var totalReviews = 0;
         var totalCorrect = 0;
         var i;
@@ -135,11 +135,11 @@ var CardState = (function () {
     }
 
     /**
-     * Check if all cards in a tier meet mastery criteria.
+     * Check if all cards in a level meet mastery criteria.
      *
      * Mastery requires:
      * 1. Every card has been reviewed at least MASTERY.minReps times.
-     * 2. Tier-wide accuracy is at least MASTERY.accuracy (80%).
+     * 2. Level-wide accuracy is at least MASTERY.accuracy (80%).
      *
      * @param {object[]} cards - Array of card state objects.
      * @returns {boolean} True if mastery criteria are met.
@@ -147,7 +147,7 @@ var CardState = (function () {
     function checkMastery(cards) {
         if (cards.length === 0) return false;
 
-        var minReps = Tiers.MASTERY.minReps;
+        var minReps = Levels.MASTERY.minReps;
         var i;
 
         // Check minimum reviews per card
@@ -155,8 +155,8 @@ var CardState = (function () {
             if (cards[i].review_count < minReps) return false;
         }
 
-        // Check tier-wide accuracy
-        return tierAccuracy(cards) >= Tiers.MASTERY.accuracy;
+        // Check level-wide accuracy
+        return levelAccuracy(cards) >= Levels.MASTERY.accuracy;
     }
 
     // ---------------------------------------------------------------
@@ -169,12 +169,12 @@ var CardState = (function () {
         reviewCard: reviewCard,
 
         // Collection management
-        initTier: initTier,
+        initLevel: initLevel,
         findCard: findCard,
         replaceCard: replaceCard,
 
         // Mastery evaluation
-        tierAccuracy: tierAccuracy,
+        levelAccuracy: levelAccuracy,
         checkMastery: checkMastery,
     };
 })();

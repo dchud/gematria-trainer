@@ -25,7 +25,7 @@ var Storage = (function () {
 
     // Current schema version. Increment when the data shape changes.
     // On version mismatch, all stored data is cleared.
-    var SCHEMA_VERSION = 2;
+    var SCHEMA_VERSION = 3;
     var SCHEMA_KEY = 'schema_version';
 
     var _available = null;

@@ -121,7 +121,7 @@ describe('Storage', function () {
         });
 
         it('saves and loads progress', function () {
-            var data = { system: 'hechrachi', currentTier: 2 };
+            var data = { system: 'hechrachi', currentLevel: 2 };
             assert.equal(Storage.saveProgress('hechrachi', data), true);
             var loaded = Storage.loadProgress('hechrachi');
             assert.deepEqual(loaded, data);

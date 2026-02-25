@@ -4,10 +4,10 @@
  * Chooses the next card to present based on spaced repetition
  * scheduling. Priority order:
  *   1. Most overdue card (past its next_review time)
- *   2. New (unreviewed) card from the current tier
- *   3. If current tier is exhausted and mastered, signal advancement
+ *   2. New (unreviewed) card from the current level
+ *   3. If current level is exhausted and mastered, signal advancement
  *
- * Depends on spaced-repetition.js, tiers.js, and card-state.js.
+ * Depends on spaced-repetition.js, levels.js, and card-state.js.
  * No import/export, no arrow functions, no let/const.
  */
 
@@ -24,7 +24,7 @@ var CardSelection = (function () {
      * @typedef {object} SelectionResult
      * @property {string} type - "card", "advance", or "review"
      * @property {object|null} card - Selected card state (for "card")
-     * @property {object|null} spec - Card spec from Tiers (for "card")
+     * @property {object|null} spec - Card spec from Levels (for "card")
      */
 
     // ---------------------------------------------------------------
@@ -39,8 +39,8 @@ var CardSelection = (function () {
      * 2. If no cards are due, present a new (unreviewed) card.
      * 3. If all cards are reviewed and no cards are due, check mastery.
      *
-     * @param {object[]} cards - Array of card state objects for the tier.
-     * @param {object[]} specs - Array of card specs from Tiers.getCards().
+     * @param {object[]} cards - Array of card state objects for the level.
+     * @param {object[]} specs - Array of card specs from Levels.getCards().
      * @returns {SelectionResult} What to do next.
      */
     function selectNext(cards, specs) {
@@ -72,7 +72,7 @@ var CardSelection = (function () {
         }
 
         // Priority 3: All cards reviewed, none due
-        // Check if tier is mastered
+        // Check if level is mastered
         if (CardState.checkMastery(cards)) {
             return { type: 'advance', card: null, spec: null };
         }
@@ -87,18 +87,18 @@ var CardSelection = (function () {
             };
         }
 
-        // Fallback: should not happen with non-empty tier
+        // Fallback: should not happen with non-empty level
         return { type: 'review', card: null, spec: null };
     }
 
     /**
-     * Select the next card in review mode (all tiers completed).
+     * Select the next card in review mode (all levels completed).
      *
-     * In review mode, cards are drawn from all tiers. Only overdue
+     * In review mode, cards are drawn from all levels. Only overdue
      * cards are presented; if none are overdue, returns null.
      *
-     * @param {object[]} allCards - Card states from all tiers.
-     * @param {object[]} allSpecs - Card specs from all tiers.
+     * @param {object[]} allCards - Card states from all levels.
+     * @param {object[]} allSpecs - Card specs from all levels.
      * @returns {SelectionResult} Selection result (type "review" if nothing due).
      */
     function selectReview(allCards, allSpecs) {
@@ -159,7 +159,7 @@ var CardSelection = (function () {
 
     /**
      * Find a new (unreviewed) card, matching against the spec order
-     * so that cards are introduced in tier-defined order.
+     * so that cards are introduced in level-defined order.
      *
      * @param {object[]} cards - Card state array.
      * @param {object[]} specs - Card spec array (defines introduction order).

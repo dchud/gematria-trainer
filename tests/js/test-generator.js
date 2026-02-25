@@ -57,7 +57,7 @@ describe('Generator', function () {
     });
 
     describe('generateSeeds', function () {
-        it('returns seeds for tiers 5-8 for 8-tier systems', function () {
+        it('returns seeds for levels 5-8 for 8-level systems', function () {
             var seeds = Generator.generateSeeds('hechrachi');
             assert.ok(Object.hasOwn(seeds, '5'));
             assert.ok(Object.hasOwn(seeds, '6'));
@@ -66,7 +66,7 @@ describe('Generator', function () {
             assert.equal(typeof seeds[5], 'number');
         });
 
-        it('returns empty object for non-8-tier systems', function () {
+        it('returns empty object for non-8-level systems', function () {
             assert.deepEqual(Generator.generateSeeds('katan'), {});
             assert.deepEqual(Generator.generateSeeds('atbash'), {});
         });
@@ -112,14 +112,14 @@ describe('Generator', function () {
         });
     });
 
-    describe('generateTier — tier 5 (11-99)', function () {
+    describe('generateLevel — level 5 (11-99)', function () {
         it('generates 24 cards (12 numbers x 2 directions)', function () {
-            var cards = Generator.generateTier('hechrachi', 5, 42);
+            var cards = Generator.generateLevel('hechrachi', 5, 42);
             assert.equal(cards.length, 24);
         });
 
         it('always includes 15 and 16', function () {
-            var cards = Generator.generateTier('hechrachi', 5, 42);
+            var cards = Generator.generateLevel('hechrachi', 5, 42);
             var ids = {};
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -132,7 +132,7 @@ describe('Generator', function () {
         });
 
         it('excludes multiples of 10', function () {
-            var cards = Generator.generateTier('hechrachi', 5, 42);
+            var cards = Generator.generateLevel('hechrachi', 5, 42);
             var i, id, match;
             for (i = 0; i < cards.length; i++) {
                 id = cards[i].id;
@@ -145,7 +145,7 @@ describe('Generator', function () {
         });
 
         it('all numbers are in range 11-99', function () {
-            var cards = Generator.generateTier('hechrachi', 5, 42);
+            var cards = Generator.generateLevel('hechrachi', 5, 42);
             var i, id, match;
             for (i = 0; i < cards.length; i++) {
                 id = cards[i].id;
@@ -158,7 +158,7 @@ describe('Generator', function () {
         });
 
         it('has both number-to-hebrew and hebrew-to-number types', function () {
-            var cards = Generator.generateTier('hechrachi', 5, 42);
+            var cards = Generator.generateLevel('hechrachi', 5, 42);
             var types = {};
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -169,8 +169,8 @@ describe('Generator', function () {
         });
 
         it('produces stable IDs with same seed', function () {
-            var cards1 = Generator.generateTier('hechrachi', 5, 42);
-            var cards2 = Generator.generateTier('hechrachi', 5, 42);
+            var cards1 = Generator.generateLevel('hechrachi', 5, 42);
+            var cards2 = Generator.generateLevel('hechrachi', 5, 42);
             assert.equal(cards1.length, cards2.length);
             var i;
             for (i = 0; i < cards1.length; i++) {
@@ -179,8 +179,8 @@ describe('Generator', function () {
         });
 
         it('produces different cards with different seeds', function () {
-            var cards1 = Generator.generateTier('hechrachi', 5, 42);
-            var cards2 = Generator.generateTier('hechrachi', 5, 999);
+            var cards1 = Generator.generateLevel('hechrachi', 5, 42);
+            var cards2 = Generator.generateLevel('hechrachi', 5, 999);
             // At least some IDs should differ (both always have 15 and 16)
             var diff = 0;
             var i;
@@ -191,7 +191,7 @@ describe('Generator', function () {
         });
 
         it('cards have valid Hebrew in answers/prompts', function () {
-            var cards = Generator.generateTier('hechrachi', 5, 42);
+            var cards = Generator.generateLevel('hechrachi', 5, 42);
             var hebrewRe = /[\u0590-\u05FF]/;
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -210,14 +210,14 @@ describe('Generator', function () {
         });
     });
 
-    describe('generateTier — tier 6 (100-999)', function () {
+    describe('generateLevel — level 6 (100-999)', function () {
         it('generates 24 cards (12 numbers x 2 directions)', function () {
-            var cards = Generator.generateTier('hechrachi', 6, 42);
+            var cards = Generator.generateLevel('hechrachi', 6, 42);
             assert.equal(cards.length, 24);
         });
 
         it('excludes round hundreds for hechrachi', function () {
-            var cards = Generator.generateTier('hechrachi', 6, 42);
+            var cards = Generator.generateLevel('hechrachi', 6, 42);
             var excluded = { 100: true, 200: true, 300: true, 400: true };
             var i, match;
             for (i = 0; i < cards.length; i++) {
@@ -229,7 +229,7 @@ describe('Generator', function () {
         });
 
         it('excludes round hundreds and final-form values for gadol', function () {
-            var cards = Generator.generateTier('gadol', 6, 42);
+            var cards = Generator.generateLevel('gadol', 6, 42);
             var excluded = {
                 100: true,
                 200: true,
@@ -251,7 +251,7 @@ describe('Generator', function () {
         });
 
         it('all numbers are in range 100-999', function () {
-            var cards = Generator.generateTier('hechrachi', 6, 42);
+            var cards = Generator.generateLevel('hechrachi', 6, 42);
             var i, match;
             for (i = 0; i < cards.length; i++) {
                 match = cards[i].id.match(/gen-t6-(\d+)-to-heb/);
@@ -263,8 +263,8 @@ describe('Generator', function () {
         });
 
         it('produces stable IDs with same seed', function () {
-            var cards1 = Generator.generateTier('gadol', 6, 123);
-            var cards2 = Generator.generateTier('gadol', 6, 123);
+            var cards1 = Generator.generateLevel('gadol', 6, 123);
+            var cards2 = Generator.generateLevel('gadol', 6, 123);
             var i;
             for (i = 0; i < cards1.length; i++) {
                 assert.equal(cards1[i].id, cards2[i].id);
@@ -272,14 +272,14 @@ describe('Generator', function () {
         });
     });
 
-    describe('generateTier — tier 7 (years + large numbers)', function () {
+    describe('generateLevel — level 7 (years + large numbers)', function () {
         it('generates 24 cards (6 years + 6 large, each x 2)', function () {
-            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var cards = Generator.generateLevel('hechrachi', 7, 42);
             assert.equal(cards.length, 24);
         });
 
         it('contains year-to-hebrew and hebrew-to-year types', function () {
-            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var cards = Generator.generateLevel('hechrachi', 7, 42);
             var types = {};
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -290,7 +290,7 @@ describe('Generator', function () {
         });
 
         it('contains number-to-hebrew and hebrew-to-number types for large numbers', function () {
-            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var cards = Generator.generateLevel('hechrachi', 7, 42);
             var types = {};
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -301,7 +301,7 @@ describe('Generator', function () {
         });
 
         it('year cards are in range 5001-5899', function () {
-            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var cards = Generator.generateLevel('hechrachi', 7, 42);
             var i, match;
             for (i = 0; i < cards.length; i++) {
                 match = cards[i].id.match(/gen-t7-yr-(\d+)-to-heb/);
@@ -313,7 +313,7 @@ describe('Generator', function () {
         });
 
         it('large number cards are in range 1001-9999', function () {
-            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var cards = Generator.generateLevel('hechrachi', 7, 42);
             var i, match;
             for (i = 0; i < cards.length; i++) {
                 match = cards[i].id.match(/gen-t7-lg-(\d+)-to-heb/);
@@ -325,8 +325,8 @@ describe('Generator', function () {
         });
 
         it('produces stable IDs with same seed', function () {
-            var cards1 = Generator.generateTier('hechrachi', 7, 42);
-            var cards2 = Generator.generateTier('hechrachi', 7, 42);
+            var cards1 = Generator.generateLevel('hechrachi', 7, 42);
+            var cards2 = Generator.generateLevel('hechrachi', 7, 42);
             var i;
             for (i = 0; i < cards1.length; i++) {
                 assert.equal(cards1[i].id, cards2[i].id);
@@ -334,7 +334,7 @@ describe('Generator', function () {
         });
 
         it('year cards use omitThousands encoding', function () {
-            var cards = Generator.generateTier('hechrachi', 7, 42);
+            var cards = Generator.generateLevel('hechrachi', 7, 42);
             var i;
             for (i = 0; i < cards.length; i++) {
                 if (cards[i].type === 'year-to-hebrew') {
@@ -349,14 +349,14 @@ describe('Generator', function () {
         });
     });
 
-    describe('generateTier — tier 8 (examples + mixed)', function () {
+    describe('generateLevel — level 8 (examples + mixed)', function () {
         it('generates cards including examples', function () {
-            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var cards = Generator.generateLevel('hechrachi', 8, 42);
             assert.ok(cards.length > 0);
         });
 
         it('includes example cards with ex- prefix', function () {
-            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var cards = Generator.generateLevel('hechrachi', 8, 42);
             var exampleCount = 0;
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -366,7 +366,7 @@ describe('Generator', function () {
         });
 
         it('example cards have example-to-value type', function () {
-            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var cards = Generator.generateLevel('hechrachi', 8, 42);
             var i;
             for (i = 0; i < cards.length; i++) {
                 if (cards[i].id.indexOf('ex-') === 0) {
@@ -376,7 +376,7 @@ describe('Generator', function () {
         });
 
         it('example prompts contain Hebrew and meaning in parens', function () {
-            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var cards = Generator.generateLevel('hechrachi', 8, 42);
             var hebrewRe = /[\u0590-\u05FF]/;
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -391,7 +391,7 @@ describe('Generator', function () {
         });
 
         it('fills remaining slots with procedural mixed cards', function () {
-            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var cards = Generator.generateLevel('hechrachi', 8, 42);
             var genCount = 0;
             var i;
             for (i = 0; i < cards.length; i++) {
@@ -401,8 +401,8 @@ describe('Generator', function () {
         });
 
         it('produces stable output with same seed', function () {
-            var cards1 = Generator.generateTier('hechrachi', 8, 42);
-            var cards2 = Generator.generateTier('hechrachi', 8, 42);
+            var cards1 = Generator.generateLevel('hechrachi', 8, 42);
+            var cards2 = Generator.generateLevel('hechrachi', 8, 42);
             assert.equal(cards1.length, cards2.length);
             var i;
             for (i = 0; i < cards1.length; i++) {
@@ -411,7 +411,7 @@ describe('Generator', function () {
         });
 
         it('only includes examples matching the system', function () {
-            var cards = Generator.generateTier('hechrachi', 8, 42);
+            var cards = Generator.generateLevel('hechrachi', 8, 42);
             var i;
             for (i = 0; i < cards.length; i++) {
                 if (cards[i].id.indexOf('ex-') === 0) {
@@ -423,11 +423,11 @@ describe('Generator', function () {
         });
     });
 
-    describe('generateTier — unknown tier', function () {
-        it('returns empty array for unsupported tier numbers', function () {
-            assert.deepEqual(Generator.generateTier('hechrachi', 1, 42), []);
-            assert.deepEqual(Generator.generateTier('hechrachi', 4, 42), []);
-            assert.deepEqual(Generator.generateTier('hechrachi', 9, 42), []);
+    describe('generateLevel — unknown level', function () {
+        it('returns empty array for unsupported level numbers', function () {
+            assert.deepEqual(Generator.generateLevel('hechrachi', 1, 42), []);
+            assert.deepEqual(Generator.generateLevel('hechrachi', 4, 42), []);
+            assert.deepEqual(Generator.generateLevel('hechrachi', 9, 42), []);
         });
     });
 });

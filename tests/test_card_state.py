@@ -1,4 +1,4 @@
-"""Tests for card state management and tier mastery evaluation.
+"""Tests for card state management and level mastery evaluation.
 
 These tests verify the card state logic as implemented in
 static/js/card-state.js by testing the same rules in Python.
@@ -63,7 +63,7 @@ def _create_card(card_id):
     }
 
 
-def _tier_accuracy(cards):
+def _level_accuracy(cards):
     total_reviews = sum(c["review_count"] for c in cards)
     total_correct = sum(c["correct_count"] for c in cards)
     return total_correct / total_reviews if total_reviews > 0 else 0
@@ -75,7 +75,7 @@ def _check_mastery(cards, min_reps=3, accuracy_threshold=0.8):
     for card in cards:
         if card["review_count"] < min_reps:
             return False
-    return _tier_accuracy(cards) >= accuracy_threshold
+    return _level_accuracy(cards) >= accuracy_threshold
 
 
 # -------------------------------------------------------------------
@@ -132,21 +132,21 @@ class TestReviewTracking:
 
 
 # -------------------------------------------------------------------
-# Tier accuracy tests
+# Level accuracy tests
 # -------------------------------------------------------------------
 
 
-class TestTierAccuracy:
+class TestLevelAccuracy:
     def test_no_reviews_returns_zero(self):
         cards = [_create_card("a"), _create_card("b")]
-        assert _tier_accuracy(cards) == 0
+        assert _level_accuracy(cards) == 0
 
     def test_all_correct(self):
         cards = [_create_card("a"), _create_card("b")]
         for i in range(len(cards)):
             cards[i] = _sm2_review(cards[i], 4)
             cards[i] = _sm2_review(cards[i], 5)
-        assert _tier_accuracy(cards) == 1.0
+        assert _level_accuracy(cards) == 1.0
 
     def test_mixed_accuracy(self):
         cards = [_create_card("a"), _create_card("b")]
@@ -158,8 +158,8 @@ class TestTierAccuracy:
         cards[1] = _sm2_review(cards[1], 4)
         cards[1] = _sm2_review(cards[1], 4)
         cards[1] = _sm2_review(cards[1], 4)
-        # Tier accuracy: 5/6 ≈ 0.833
-        assert _tier_accuracy(cards) == pytest.approx(5 / 6)
+        # Level accuracy: 5/6 ≈ 0.833
+        assert _level_accuracy(cards) == pytest.approx(5 / 6)
 
 
 # -------------------------------------------------------------------
@@ -196,7 +196,7 @@ class TestMasteryEvaluation:
         assert _check_mastery(cards) is False
 
     def test_one_card_unreviewed_blocks_mastery(self):
-        """If any card has fewer than minReps reviews, tier is not mastered."""
+        """If any card has fewer than minReps reviews, level is not mastered."""
         cards = [_create_card("a"), _create_card("b")]
         # Card a: 3 correct
         for _ in range(3):
@@ -206,7 +206,7 @@ class TestMasteryEvaluation:
             cards[1] = _sm2_review(cards[1], 4)
         assert _check_mastery(cards) is False
 
-    def test_full_tier_mastery(self):
+    def test_full_level_mastery(self):
         """All cards meet minimum reviews with good accuracy."""
         cards = [_create_card("a"), _create_card("b"), _create_card("c")]
         for i in range(len(cards)):
@@ -241,7 +241,7 @@ class TestMasteryEvaluation:
 
 
 # -------------------------------------------------------------------
-# Card init for tier tests
+# Card init for level tests
 # -------------------------------------------------------------------
 
 
@@ -251,10 +251,10 @@ def letter_data():
         return list(csv.DictReader(f))
 
 
-class TestInitTier:
-    def test_hechrachi_tier_1_card_count(self, letter_data):
-        """Tier 1 should have 18 cards (9 letters * 2 directions)."""
-        # Simulate initTier: get specs from tier, create card states
+class TestInitLevel:
+    def test_hechrachi_level_1_card_count(self, letter_data):
+        """Level 1 should have 18 cards (9 letters * 2 directions)."""
+        # Simulate initLevel: get specs from level, create card states
         letters = [row["letter"] for row in letter_data[:9]]
         cards = []
         for letter in letters:
@@ -262,8 +262,8 @@ class TestInitTier:
             cards.append(_create_card("val-to-" + letter))
         assert len(cards) == 18
 
-    def test_cipher_tier_1_card_count(self, letter_data):
-        """Cipher tier 1 should have 11 cards (11 letters forward)."""
+    def test_cipher_level_1_card_count(self, letter_data):
+        """Cipher level 1 should have 11 cards (11 letters forward)."""
         letters = [row["letter"] for row in letter_data[:11]]
         cards = [_create_card("cipher-" + letter) for letter in letters]
         assert len(cards) == 11

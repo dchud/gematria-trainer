@@ -313,12 +313,12 @@ describe('app()', function () {
             assert.ok(a.currentCard.card);
         });
 
-        it('sets totalCards to tier spec count', function () {
+        it('sets totalCards to level spec count', function () {
             var a = createApp();
             a.init();
             a.beginSession();
 
-            var specs = Tiers.getCards('hechrachi', 1);
+            var specs = Levels.getCards('hechrachi', 1);
             assert.equal(a.totalCards, specs.length);
         });
 
@@ -466,7 +466,7 @@ describe('app()', function () {
             a.rateCard(1);
 
             // Find the card in progression to verify quality
-            var cards = Progression.currentTierCards(a.progression);
+            var cards = Progression.currentLevelCards(a.progression);
             var found = null;
             for (var i = 0; i < cards.length; i++) {
                 if (cards[i].card_id === cardId) {
@@ -488,7 +488,7 @@ describe('app()', function () {
             var cardId = a.currentCard.card.card_id;
             a.rateCard(4);
 
-            var cards = Progression.currentTierCards(a.progression);
+            var cards = Progression.currentLevelCards(a.progression);
             var found = null;
             for (var i = 0; i < cards.length; i++) {
                 if (cards[i].card_id === cardId) {
@@ -537,16 +537,16 @@ describe('app()', function () {
             assert.equal(a.isHebrew(''), false);
         });
 
-        it('tierLabel() returns Hebrew tier letter', function () {
+        it('levelLabel() returns Hebrew level letter', function () {
             var a = createApp();
             a.init();
             a.beginSession();
-            assert.equal(a.tierLabel(), Tiers.tierLetter(1));
+            assert.equal(a.levelLabel(), Levels.levelLetter(1));
         });
 
-        it('tierLabel() returns empty string without progression', function () {
+        it('levelLabel() returns empty string without progression', function () {
             var a = createApp();
-            assert.equal(a.tierLabel(), '');
+            assert.equal(a.levelLabel(), '');
         });
 
         it('systemName() returns display name', function () {
@@ -554,12 +554,12 @@ describe('app()', function () {
             assert.equal(a.systemName(), 'Mispar Hechrachi');
         });
 
-        it('statusText() shows tier and progress', function () {
+        it('statusText() shows level and progress', function () {
             var a = createApp();
             a.init();
             a.beginSession();
             var text = a.statusText();
-            assert.ok(text.indexOf('Tier') !== -1);
+            assert.ok(text.indexOf('Level') !== -1);
             assert.ok(text.indexOf('/') !== -1);
         });
 
@@ -898,7 +898,7 @@ describe('app()', function () {
                 a.rateCard(4);
             }
 
-            // Should still have a card (tier 1 has 18 cards for hechrachi)
+            // Should still have a card (level 1 has 18 cards for hechrachi)
             assert.ok(a.currentCard);
             assert.ok(a.cardIndex >= 5);
         });
@@ -986,7 +986,7 @@ describe('app()', function () {
 
             // Now reset
             a.resetCurrentSystem();
-            assert.equal(a.progression.currentTier, 1);
+            assert.equal(a.progression.currentLevel, 1);
             assert.equal(a.confirmResetSystem, false);
         });
     });
@@ -1310,7 +1310,7 @@ describe('app()', function () {
             a.showPlacementAnswer();
             a.ratePlacementCard(false);
             assert.equal(a.placementState.done, true);
-            assert.equal(a.placementState.startTier, 1);
+            assert.equal(a.placementState.startLevel, 1);
             // placementMessage should be set
             assert.ok(a.placementMessage);
         });
@@ -1370,19 +1370,19 @@ describe('app()', function () {
         });
     });
 
-    describe('tierStats()', function () {
+    describe('levelStats()', function () {
         it('returns empty array without progression', function () {
             var a = createApp();
-            assert.deepEqual(a.tierStats(), []);
+            assert.deepEqual(a.levelStats(), []);
         });
 
-        it('returns stats for current tier', function () {
+        it('returns stats for current level', function () {
             var a = createApp();
             a.init();
             a.beginSession();
-            var stats = a.tierStats();
+            var stats = a.levelStats();
             assert.equal(stats.length, 1);
-            assert.equal(stats[0].tier, 1);
+            assert.equal(stats[0].level, 1);
             assert.ok(stats[0].label);
             assert.ok(stats[0].cardCount > 0);
             assert.equal(stats[0].reviewed, 0);
@@ -1397,51 +1397,51 @@ describe('app()', function () {
             a.showAnswer();
             a.rateCard(4);
 
-            var stats = a.tierStats();
+            var stats = a.levelStats();
             assert.ok(stats[0].reviewed >= 1);
         });
 
-        it('returns stats for multiple tiers', function () {
+        it('returns stats for multiple levels', function () {
             var a = createApp();
             a.init();
             a.beginSession();
-            // Manually advance to tier 2
-            a.progression.currentTier = 2;
-            Progression.ensureTierCards(a.progression, 2);
+            // Manually advance to level 2
+            a.progression.currentLevel = 2;
+            Progression.ensureLevelCards(a.progression, 2);
 
-            var stats = a.tierStats();
+            var stats = a.levelStats();
             assert.equal(stats.length, 2);
-            assert.equal(stats[0].tier, 1);
-            assert.equal(stats[1].tier, 2);
+            assert.equal(stats[0].level, 1);
+            assert.equal(stats[1].level, 2);
         });
 
-        it('detects mastered tier', function () {
+        it('detects mastered level', function () {
             var a = createApp();
             a.init();
             a.beginSession();
-            // Master all tier 1 cards
-            var cards = a.progression.tiers['1'];
+            // Master all level 1 cards
+            var cards = a.progression.levels['1'];
             for (var i = 0; i < cards.length; i++) {
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
             }
-            a.progression.tiers['1'] = cards;
+            a.progression.levels['1'] = cards;
 
-            var stats = a.tierStats();
+            var stats = a.levelStats();
             assert.equal(stats[0].mastered, true);
         });
 
-        it('computes tier accuracy', function () {
+        it('computes level accuracy', function () {
             var a = createApp();
             a.init();
             a.beginSession();
-            var cards = a.progression.tiers['1'];
+            var cards = a.progression.levels['1'];
             // Review first card correctly
             cards[0] = CardState.reviewCard(cards[0], 5);
-            a.progression.tiers['1'] = cards;
+            a.progression.levels['1'] = cards;
 
-            var stats = a.tierStats();
+            var stats = a.levelStats();
             assert.equal(stats[0].accuracy, 1);
         });
     });
@@ -1615,7 +1615,7 @@ describe('app()', function () {
             assert.equal(a.masteryProgress(), 0);
         });
 
-        it('returns 0 for fresh tier with no reviews', function () {
+        it('returns 0 for fresh level with no reviews', function () {
             var a = createApp();
             a.init();
             a.beginSession();
@@ -1637,18 +1637,18 @@ describe('app()', function () {
             assert.ok(progress < 1, 'progress should be < 1');
         });
 
-        it('returns 1 when tier is fully mastered', function () {
+        it('returns 1 when level is fully mastered', function () {
             var a = createApp();
             a.init();
             a.beginSession();
 
-            var cards = a.progression.tiers['1'];
+            var cards = a.progression.levels['1'];
             for (var i = 0; i < cards.length; i++) {
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
             }
-            a.progression.tiers['1'] = cards;
+            a.progression.levels['1'] = cards;
 
             assert.equal(a.masteryProgress(), 1);
         });
@@ -1659,13 +1659,13 @@ describe('app()', function () {
             a.beginSession();
 
             // Give all cards 3 reviews (all correct) — completion=1, accuracy=1/0.8>1 → clamped to 1
-            var cards = a.progression.tiers['1'];
+            var cards = a.progression.levels['1'];
             for (var i = 0; i < cards.length; i++) {
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
             }
-            a.progression.tiers['1'] = cards;
+            a.progression.levels['1'] = cards;
 
             // 50% * 1.0 + 50% * min(1.0/0.8, 1.0) = 0.5 + 0.5 = 1.0
             assert.equal(a.masteryProgress(), 1);
@@ -1689,24 +1689,24 @@ describe('app()', function () {
             assert.equal(stats.correctReviews, 2);
         });
 
-        it('tierStats includes all initialized tiers in completed state', function () {
+        it('levelStats includes all initialized levels in completed state', function () {
             var a = createApp();
             a.init();
             a.beginSession();
 
-            // Initialize and master tier 1, advance to tier 2
-            var cards = a.progression.tiers['1'];
+            // Initialize and master level 1, advance to level 2
+            var cards = a.progression.levels['1'];
             for (var i = 0; i < cards.length; i++) {
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
                 cards[i] = CardState.reviewCard(cards[i], 5);
             }
-            a.progression.tiers['1'] = cards;
+            a.progression.levels['1'] = cards;
             Progression.tryAdvance(a.progression);
-            Progression.ensureTierCards(a.progression, 2);
+            Progression.ensureLevelCards(a.progression, 2);
             a.progression.completed = true;
 
-            var stats = a.tierStats();
+            var stats = a.levelStats();
             assert.equal(stats.length, 2);
             assert.equal(stats[0].mastered, true);
         });

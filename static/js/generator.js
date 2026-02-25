@@ -1,5 +1,5 @@
 /**
- * Procedural card generator for tiers 5-8 of 8-tier systems.
+ * Procedural card generator for levels 5-8 of 8-level systems.
  *
  * Uses a seeded PRNG (Mulberry32) to deterministically generate card
  * sets for compound numbers, Hebrew years, large numbers, and
@@ -45,14 +45,14 @@ var Generator = (function () {
     /**
      * Generate seeds object for a system.
      *
-     * 8-tier systems get seeds for tiers 5-8. Others get empty object.
+     * 8-level systems get seeds for levels 5-8. Others get empty object.
      *
      * @param {string} systemKey - Registry key.
      * @returns {object} Seeds map, e.g. {5: num, 6: num, 7: num, 8: num}.
      */
     function generateSeeds(systemKey) {
-        var tierCount = Tiers.tierCount(systemKey);
-        if (tierCount !== 8) return {};
+        var levelCount = Levels.levelCount(systemKey);
+        if (levelCount !== 8) return {};
         return {
             5: generateSeed(),
             6: generateSeed(),
@@ -126,16 +126,16 @@ var Generator = (function () {
     }
 
     // ---------------------------------------------------------------
-    // Per-tier generators
+    // Per-level generators
     // ---------------------------------------------------------------
 
     /**
-     * Tier 5: compound numbers 11-99.
+     * Level 5: compound numbers 11-99.
      * Excludes multiples of 10 (already covered as single letters).
      * Always includes 15 and 16 (special Hebrew encoding).
      * 12 numbers x 2 directions = 24 cards.
      */
-    function _tier5Cards(systemKey, seed) {
+    function _level5Cards(systemKey, seed) {
         var rng = _prng(seed);
 
         // Exclude round tens (single-letter values)
@@ -164,11 +164,11 @@ var Generator = (function () {
     }
 
     /**
-     * Tier 6: compound numbers 100-999.
+     * Level 6: compound numbers 100-999.
      * Excludes round hundreds already covered as single letters.
      * 12 numbers x 2 directions = 24 cards.
      */
-    function _tier6Cards(systemKey, seed) {
+    function _level6Cards(systemKey, seed) {
         var rng = _prng(seed);
 
         // Exclude values that are single-letter representations
@@ -193,13 +193,13 @@ var Generator = (function () {
     }
 
     /**
-     * Tier 7: Hebrew years (5000-5899) + large numbers (1000-9999).
+     * Level 7: Hebrew years (5000-5899) + large numbers (1000-9999).
      * 6 years + 6 large numbers, each x 2 directions = 24 cards.
      *
      * Years use omitThousands=true encoding (standard for Hebrew years).
      * Large numbers use omitThousands=false (full encoding).
      */
-    function _tier7Cards(_systemKey, seed) {
+    function _level7Cards(_systemKey, seed) {
         var rng = _prng(seed);
         var cards = [];
         var i, year, hebrew, num;
@@ -252,13 +252,13 @@ var Generator = (function () {
     }
 
     /**
-     * Tier 8: real-world examples + procedural mixed numbers.
+     * Level 8: real-world examples + procedural mixed numbers.
      * Each example becomes one card (Hebrew prompt with meaning, value answer).
      * Remaining slots filled with procedural numbers from all ranges.
      *
      * Depends on global EXAMPLES_DATA being set.
      */
-    function _tier8Cards(systemKey, seed) {
+    function _level8Cards(systemKey, seed) {
         var rng = _prng(seed);
         var cards = [];
         var i;
@@ -301,30 +301,30 @@ var Generator = (function () {
     // ---------------------------------------------------------------
 
     /**
-     * Generate card specs for a procedural tier.
+     * Generate card specs for a procedural level.
      *
-     * @param {string} systemKey - Registry key (must be 8-tier system).
-     * @param {number} tierNumber - Tier number (5-8).
+     * @param {string} systemKey - Registry key (must be 8-level system).
+     * @param {number} levelNumber - Level number (5-8).
      * @param {number} seed - 32-bit integer seed.
      * @returns {object[]} Array of card spec objects.
      */
-    function generateTier(systemKey, tierNumber, seed) {
-        switch (tierNumber) {
+    function generateLevel(systemKey, levelNumber, seed) {
+        switch (levelNumber) {
             case 5:
-                return _tier5Cards(systemKey, seed);
+                return _level5Cards(systemKey, seed);
             case 6:
-                return _tier6Cards(systemKey, seed);
+                return _level6Cards(systemKey, seed);
             case 7:
-                return _tier7Cards(systemKey, seed);
+                return _level7Cards(systemKey, seed);
             case 8:
-                return _tier8Cards(systemKey, seed);
+                return _level8Cards(systemKey, seed);
             default:
                 return [];
         }
     }
 
     return {
-        generateTier: generateTier,
+        generateLevel: generateLevel,
         generateSeed: generateSeed,
         generateSeeds: generateSeeds,
         _prng: _prng,

@@ -1,6 +1,6 @@
-"""Tests for tier advancement and progression logic.
+"""Tests for level advancement and progression logic.
 
-These tests verify the tier advancement rules as implemented in
+These tests verify the level advancement rules as implemented in
 static/js/progression.js by testing the same logic in Python.
 """
 
@@ -13,7 +13,7 @@ DEFAULT_EASE = 2.5
 MASTERY_ACCURACY = 0.8
 MASTERY_MIN_REPS = 3
 
-TIER_COUNTS = {
+LEVEL_COUNTS = {
     "hechrachi": 8,
     "gadol": 8,
     "katan": 4,
@@ -27,10 +27,10 @@ TIER_COUNTS = {
 def _create_state(system_key):
     return {
         "system": system_key,
-        "currentTier": 1,
-        "tierCount": TIER_COUNTS.get(system_key, 0),
+        "currentLevel": 1,
+        "levelCount": LEVEL_COUNTS.get(system_key, 0),
         "completed": False,
-        "tiers": {},
+        "levels": {},
     }
 
 
@@ -59,13 +59,13 @@ def _check_mastery(cards):
 
 
 def _try_advance(state, cards):
-    """Attempt tier advancement. Returns (advanced, completed) tuple."""
+    """Attempt level advancement. Returns (advanced, completed) tuple."""
     if not _check_mastery(cards):
         return (False, False)
-    if state["currentTier"] >= state["tierCount"]:
+    if state["currentLevel"] >= state["levelCount"]:
         state["completed"] = True
         return (False, True)
-    state["currentTier"] += 1
+    state["currentLevel"] += 1
     return (True, False)
 
 
@@ -89,28 +89,28 @@ def _make_unmastered_cards(count):
 
 
 class TestCreateState:
-    def test_starts_at_tier_1(self):
+    def test_starts_at_level_1(self):
         state = _create_state("hechrachi")
-        assert state["currentTier"] == 1
+        assert state["currentLevel"] == 1
 
     def test_not_completed(self):
         state = _create_state("hechrachi")
         assert state["completed"] is False
 
-    def test_correct_tier_count(self):
-        assert _create_state("hechrachi")["tierCount"] == 8
-        assert _create_state("katan")["tierCount"] == 4
-        assert _create_state("atbash")["tierCount"] == 3
+    def test_correct_level_count(self):
+        assert _create_state("hechrachi")["levelCount"] == 8
+        assert _create_state("katan")["levelCount"] == 4
+        assert _create_state("atbash")["levelCount"] == 3
 
 
-class TestTierAdvancement:
+class TestLevelAdvancement:
     def test_no_advance_when_not_mastered(self):
         state = _create_state("hechrachi")
         cards = _make_unmastered_cards(5)
         advanced, completed = _try_advance(state, cards)
         assert advanced is False
         assert completed is False
-        assert state["currentTier"] == 1
+        assert state["currentLevel"] == 1
 
     def test_advance_when_mastered(self):
         state = _create_state("hechrachi")
@@ -118,44 +118,44 @@ class TestTierAdvancement:
         advanced, completed = _try_advance(state, cards)
         assert advanced is True
         assert completed is False
-        assert state["currentTier"] == 2
+        assert state["currentLevel"] == 2
 
-    def test_advance_multiple_tiers(self):
+    def test_advance_multiple_levels(self):
         state = _create_state("katan")
-        # Advance through tiers 1->2, 2->3, 3->4
-        for expected_tier in [2, 3, 4]:
+        # Advance through levels 1->2, 2->3, 3->4
+        for expected_level in [2, 3, 4]:
             cards = _make_mastered_cards(3)
             advanced, completed = _try_advance(state, cards)
             assert advanced is True
             assert completed is False
-            assert state["currentTier"] == expected_tier
-        # After tier 4 (the last tier) mastered, should complete
+            assert state["currentLevel"] == expected_level
+        # After level 4 (the last level) mastered, should complete
         cards = _make_mastered_cards(3)
         advanced, completed = _try_advance(state, cards)
         assert advanced is False
         assert completed is True
 
-    def test_completion_at_last_tier_3(self):
+    def test_completion_at_last_level_3(self):
         state = _create_state("atbash")
-        state["currentTier"] = 3
+        state["currentLevel"] = 3
         cards = _make_mastered_cards(5)
         advanced, completed = _try_advance(state, cards)
         assert advanced is False
         assert completed is True
         assert state["completed"] is True
 
-    def test_completion_at_last_tier_4(self):
+    def test_completion_at_last_level_4(self):
         state = _create_state("siduri")
-        state["currentTier"] = 4
+        state["currentLevel"] = 4
         cards = _make_mastered_cards(5)
         advanced, completed = _try_advance(state, cards)
         assert advanced is False
         assert completed is True
         assert state["completed"] is True
 
-    def test_completion_at_last_tier_8(self):
+    def test_completion_at_last_level_8(self):
         state = _create_state("hechrachi")
-        state["currentTier"] = 8
+        state["currentLevel"] = 8
         cards = _make_mastered_cards(5)
         advanced, completed = _try_advance(state, cards)
         assert advanced is False
@@ -166,7 +166,7 @@ class TestTierAdvancement:
 class TestCompletionReviewMode:
     def test_completed_state_stays_completed(self):
         state = _create_state("atbash")
-        state["currentTier"] = 3
+        state["currentLevel"] = 3
         state["completed"] = True
         # Even with mastered cards, should stay completed
         cards = _make_mastered_cards(5)
@@ -177,15 +177,15 @@ class TestCompletionReviewMode:
 class TestReset:
     def test_reset_returns_fresh_state(self):
         state = _create_state("hechrachi")
-        state["currentTier"] = 5
+        state["currentLevel"] = 5
         state["completed"] = True
-        state["tiers"]["1"] = _make_mastered_cards(3)
+        state["levels"]["1"] = _make_mastered_cards(3)
 
         # Reset
         fresh = _create_state("hechrachi")
-        assert fresh["currentTier"] == 1
+        assert fresh["currentLevel"] == 1
         assert fresh["completed"] is False
-        assert fresh["tiers"] == {}
+        assert fresh["levels"] == {}
 
 
 class TestEmptyCards:

@@ -1,11 +1,11 @@
 /**
- * Tier progression module.
+ * Level progression module.
  *
- * Manages the user's current tier within a gematria system, handles
- * tier advancement when mastery criteria are met, and manages the
- * completion/review mode when all tiers are mastered.
+ * Manages the user's current level within a gematria system, handles
+ * level advancement when mastery criteria are met, and manages the
+ * completion/review mode when all levels are mastered.
  *
- * Depends on tiers.js, card-state.js, storage.js, and card-selection.js.
+ * Depends on levels.js, card-state.js, storage.js, and card-selection.js.
  * No import/export, no arrow functions, no let/const. Requires ES2022+ (Object.hasOwn).
  */
 
@@ -23,18 +23,18 @@ var Progression = (function () {
      * @returns {object} Progression state.
      */
     function createState(systemKey) {
-        var tierCount = Tiers.tierCount(systemKey);
+        var levelCount = Levels.levelCount(systemKey);
         return {
             system: systemKey,
-            currentTier: 1,
-            tierCount: tierCount,
+            currentLevel: 1,
+            levelCount: levelCount,
             completed: false,
-            // Card states keyed by tier number (1-based)
-            tiers: {},
-            // Seeds for procedural tiers (8-tier systems only)
+            // Card states keyed by level number (1-based)
+            levels: {},
+            // Seeds for procedural levels (8-level systems only)
             seeds: Generator.generateSeeds(systemKey),
-            // Cached specs for procedural tiers
-            tierSpecs: {},
+            // Cached specs for procedural levels
+            levelSpecs: {},
             // Review log for progress tracking
             reviewLog: [],
         };
@@ -44,7 +44,7 @@ var Progression = (function () {
      * Load or create progression state for a system.
      *
      * Tries to load saved progress from localStorage. If none exists,
-     * creates a fresh state starting at tier 1.
+     * creates a fresh state starting at level 1.
      *
      * @param {string} systemKey - Registry key.
      * @returns {object} Progression state.
@@ -68,72 +68,72 @@ var Progression = (function () {
     }
 
     // ---------------------------------------------------------------
-    // Tier card management
+    // Level card management
     // ---------------------------------------------------------------
 
     /**
-     * Ensure card states exist for a tier in the progression state.
+     * Ensure card states exist for a level in the progression state.
      *
-     * If the tier's cards haven't been initialized yet, creates them.
-     * Returns the card state array for the tier.
+     * If the level's cards haven't been initialized yet, creates them.
+     * Returns the card state array for the level.
      *
      * @param {object} state - Progression state (mutated).
-     * @param {number} tierNumber - Tier to ensure.
-     * @returns {object[]} Card state array for the tier.
+     * @param {number} levelNumber - Level to ensure.
+     * @returns {object[]} Card state array for the level.
      */
-    function ensureTierCards(state, tierNumber) {
-        var key = String(tierNumber);
-        if (!state.tiers[key]) {
-            if (Tiers.isStatic(state.system, tierNumber)) {
-                state.tiers[key] = CardState.initTier(state.system, tierNumber);
+    function ensureLevelCards(state, levelNumber) {
+        var key = String(levelNumber);
+        if (!state.levels[key]) {
+            if (Levels.isStatic(state.system, levelNumber)) {
+                state.levels[key] = CardState.initLevel(state.system, levelNumber);
             } else {
-                // Procedural tier — generate and cache specs, then init cards
-                var seed = state.seeds?.[tierNumber];
+                // Procedural level — generate and cache specs, then init cards
+                var seed = state.seeds?.[levelNumber];
                 if (seed !== undefined) {
-                    var specs = Generator.generateTier(state.system, tierNumber, seed);
-                    if (!state.tierSpecs) state.tierSpecs = {};
-                    state.tierSpecs[key] = specs;
+                    var specs = Generator.generateLevel(state.system, levelNumber, seed);
+                    if (!state.levelSpecs) state.levelSpecs = {};
+                    state.levelSpecs[key] = specs;
                     // Create card states from generated specs
                     var cards = [];
                     var i;
                     for (i = 0; i < specs.length; i++) {
                         cards.push(CardState.createCard(specs[i].id));
                     }
-                    state.tiers[key] = cards;
+                    state.levels[key] = cards;
                 } else {
-                    state.tiers[key] = [];
+                    state.levels[key] = [];
                 }
             }
         }
-        return state.tiers[key];
+        return state.levels[key];
     }
 
     /**
-     * Get card states for the current tier.
+     * Get card states for the current level.
      *
      * @param {object} state - Progression state.
      * @returns {object[]} Card state array.
      */
-    function currentTierCards(state) {
-        return ensureTierCards(state, state.currentTier);
+    function currentLevelCards(state) {
+        return ensureLevelCards(state, state.currentLevel);
     }
 
     /**
-     * Get card specs for the current tier.
+     * Get card specs for the current level.
      *
      * @param {object} state - Progression state.
      * @returns {object[]} Card spec array.
      */
-    function currentTierSpecs(state) {
-        var key = String(state.currentTier);
-        if (state.tierSpecs?.[key]) {
-            return state.tierSpecs[key];
+    function currentLevelSpecs(state) {
+        var key = String(state.currentLevel);
+        if (state.levelSpecs?.[key]) {
+            return state.levelSpecs[key];
         }
-        return Tiers.getCards(state.system, state.currentTier);
+        return Levels.getCards(state.system, state.currentLevel);
     }
 
     /**
-     * Get all card states across all initialized tiers.
+     * Get all card states across all initialized levels.
      *
      * @param {object} state - Progression state.
      * @returns {object[]} Combined card state array.
@@ -141,67 +141,67 @@ var Progression = (function () {
     function allCards(state) {
         var cards = [];
         var key;
-        for (key in state.tiers) {
-            if (Object.hasOwn(state.tiers, key)) {
-                cards = cards.concat(state.tiers[key]);
+        for (key in state.levels) {
+            if (Object.hasOwn(state.levels, key)) {
+                cards = cards.concat(state.levels[key]);
             }
         }
         return cards;
     }
 
     /**
-     * Get all card specs across all tiers up to the current tier.
+     * Get all card specs across all levels up to the current level.
      *
      * @param {object} state - Progression state.
      * @returns {object[]} Combined card spec array.
      */
     function allSpecs(state) {
         var specs = [];
-        var tier, key;
-        for (tier = 1; tier <= state.currentTier; tier++) {
-            key = String(tier);
-            if (state.tierSpecs?.[key]) {
-                specs = specs.concat(state.tierSpecs[key]);
+        var level, key;
+        for (level = 1; level <= state.currentLevel; level++) {
+            key = String(level);
+            if (state.levelSpecs?.[key]) {
+                specs = specs.concat(state.levelSpecs[key]);
             } else {
-                specs = specs.concat(Tiers.getCards(state.system, tier));
+                specs = specs.concat(Levels.getCards(state.system, level));
             }
         }
         return specs;
     }
 
     // ---------------------------------------------------------------
-    // Tier advancement
+    // Level advancement
     // ---------------------------------------------------------------
 
     /**
-     * Check if the current tier is mastered and advance if possible.
+     * Check if the current level is mastered and advance if possible.
      *
      * Returns an object describing what happened:
-     *   - { advanced: true, newTier: N } if advanced to tier N
-     *   - { advanced: false, completed: true } if all tiers mastered
+     *   - { advanced: true, newLevel: N } if advanced to level N
+     *   - { advanced: false, completed: true } if all levels mastered
      *   - { advanced: false, completed: false } if not yet mastered
      *
      * @param {object} state - Progression state (mutated on advance).
      * @returns {object} Advancement result.
      */
     function tryAdvance(state) {
-        var cards = currentTierCards(state);
+        var cards = currentLevelCards(state);
 
         if (!CardState.checkMastery(cards)) {
             return { advanced: false, completed: false };
         }
 
-        // Current tier is mastered — check if there's a next tier
-        var nextTier = state.currentTier + 1;
-        if (nextTier > state.tierCount) {
+        // Current level is mastered — check if there's a next level
+        var nextLevel = state.currentLevel + 1;
+        if (nextLevel > state.levelCount) {
             state.completed = true;
             return { advanced: false, completed: true };
         }
 
-        // Advance to next tier
-        state.currentTier = nextTier;
-        ensureTierCards(state, state.currentTier);
-        return { advanced: true, newTier: state.currentTier };
+        // Advance to next level
+        state.currentLevel = nextLevel;
+        ensureLevelCards(state, state.currentLevel);
+        return { advanced: true, newLevel: state.currentLevel };
     }
 
     // ---------------------------------------------------------------
@@ -211,8 +211,8 @@ var Progression = (function () {
     /**
      * Select the next card to present for this progression.
      *
-     * In normal mode, selects from the current tier.
-     * In completed/review mode, selects from all tiers.
+     * In normal mode, selects from the current level.
+     * In completed/review mode, selects from all levels.
      *
      * @param {object} state - Progression state.
      * @returns {object} SelectionResult from CardSelection.
@@ -222,15 +222,15 @@ var Progression = (function () {
             return CardSelection.selectReview(allCards(state), allSpecs(state));
         }
 
-        var cards = currentTierCards(state);
-        var specs = currentTierSpecs(state);
+        var cards = currentLevelCards(state);
+        var specs = currentLevelSpecs(state);
         return CardSelection.selectNext(cards, specs);
     }
 
     /**
      * Record a review for a card and update the progression state.
      *
-     * Updates the card's state, checks for tier advancement, and
+     * Updates the card's state, checks for level advancement, and
      * saves to localStorage.
      *
      * @param {object} state - Progression state (mutated).
@@ -239,16 +239,16 @@ var Progression = (function () {
      * @returns {object} Result with { card, advancement }.
      */
     function recordReview(state, cardId, quality) {
-        // Find the card in the appropriate tier
+        // Find the card in the appropriate level
         var card = null;
-        var tierCards = null;
+        var levelCards = null;
         var key;
 
-        for (key in state.tiers) {
-            if (Object.hasOwn(state.tiers, key)) {
-                card = CardState.findCard(state.tiers[key], cardId);
+        for (key in state.levels) {
+            if (Object.hasOwn(state.levels, key)) {
+                card = CardState.findCard(state.levels[key], cardId);
                 if (card) {
-                    tierCards = state.tiers[key];
+                    levelCards = state.levels[key];
                     break;
                 }
             }
@@ -260,7 +260,7 @@ var Progression = (function () {
 
         // Update the card
         var updated = CardState.reviewCard(card, quality);
-        CardState.replaceCard(tierCards, updated);
+        CardState.replaceCard(levelCards, updated);
 
         // Append to review log
         if (!state.reviewLog) state.reviewLog = [];
@@ -273,7 +273,7 @@ var Progression = (function () {
             state.reviewLog.shift();
         }
 
-        // Check for tier advancement
+        // Check for level advancement
         var advancement = tryAdvance(state);
 
         // Persist
@@ -289,7 +289,7 @@ var Progression = (function () {
     /**
      * Reset progression for a system (start from scratch).
      *
-     * Clears all card states and returns to tier 1.
+     * Clears all card states and returns to level 1.
      *
      * @param {string} systemKey - Registry key.
      * @returns {object} Fresh progression state.
@@ -312,10 +312,10 @@ var Progression = (function () {
         save: save,
         reset: reset,
 
-        // Tier card management
-        ensureTierCards: ensureTierCards,
-        currentTierCards: currentTierCards,
-        currentTierSpecs: currentTierSpecs,
+        // Level card management
+        ensureLevelCards: ensureLevelCards,
+        currentLevelCards: currentLevelCards,
+        currentLevelSpecs: currentLevelSpecs,
         allCards: allCards,
         allSpecs: allSpecs,
 
