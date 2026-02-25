@@ -24,17 +24,17 @@
                     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-sm">
                         <div class="text-2xl font-bold text-blue-600 dark:text-blue-400"
                              x-text="progressStats().totalReviews"></div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Reviews</div>
+                        <div class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">Reviews</div>
                     </div>
                     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-sm">
                         <div class="text-2xl font-bold text-green-600 dark:text-green-400"
                              x-text="formatAccuracy(progressStats().accuracy)"></div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Accuracy</div>
+                        <div class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">Accuracy</div>
                     </div>
                     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 text-center shadow-sm">
                         <div class="text-2xl font-bold text-purple-600 dark:text-purple-400"
                              x-text="'Level ' + levelLabel()"></div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Current</div>
+                        <div class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">Current</div>
                     </div>
                 </div>
 
@@ -44,14 +44,14 @@
                     <div class="text-lg font-bold text-green-700 dark:text-green-400 mb-1">
                         All levels mastered
                     </div>
-                    <p class="text-sm text-green-600 dark:text-green-500">
+                    <p class="text-sm md:text-base text-green-600 dark:text-green-500">
                         Spaced repetition continues in review mode to maintain your knowledge.
                     </p>
                 </div>
 
                 <!-- Mastery progress bar (hidden when completed) -->
                 <div x-show="!progression.completed" class="mb-8">
-                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <div class="flex justify-between text-sm md:text-base text-gray-600 dark:text-gray-400 mb-2">
                         <span>Current level mastery</span>
                         <span x-text="formatAccuracy(masteryProgress())"></span>
                     </div>
@@ -68,7 +68,7 @@
                 <!-- Accuracy chart (only when reviewLog has data) -->
                 <div x-show="progression.reviewLog && progression.reviewLog.length > 0"
                      class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-8">
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Daily Accuracy</h3>
+                    <h3 class="text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 mb-3">Daily Accuracy</h3>
                     <div class="h-48">
                         <canvas id="accuracy-chart" role="img"
                                 aria-label="Daily accuracy chart showing review performance over time"></canvas>
@@ -77,7 +77,7 @@
 
                 <!-- Per-level table -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8">
-                    <table class="w-full text-sm">
+                    <table class="w-full text-sm md:text-base">
                         <caption class="sr-only">Per-level progress statistics</caption>
                         <thead>
                             <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -116,7 +116,7 @@
         <!-- Back button -->
         <div class="text-center mt-4">
             <button @click="navigate(previousView || 'flashcard')"
-                    class="text-blue-600 dark:text-blue-400 hover:underline text-sm
+                    class="text-blue-600 dark:text-blue-400 hover:underline text-sm md:text-base
                            min-h-[48px] inline-flex items-center
                            focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
                 Back

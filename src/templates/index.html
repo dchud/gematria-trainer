@@ -10,35 +10,35 @@
         <button @click="navigate('flashcard')"
                 :class="view === 'flashcard' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
                 :aria-current="view === 'flashcard' ? 'page' : false"
-                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                class="px-3 py-2 rounded text-sm md:text-base font-medium min-h-[48px]"
                 aria-label="Study flashcards">
             Study
         </button>
         <button @click="navigate('progress')"
                 :class="view === 'progress' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
                 :aria-current="view === 'progress' ? 'page' : false"
-                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                class="px-3 py-2 rounded text-sm md:text-base font-medium min-h-[48px]"
                 aria-label="View progress">
             Progress
         </button>
         <button @click="navigate('reference')"
                 :class="view === 'reference' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
                 :aria-current="view === 'reference' ? 'page' : false"
-                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                class="px-3 py-2 rounded text-sm md:text-base font-medium min-h-[48px]"
                 aria-label="View reference table">
             Reference
         </button>
         <button @click="navigate('settings')"
                 :class="view === 'settings' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
                 :aria-current="view === 'settings' ? 'page' : false"
-                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                class="px-3 py-2 rounded text-sm md:text-base font-medium min-h-[48px]"
                 aria-label="Open settings">
             Settings
         </button>
         <button @click="navigate('about')"
                 :class="view === 'about' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'"
                 :aria-current="view === 'about' ? 'page' : false"
-                class="px-3 py-2 rounded text-sm font-medium min-h-[48px]"
+                class="px-3 py-2 rounded text-sm md:text-base font-medium min-h-[48px]"
                 aria-label="About this app">
             About
         </button>
@@ -55,7 +55,7 @@
     <div class="sr-only" aria-live="polite" aria-atomic="true" x-text="viewLabel()"></div>
 
     <!-- View containers -->
-    <div id="main-content" tabindex="-1" class="max-w-lg mx-auto w-full" :class="fontClassName()" :inert="shortcutsOpen">
+    <div id="main-content" tabindex="-1" class="max-w-lg md:max-w-3xl mx-auto w-full" :class="fontClassName()" :inert="shortcutsOpen">
         <div x-show="view === 'splash'">
             {% include "components/splash.html" %}
         </div>

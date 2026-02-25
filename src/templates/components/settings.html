@@ -2,162 +2,169 @@
 <div class="py-4">
     <h2 class="text-2xl font-bold mb-6">Settings</h2>
 
-    <!-- Gematria system selector -->
-    <fieldset class="mb-8">
-        <legend class="text-lg font-semibold mb-3">Gematria System</legend>
+    <!-- Two-column layout on desktop: systems left, display right -->
+    <div class="md:grid md:grid-cols-2 md:gap-8">
 
-        <div class="mb-3">
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Valuation systems</p>
-            <div class="space-y-2">
-                <template x-for="sys in Settings.SYSTEMS.filter(s => s.type === 'valuation')" :key="sys.key">
-                    <label class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer
-                                  hover:bg-gray-50 dark:hover:bg-gray-900"
-                           :class="system === sys.key
-                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                               : 'border-gray-200 dark:border-gray-700'">
-                        <input type="radio" name="system" :value="sys.key"
-                               :checked="system === sys.key"
-                               @change="updateSystem(sys.key)"
-                               class="mt-1 accent-blue-600">
-                        <div>
-                            <span class="font-medium" x-text="sys.name"></span>
-                            <p class="text-sm text-gray-500 dark:text-gray-400" x-text="sys.description"></p>
-                        </div>
-                    </label>
-                </template>
+        <!-- Left column: Gematria system selector -->
+        <fieldset class="mb-8 md:mb-0">
+            <legend class="text-lg md:text-xl font-semibold mb-3">Gematria System</legend>
+
+            <div class="mb-3">
+                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mb-2">Valuation systems</p>
+                <div class="space-y-2">
+                    <template x-for="sys in Settings.SYSTEMS.filter(s => s.type === 'valuation')" :key="sys.key">
+                        <label class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer
+                                      hover:bg-gray-50 dark:hover:bg-gray-900"
+                               :class="system === sys.key
+                                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                   : 'border-gray-200 dark:border-gray-700'">
+                            <input type="radio" name="system" :value="sys.key"
+                                   :checked="system === sys.key"
+                                   @change="updateSystem(sys.key)"
+                                   class="mt-1 accent-blue-600">
+                            <div>
+                                <span class="font-medium md:text-lg" x-text="sys.name"></span>
+                                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400" x-text="sys.description"></p>
+                            </div>
+                        </label>
+                    </template>
+                </div>
             </div>
-        </div>
 
+            <div>
+                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mb-2">Cipher systems</p>
+                <div class="space-y-2">
+                    <template x-for="sys in Settings.SYSTEMS.filter(s => s.type === 'cipher')" :key="sys.key">
+                        <label class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer
+                                      hover:bg-gray-50 dark:hover:bg-gray-900"
+                               :class="system === sys.key
+                                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                   : 'border-gray-200 dark:border-gray-700'">
+                            <input type="radio" name="system" :value="sys.key"
+                                   :checked="system === sys.key"
+                                   @change="updateSystem(sys.key)"
+                                   class="mt-1 accent-blue-600">
+                            <div>
+                                <span class="font-medium md:text-lg" x-text="sys.name"></span>
+                                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400" x-text="sys.description"></p>
+                            </div>
+                        </label>
+                    </template>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Right column: display settings -->
         <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Cipher systems</p>
-            <div class="space-y-2">
-                <template x-for="sys in Settings.SYSTEMS.filter(s => s.type === 'cipher')" :key="sys.key">
-                    <label class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer
+            <!-- Hebrew font selector -->
+            <fieldset class="mb-8">
+                <legend class="text-lg md:text-xl font-semibold mb-3">Hebrew Font</legend>
+                <div class="flex gap-3">
+                    <template x-for="font in Settings.FONTS" :key="font.key">
+                        <label class="flex-1 flex flex-col items-center gap-2 p-3 rounded-lg border cursor-pointer
+                                      hover:bg-gray-50 dark:hover:bg-gray-900"
+                               :class="hebrewFont === font.key
+                                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                   : 'border-gray-200 dark:border-gray-700'">
+                            <span class="text-3xl" :class="font.className" dir="rtl" x-text="font.preview"></span>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="font" :value="font.key"
+                                       :checked="hebrewFont === font.key"
+                                       @change="updateFont(font.key)"
+                                       class="accent-blue-600">
+                                <span class="text-sm md:text-base font-medium" x-text="font.label"></span>
+                            </div>
+                        </label>
+                    </template>
+                </div>
+            </fieldset>
+
+            <!-- Dark mode -->
+            <fieldset class="mb-8">
+                <legend class="text-lg md:text-xl font-semibold mb-3">Appearance</legend>
+                <div class="flex gap-3">
+                    <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer
                                   hover:bg-gray-50 dark:hover:bg-gray-900"
-                           :class="system === sys.key
+                           :class="darkMode === 'system'
                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                : 'border-gray-200 dark:border-gray-700'">
-                        <input type="radio" name="system" :value="sys.key"
-                               :checked="system === sys.key"
-                               @change="updateSystem(sys.key)"
-                               class="mt-1 accent-blue-600">
-                        <div>
-                            <span class="font-medium" x-text="sys.name"></span>
-                            <p class="text-sm text-gray-500 dark:text-gray-400" x-text="sys.description"></p>
-                        </div>
-                    </label>
-                </template>
-            </div>
-        </div>
-    </fieldset>
-
-    <!-- Hebrew font selector -->
-    <fieldset class="mb-8">
-        <legend class="text-lg font-semibold mb-3">Hebrew Font</legend>
-        <div class="flex gap-3">
-            <template x-for="font in Settings.FONTS" :key="font.key">
-                <label class="flex-1 flex flex-col items-center gap-2 p-3 rounded-lg border cursor-pointer
-                              hover:bg-gray-50 dark:hover:bg-gray-900"
-                       :class="hebrewFont === font.key
-                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                           : 'border-gray-200 dark:border-gray-700'">
-                    <span class="text-3xl" :class="font.className" dir="rtl" x-text="font.preview"></span>
-                    <div class="flex items-center gap-2">
-                        <input type="radio" name="font" :value="font.key"
-                               :checked="hebrewFont === font.key"
-                               @change="updateFont(font.key)"
+                        <input type="radio" name="darkMode" value="system"
+                               :checked="darkMode === 'system'"
+                               @change="updateDarkMode('system')"
                                class="accent-blue-600">
-                        <span class="text-sm font-medium" x-text="font.label"></span>
-                    </div>
-                </label>
-            </template>
+                        <span class="text-sm md:text-base font-medium">System</span>
+                    </label>
+                    <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer
+                                  hover:bg-gray-50 dark:hover:bg-gray-900"
+                           :class="darkMode === 'light'
+                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                               : 'border-gray-200 dark:border-gray-700'">
+                        <input type="radio" name="darkMode" value="light"
+                               :checked="darkMode === 'light'"
+                               @change="updateDarkMode('light')"
+                               class="accent-blue-600">
+                        <span class="text-sm md:text-base font-medium">Light</span>
+                    </label>
+                    <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer
+                                  hover:bg-gray-50 dark:hover:bg-gray-900"
+                           :class="darkMode === 'dark'
+                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                               : 'border-gray-200 dark:border-gray-700'">
+                        <input type="radio" name="darkMode" value="dark"
+                               :checked="darkMode === 'dark'"
+                               @change="updateDarkMode('dark')"
+                               class="accent-blue-600">
+                        <span class="text-sm md:text-base font-medium">Dark</span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <!-- Animation settings -->
+            <fieldset class="mb-8">
+                <legend class="text-lg md:text-xl font-semibold mb-3">Card Animation</legend>
+
+                <div class="mb-4">
+                    <label for="transition-select" class="block text-sm md:text-base font-medium mb-2">Transition style</label>
+                    <select id="transition-select" @change="updateTransition($event.target.value)"
+                            class="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700
+                                   bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                                   focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <template x-for="t in Settings.TRANSITIONS" :key="t.key">
+                            <option :value="t.key" :selected="transition === t.key" x-text="t.label"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <div class="mb-2" :class="transition === 'none' ? 'opacity-50' : ''">
+                    <label for="transition-duration" class="block text-sm md:text-base font-medium mb-2">
+                        Duration: <span x-text="transitionDuration + 'ms'"></span>
+                    </label>
+                    <input id="transition-duration" type="range" min="0" max="500" step="50"
+                           :value="transitionDuration"
+                           :disabled="transition === 'none'"
+                           @input="updateTransitionDuration($event.target.value)"
+                           class="w-full accent-blue-600">
+                </div>
+
+                <p x-show="reducedMotion" x-cloak
+                   class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2">
+                    Your system prefers reduced motion. Animations are disabled.
+                </p>
+            </fieldset>
         </div>
-    </fieldset>
+    </div>
 
-    <!-- Dark mode -->
-    <fieldset class="mb-8">
-        <legend class="text-lg font-semibold mb-3">Appearance</legend>
-        <div class="flex gap-3">
-            <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer
-                          hover:bg-gray-50 dark:hover:bg-gray-900"
-                   :class="darkMode === 'system'
-                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                       : 'border-gray-200 dark:border-gray-700'">
-                <input type="radio" name="darkMode" value="system"
-                       :checked="darkMode === 'system'"
-                       @change="updateDarkMode('system')"
-                       class="accent-blue-600">
-                <span class="text-sm font-medium">System</span>
-            </label>
-            <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer
-                          hover:bg-gray-50 dark:hover:bg-gray-900"
-                   :class="darkMode === 'light'
-                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                       : 'border-gray-200 dark:border-gray-700'">
-                <input type="radio" name="darkMode" value="light"
-                       :checked="darkMode === 'light'"
-                       @change="updateDarkMode('light')"
-                       class="accent-blue-600">
-                <span class="text-sm font-medium">Light</span>
-            </label>
-            <label class="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer
-                          hover:bg-gray-50 dark:hover:bg-gray-900"
-                   :class="darkMode === 'dark'
-                       ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                       : 'border-gray-200 dark:border-gray-700'">
-                <input type="radio" name="darkMode" value="dark"
-                       :checked="darkMode === 'dark'"
-                       @change="updateDarkMode('dark')"
-                       class="accent-blue-600">
-                <span class="text-sm font-medium">Dark</span>
-            </label>
-        </div>
-    </fieldset>
-
-    <!-- Animation settings -->
-    <fieldset class="mb-8">
-        <legend class="text-lg font-semibold mb-3">Card Animation</legend>
-
-        <div class="mb-4">
-            <label for="transition-select" class="block text-sm font-medium mb-2">Transition style</label>
-            <select id="transition-select" @change="updateTransition($event.target.value)"
-                    class="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700
-                           bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                           focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <template x-for="t in Settings.TRANSITIONS" :key="t.key">
-                    <option :value="t.key" :selected="transition === t.key" x-text="t.label"></option>
-                </template>
-            </select>
-        </div>
-
-        <div class="mb-2" :class="transition === 'none' ? 'opacity-50' : ''">
-            <label for="transition-duration" class="block text-sm font-medium mb-2">
-                Duration: <span x-text="transitionDuration + 'ms'"></span>
-            </label>
-            <input id="transition-duration" type="range" min="0" max="500" step="50"
-                   :value="transitionDuration"
-                   :disabled="transition === 'none'"
-                   @input="updateTransitionDuration($event.target.value)"
-                   class="w-full accent-blue-600">
-        </div>
-
-        <p x-show="reducedMotion" x-cloak
-           class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Your system prefers reduced motion. Animations are disabled.
-        </p>
-    </fieldset>
-
-    <!-- Start from scratch (current system only) -->
+    <!-- Reset: full width below both columns -->
     <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-        <h3 class="text-lg font-semibold mb-2 text-red-600 dark:text-red-400">Reset Progress</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <h3 class="text-lg md:text-xl font-semibold mb-2 text-red-600 dark:text-red-400">Reset Progress</h3>
+        <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mb-4">
             Clear all progress for <span class="font-medium" x-text="systemName()"></span>
             and start over. Other systems are not affected.
         </p>
 
         <template x-if="!confirmResetSystem">
             <button @click="confirmResetSystem = true"
-                    class="px-4 py-2 rounded-lg text-sm font-medium
+                    class="px-4 py-2 rounded-lg text-sm md:text-base font-medium
                            bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400
                            hover:bg-red-200 dark:hover:bg-red-900/50
                            focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[48px]">
@@ -167,16 +174,16 @@
 
         <template x-if="confirmResetSystem">
             <div class="flex items-center gap-3">
-                <span class="text-sm text-red-600 dark:text-red-400">Are you sure?</span>
+                <span class="text-sm md:text-base text-red-600 dark:text-red-400">Are you sure?</span>
                 <button @click="resetCurrentSystem()"
-                        class="px-4 py-2 rounded-lg text-sm font-medium
+                        class="px-4 py-2 rounded-lg text-sm md:text-base font-medium
                                bg-red-600 text-white hover:bg-red-700
                                focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[48px]"
                         aria-label="Confirm resetting current system progress">
                     Confirm
                 </button>
                 <button @click="confirmResetSystem = false"
-                        class="px-4 py-2 rounded-lg text-sm font-medium
+                        class="px-4 py-2 rounded-lg text-sm md:text-base font-medium
                                bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100
                                hover:bg-gray-300 dark:hover:bg-gray-700
                                focus:outline-none focus:ring-2 focus:ring-gray-500 min-h-[48px]"
