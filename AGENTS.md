@@ -33,7 +33,7 @@ confidence (as further input to the spaced repetition system).
 Keyboard users should have a quick way to get a summary of keyboard
 shortcuts when they are unfamiliar.
 
-The application should use a ranking or tier system to assess where a user is in
+The application should use a ranking or level system to assess where a user is in
 the process, and provide an option to render this visually if the user wants to
 check their status.
 

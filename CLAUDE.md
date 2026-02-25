@@ -58,7 +58,7 @@ node --test tests/js/test-*.js             # JS tests directly
 - Spaced repetition algorithm drives card progression
 - Adaptive difficulty: quickly assess user level, skip basics if proficient
 - Confidence ratings (high/low) feed into the repetition algorithm
-- Ranking/tier system for visual progress tracking
+- Ranking/level system for visual progress tracking
 - Cookie-based session persistence for anonymous returning users
 
 **Hebrew Gematria progression**: Individual letters (both directions: Hebrew-to-number, number-to-Hebrew) → multi-letter numbers → large numbers → years and real-world examples from traditional literature.

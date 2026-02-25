@@ -3,7 +3,7 @@
 A free, anonymous, mobile-friendly web application for learning Hebrew
 Gematria through spaced-repetition flashcards. The app supports multiple
 gematria systems (Mispar Hechrachi, Gadol, Katan, Siduri) and ciphers
-(Atbash, Albam, Avgad), with tiered progression from basic letter values
+(Atbash, Albam, Avgad), with leveled progression from basic letter values
 through compound numbers, Hebrew years, and real-world examples.
 
 The application is a static site with no backend. All session state is
@@ -97,7 +97,7 @@ configuration (secrets, variables, Pages source setting).
 
 See [implementation-plan.md](implementation-plan.md) for a detailed record
 of how the application was designed, including the gematria data model,
-spaced repetition algorithm, tier progression, UI layout, and historical
+spaced repetition algorithm, level progression, UI layout, and historical
 context of the gematria systems.
 
 
