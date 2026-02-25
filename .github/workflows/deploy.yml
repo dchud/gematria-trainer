@@ -42,6 +42,12 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Download vendor assets
+        run: just setup
+
+      - name: Compile Tailwind CSS
+        run: ./tailwindcss -i static/css/input.css -o static/dist/output.css --minify
+
       - name: Run tests
         run: just check
 
